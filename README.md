@@ -1,7 +1,7 @@
 # Staff TPM
 
 [![Quality](https://github.com/hilmimuktitama/staff-tpm/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/staff-tpm/actions/workflows/quality.yml)
-[![Release](https://img.shields.io/github/v/release/hilmimuktitama/staff-tpm?display_name=tag)](https://github.com/hilmimuktitama/staff-tpm/releases)
+[![Version](https://img.shields.io/github/v/tag/hilmimuktitama/staff-tpm)](https://github.com/hilmimuktitama/staff-tpm/tags)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 `staff-tpm` is an evidence-first TPM skill for reconstructing program truth across Jira, Confluence, Notion, local docs, and meeting notes.

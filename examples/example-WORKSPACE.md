@@ -2,7 +2,7 @@
 
 Use this as the baseline context file for a TPM workspace. Rename or adapt it to whatever your client expects.
 
-# TPM Workspace
+## Template Body
 
 **TPM:** [Your Name]
 **Location:** [City, Country]

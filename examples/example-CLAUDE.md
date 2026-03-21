@@ -10,7 +10,7 @@ Claude-specific guidance:
 Minimal `CLAUDE.md` skeleton:
 
 ```markdown
-# TPM Workspace
+## TPM Workspace
 
 **TPM:** [Your Name]
 **Timezone:** [TZ]
