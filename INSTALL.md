@@ -8,16 +8,35 @@ The skill works with local docs only. Live adapters make archaeology and status 
 
 ## 1. Copy the Package
 
-Copy `skills/staff-tpm/` into your local skills directory.
+Choose the install path that matches how you have the files locally.
 
 Common locations:
 - Codex: `~/.codex/skills/staff-tpm`
 - Claude Code: `~/.claude/skills/staff-tpm`
 
-Example:
+### Option A: Direct clone of this repository
+
+```bash
+git clone https://github.com/hilmimuktitama/staff-tpm.git
+cp -r staff-tpm ~/.codex/skills/staff-tpm
+```
+
+For Claude Code:
+
+```bash
+cp -r staff-tpm ~/.claude/skills/staff-tpm
+```
+
+### Option B: Copy from a larger local `skills/` directory
 
 ```bash
 cp -r skills/staff-tpm ~/.codex/skills/staff-tpm
+```
+
+For Claude Code:
+
+```bash
+cp -r skills/staff-tpm ~/.claude/skills/staff-tpm
 ```
 
 Verify the install:
@@ -34,6 +53,8 @@ Expected files include:
 - `references/archaeology-workflow.md`
 - `references/source-ranking-and-reconciliation.md`
 - `references/notion-adapter.md`
+
+This upstream repository is published for use and reference. External contributions are not being accepted at this stage.
 
 ## 2. Runtime Notes
 

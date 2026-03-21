@@ -29,13 +29,23 @@ It is designed for the part of TPM work where summaries usually fail: mid-flight
 - blocker and risk hygiene with owners and dates
 - outputs that can survive leadership review
 
+## Project Status
+
+This repository is published for use and reference.
+
+External contributions are not being accepted at this stage. If you want to adapt the skill, fork the repository or copy the package into your local skills directory and customize it there.
+
 ## First Useful Run in 10 Minutes
 
 This means a first useful run, not full live-adapter maturity.
 
-1. Copy the package into your local skills directory.
-   - Codex: `cp -r skills/staff-tpm ~/.codex/skills/staff-tpm`
-   - Claude Code: `cp -r skills/staff-tpm ~/.claude/skills/staff-tpm`
+1. Install the package into your local skills directory.
+   - If you cloned this repository directly:
+     - Codex: `cp -r staff-tpm ~/.codex/skills/staff-tpm`
+     - Claude Code: `cp -r staff-tpm ~/.claude/skills/staff-tpm`
+   - If this repo already lives under a local `skills/` directory:
+     - Codex: `cp -r skills/staff-tpm ~/.codex/skills/staff-tpm`
+     - Claude Code: `cp -r skills/staff-tpm ~/.claude/skills/staff-tpm`
 2. Create a minimal workspace context from `examples/example-WORKSPACE.md`.
 3. Point it to your current `TODO.md`, one active spec, and one recent status source.
 4. Run a day-priority prompt through the skill.
@@ -51,7 +61,9 @@ For full setup, runtime details, and live adapters, see `INSTALL.md`.
 
 ## Install
 
-Clone or copy this package into your local skills directory:
+Choose the install path that matches how you have the files locally.
+
+### Option A: Direct clone of this repository
 
 ```bash
 git clone https://github.com/hilmimuktitama/staff-tpm.git
@@ -63,6 +75,20 @@ For Claude Code:
 ```bash
 cp -r staff-tpm ~/.claude/skills/staff-tpm
 ```
+
+### Option B: Copy from a larger local `skills/` directory
+
+```bash
+cp -r skills/staff-tpm ~/.codex/skills/staff-tpm
+```
+
+For Claude Code:
+
+```bash
+cp -r skills/staff-tpm ~/.claude/skills/staff-tpm
+```
+
+The version badge in this README reflects the latest Git tag, for example `v0.1.0`.
 
 ## What Makes It Different
 

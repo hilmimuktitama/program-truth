@@ -1,0 +1,15 @@
+# Security Policy
+
+## Reporting a Vulnerability
+
+This repository is a documentation and skill package, but security issues can still exist in install instructions, example configurations, or linked automation.
+
+Please do not report suspected vulnerabilities in a public issue or pull request.
+
+Instead, report them privately to the maintainer through GitHub security reporting if it is enabled for the repository, or by direct maintainer contact if you already have one.
+
+## Response
+
+Security review and response are best-effort.
+
+When a report is confirmed, the maintainer may fix the issue privately first and publish the patch after a remediation path is ready.
