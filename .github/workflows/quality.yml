@@ -1,0 +1,37 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  markdown:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v20.0.0
+        with:
+          globs: |
+            **/*.md
+
+  links:
+    name: Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check Links
+        uses: lycheeverse/lychee-action@v2.8.0
+        with:
+          args: --root-dir ./ --no-progress --verbose './**/*.md'
+          fail: true

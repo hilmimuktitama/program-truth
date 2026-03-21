@@ -1,5 +1,9 @@
 # Staff TPM
 
+[![Quality](https://github.com/hilmimuktitama/staff-tpm/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/staff-tpm/actions/workflows/quality.yml)
+[![Release](https://img.shields.io/github/v/release/hilmimuktitama/staff-tpm?display_name=tag)](https://github.com/hilmimuktitama/staff-tpm/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 `staff-tpm` is an evidence-first TPM skill for reconstructing program truth across Jira, Confluence, Notion, local docs, and meeting notes.
 
 It is designed for the part of TPM work where summaries usually fail: mid-flight programs, conflicting trackers, partial ownership, stale docs, and status reports that look clean but are wrong.
@@ -45,6 +49,21 @@ This means a first useful run, not full live-adapter maturity.
 
 For full setup, runtime details, and live adapters, see `INSTALL.md`.
 
+## Install
+
+Clone or copy this package into your local skills directory:
+
+```bash
+git clone https://github.com/hilmimuktitama/staff-tpm.git
+cp -r staff-tpm ~/.codex/skills/staff-tpm
+```
+
+For Claude Code:
+
+```bash
+cp -r staff-tpm ~/.claude/skills/staff-tpm
+```
+
 ## What Makes It Different
 
 Most TPM prompts stop at “write a status report.” This package is stricter:
@@ -67,6 +86,8 @@ These examples are intentionally different in org shape and source quality.
 
 - `SKILL.md`: operating contract for the skill
 - `INSTALL.md`: detailed setup and adapter reference
+- `LICENSE`: MIT license
+- `.github/workflows/quality.yml`: markdown and link checks on push and pull request
 - `references/framework.md`: templates and operating rules
 - `references/archaeology-workflow.md`: step-by-step reconstruction playbook
 - `references/source-ranking-and-reconciliation.md`: conflict resolution rules
