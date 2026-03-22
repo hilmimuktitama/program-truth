@@ -2,50 +2,83 @@
 
 This is the detailed setup reference for `program-truth`.
 
-For the fastest onboarding path, start with the `First Useful Run in 10 Minutes` section in `README.md`, then use this guide for full setup, runtime notes, and adapters.
+For the fastest onboarding path, start with the `First Useful Run in 10 Minutes` section in [README.md](README.md), then use this guide for exact copy commands, verification, runtime notes, and adapters.
 
 The skill works with local docs only. Live adapters make archaeology and status work materially stronger.
 
-## 1. Copy the Package
+This repository is published for use and reference. Copy it locally and adapt it for your environment.
 
-Choose the install path that matches how you have the files locally.
+## 1. Choose the Target Folder
 
-Common locations:
 - Codex: `~/.codex/skills/program-truth`
 - Claude Code: `~/.claude/skills/program-truth`
 
-### Option A: Direct clone of this repository
+## 2. Copy the Package
+
+Choose the install path that matches how you have the files locally.
+
+### Option A: Clone this repository
+
+#### macOS/Linux
 
 ```bash
 git clone https://github.com/hilmimuktitama/program-truth.git
-cp -r program-truth ~/.codex/skills/program-truth
+mkdir -p ~/.codex/skills
+cp -R program-truth ~/.codex/skills/
 ```
 
-For Claude Code:
+For Claude Code, replace `~/.codex/skills/` with `~/.claude/skills/`.
 
-```bash
-cp -r program-truth ~/.claude/skills/program-truth
+#### PowerShell
+
+```powershell
+git clone https://github.com/hilmimuktitama/program-truth.git
+New-Item -ItemType Directory -Force "$HOME\.codex\skills" | Out-Null
+Copy-Item -Recurse -Force .\program-truth "$HOME\.codex\skills"
 ```
+
+For Claude Code, replace `"$HOME\.codex\skills"` with `"$HOME\.claude\skills"`.
 
 ### Option B: Copy from a larger local `skills/` directory
 
-```bash
-cp -r skills/program-truth ~/.codex/skills/program-truth
-```
-
-For Claude Code:
+#### macOS/Linux
 
 ```bash
-cp -r skills/program-truth ~/.claude/skills/program-truth
+mkdir -p ~/.codex/skills
+cp -R skills/program-truth ~/.codex/skills/
 ```
 
-Verify the install:
+For Claude Code, replace `~/.codex/skills/` with `~/.claude/skills/`.
+
+#### PowerShell
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.codex\skills" | Out-Null
+Copy-Item -Recurse -Force .\skills\program-truth "$HOME\.codex\skills"
+```
+
+For Claude Code, replace `"$HOME\.codex\skills"` with `"$HOME\.claude\skills"`.
+
+## 3. Verify the Install
+
+### macOS/Linux
 
 ```bash
 find ~/.codex/skills/program-truth -maxdepth 3 -type f | sort
 ```
 
+### PowerShell
+
+```powershell
+Get-ChildItem "$HOME\.codex\skills\program-truth" -Recurse -File |
+  Select-Object -ExpandProperty FullName |
+  Sort-Object
+```
+
+Use the Claude path if you installed the package there.
+
 Expected files include:
+
 - `SKILL.md`
 - `README.md`
 - `INSTALL.md`
@@ -54,9 +87,7 @@ Expected files include:
 - `references/source-ranking-and-reconciliation.md`
 - `references/notion-adapter.md`
 
-This upstream repository is published for use and reference. External contributions are not being accepted at this stage.
-
-## 2. Runtime Notes
+## 4. Runtime Notes
 
 ### Codex
 
@@ -70,18 +101,21 @@ This upstream repository is published for use and reference. External contributi
 - Use your normal Claude Code skill invocation flow
 - If your client expects a workspace context file, start from `examples/example-WORKSPACE.md`
 
-## 3. Optional Adapters
+## 5. Optional Adapters
 
 ### Atlassian
 
 Use when Jira or Confluence is part of the source-of-truth set.
 
 Recommended capabilities:
+
 - Jira issue search and read
 - Confluence search and page read
 - account and permission visibility checks
 
-Typical MCP configuration uses:
+Example MCP configuration:
+
+This is one example using `@anthropic-ai/atlassian-mcp`. Your connector, client wiring, and auth flow may differ.
 
 ```json
 {
@@ -93,6 +127,8 @@ Typical MCP configuration uses:
   }
 }
 ```
+
+This example assumes `npx` and Node.js are already available in your environment.
 
 Smoke test:
 
@@ -106,6 +142,7 @@ Expected: visible Jira or Confluence resources
 Use when program home pages, decision logs, or work databases live in Notion.
 
 The connector must expose:
+
 - page and database search
 - page reads
 - owner, status, and date properties
@@ -115,21 +152,23 @@ If those fields are unavailable, treat Notion as a low-confidence source.
 
 Read `references/notion-adapter.md` before relying on Notion in status-critical work.
 
-## 4. Workspace Setup
+## 6. Workspace Setup
 
 Use `examples/example-WORKSPACE.md` as the baseline workspace template.
 
 At minimum, maintain:
+
 - a workspace context file such as `CLAUDE.md` if your client uses one
 - `TODO.md`
 - squad `specs/` and `status/`
 - `cross-squad/specs/` and `cross-squad/status/`
 
-## 5. Smoke Test the Method
+## 7. Smoke Test the Method
 
 Run a simple day-priority prompt using the skill in your client.
 
 Expected behavior:
+
 - reads local context first
 - identifies the top priorities for the day
 - keeps actions tied to owners and dates
@@ -137,12 +176,13 @@ Expected behavior:
 Then run a source-aware status or archaeology request.
 
 Expected behavior:
+
 - inventories the systems in play
 - drills to the lowest execution-level artifact available
 - separates facts, inferences, unknowns, and conflicts
 - includes a `Data Source` section
 
-## 6. Troubleshooting
+## 8. Troubleshooting
 
 ### The skill is not discovered
 

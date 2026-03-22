@@ -40,9 +40,9 @@ Use this as the baseline context file for a TPM workspace. Rename or adapt it to
 ## Session Context Log
 
 ### [YYYY-MM-DD]
-- [Initiative] — [key finding]
-- [Initiative] — [status change]
-- [Initiative] — [follow-up needed]
+- [Initiative] - [key finding]
+- [Initiative] - [status change]
+- [Initiative] - [follow-up needed]
 
 ## Key References
 

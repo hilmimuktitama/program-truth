@@ -6,7 +6,11 @@ This repository is a documentation and skill package, but security issues can st
 
 Please do not report suspected vulnerabilities in a public issue or pull request.
 
-Instead, report them privately to the maintainer through GitHub security reporting if it is enabled for the repository, or by direct maintainer contact if you already have one.
+Preferred private channel:
+
+- [GitHub private vulnerability reporting](https://github.com/hilmimuktitama/program-truth/security/advisories/new)
+
+If that page is unavailable, use an existing private maintainer contact method rather than posting details publicly.
 
 ## Response
 

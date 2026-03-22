@@ -17,6 +17,42 @@ permissions:
   contents: read
 
 jobs:
+  encoding:
+    name: Encoding Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check Markdown encoding
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          suspects = [
+              "\u00e2\u20ac\u0153",
+              "\u00e2\u20ac\u009d",
+              "\u00e2\u20ac\u2122",
+              "\u00e2\u20ac\u201d",
+              "\u00e2\u20ac\u201c",
+              "\u00e2\u20ac\u2022",
+              "\ufffd",
+          ]
+          failures = []
+
+          for path in Path(".").rglob("*.md"):
+              text = path.read_text(encoding="utf-8")
+              for lineno, line in enumerate(text.splitlines(), 1):
+                  if any(token in line for token in suspects):
+                      failures.append(f"{path}:{lineno}: {line}")
+
+          if failures:
+              print("Potential mojibake found:")
+              print("\n".join(failures))
+              raise SystemExit(1)
+          PY
+
   markdown:
     name: Markdown Lint
     runs-on: ubuntu-latest
