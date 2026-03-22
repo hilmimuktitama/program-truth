@@ -2,11 +2,11 @@
 
 ## Scenario
 
-A staff TPM is covering a cross-squad program spanning `billing`, `quota service`, `campaign orchestration`, and `customer admin`. The weekly update looks healthy at the epic level, but nobody can clearly say which component is on the critical path.
+A program operator is covering a cross-squad program spanning `billing`, `quota service`, `campaign orchestration`, and `customer admin`. The weekly update looks healthy at the epic level, but nobody can clearly say which component is on the critical path.
 
 ## Org Shape
 
-- 1 staff TPM
+- 1 program operator
 - 4-6 squads
 - Jira for execution
 - Confluence for sync pages and PRDs
@@ -25,7 +25,7 @@ The parent epics are all `In Progress`, but one dependency from `quota service` 
 
 ## Prompt
 
-`Use staff-tpm to prepare a weekly status report for the billing + quota + campaign program. Drill to the task level, build a component truth table, and identify the provider -> consumer dependency that actually gates the release.`
+`Use program-truth to prepare a weekly status report for the billing + quota + campaign program. Drill to the task level, build a component truth table, and identify the provider -> consumer dependency that actually gates the release.`
 
 ## What The Skill Should Do
 
@@ -69,4 +69,4 @@ The parent epics are all `In Progress`, but one dependency from `quota service` 
 
 ## Why This Example Matters
 
-This is the most common staff-level TPM failure mode: parent tickets create the illusion of progress, while the real release outcome depends on one unresolved component dependency. The example proves that the skill is built for that layer of work.
+This is a common cross-squad execution failure mode: parent tickets create the illusion of progress, while the real release outcome depends on one unresolved component dependency. The example proves that the skill is built for that layer of work.

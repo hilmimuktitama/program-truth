@@ -24,7 +24,7 @@ Leadership sees a roadmap date that suggests the program is on track. Execution-
 
 ## Prompt
 
-`Use staff-tpm to reconstruct the true readiness of the platform-gated launch from Jira, Notion, Confluence, and local notes. Show the conflict between roadmap ETA and execution ETA, report system status versus functional status, and identify the critical-path dependency.`
+`Use program-truth to reconstruct the true readiness of the platform-gated launch from Jira, Notion, Confluence, and local notes. Show the conflict between roadmap ETA and execution ETA, report system status versus functional status, and identify the critical-path dependency.`
 
 ## What The Skill Should Do
 

@@ -1,11 +1,11 @@
 ---
-name: staff-tpm
-description: Evidence-first Staff TPM workflow for reconstructing program truth across Jira, Confluence, Notion, local docs, and meeting notes. Use it to produce status, dependency, risk, review, and meeting artifacts with clear owners, dates, facts, inferences, and unknowns.
+name: program-truth
+description: Evidence-first program truth workflow for reconstructing program reality across Jira, Confluence, Notion, local docs, and meeting notes. Use it to produce status, dependency, risk, review, and meeting artifacts with clear owners, dates, facts, inferences, and unknowns.
 ---
 
-# Staff TPM
+# Program Truth
 
-Use this skill when the user needs TPM output that is operationally trustworthy, not just well formatted.
+Use this skill when the user needs program output that is operationally trustworthy, not just well formatted.
 
 ## Purpose
 
@@ -34,7 +34,7 @@ Apply this skill when the user asks to:
 - map cross-squad dependencies
 - build or refresh a risk register
 - turn a meeting or thread into explicit decisions and actions
-- translate technical discussion into TPM actions
+- translate technical discussion into explicit operational actions
 
 Do not use it as a shortcut for generic summarization when no source reconciliation is needed.
 

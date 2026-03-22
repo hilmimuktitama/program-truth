@@ -24,7 +24,7 @@ The chat thread says the launch is "done," but the Jira rollout task is still `I
 
 ## Prompt
 
-`Use staff-tpm to reconstruct the true launch status for identity + notifications from Jira, chat notes, and the local checklist. Distinguish system status from functional status, and call out any missing owners or dates.`
+`Use program-truth to reconstruct the true launch status for identity + notifications from Jira, chat notes, and the local checklist. Distinguish system status from functional status, and call out any missing owners or dates.`
 
 ## What The Skill Should Do
 
@@ -69,4 +69,4 @@ The chat thread says the launch is "done," but the Jira rollout task is still `I
 
 ## Why This Example Matters
 
-This shows that `staff-tpm` is useful even when the organization is small and the tooling is messy. The value is not "more process"; it is preventing a chat-level green status from masking an incomplete launch.
+This shows that `program-truth` is useful even when the organization is small and the tooling is messy. The value is not "more process"; it is preventing a chat-level green status from masking an incomplete launch.

@@ -1,6 +1,6 @@
-# Staff TPM Framework
+# Program Truth Framework
 
-This document contains the operating rules and reusable templates behind `staff-tpm`.
+This document contains the operating rules and reusable templates behind `program-truth`.
 
 Use it when you need the method, not just the skill entrypoint.
 

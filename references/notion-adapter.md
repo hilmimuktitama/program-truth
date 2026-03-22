@@ -97,6 +97,6 @@ If Notion links out to Jira, Linear, or another tracker:
 ## Example Prompts
 
 Use prompts like:
-- `Run staff-tpm archaeology for [program] using Jira, Confluence, and Notion sources`
-- `Use staff-tpm status and reconcile the latest Notion project database with Jira tasks`
-- `Use staff-tpm deps and treat Notion as the PM coordination source, Jira as the execution source`
+- `Run program-truth archaeology for [program] using Jira, Confluence, and Notion sources`
+- `Use program-truth status and reconcile the latest Notion project database with Jira tasks`
+- `Use program-truth deps and treat Notion as the PM coordination source, Jira as the execution source`

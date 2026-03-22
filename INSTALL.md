@@ -1,6 +1,6 @@
-# Staff TPM Installation
+# Program Truth Installation
 
-This is the detailed setup reference for `staff-tpm`.
+This is the detailed setup reference for `program-truth`.
 
 For the fastest onboarding path, start with the `First Useful Run in 10 Minutes` section in `README.md`, then use this guide for full setup, runtime notes, and adapters.
 
@@ -11,38 +11,38 @@ The skill works with local docs only. Live adapters make archaeology and status 
 Choose the install path that matches how you have the files locally.
 
 Common locations:
-- Codex: `~/.codex/skills/staff-tpm`
-- Claude Code: `~/.claude/skills/staff-tpm`
+- Codex: `~/.codex/skills/program-truth`
+- Claude Code: `~/.claude/skills/program-truth`
 
 ### Option A: Direct clone of this repository
 
 ```bash
-git clone https://github.com/hilmimuktitama/staff-tpm.git
-cp -r staff-tpm ~/.codex/skills/staff-tpm
+git clone https://github.com/hilmimuktitama/program-truth.git
+cp -r program-truth ~/.codex/skills/program-truth
 ```
 
 For Claude Code:
 
 ```bash
-cp -r staff-tpm ~/.claude/skills/staff-tpm
+cp -r program-truth ~/.claude/skills/program-truth
 ```
 
 ### Option B: Copy from a larger local `skills/` directory
 
 ```bash
-cp -r skills/staff-tpm ~/.codex/skills/staff-tpm
+cp -r skills/program-truth ~/.codex/skills/program-truth
 ```
 
 For Claude Code:
 
 ```bash
-cp -r skills/staff-tpm ~/.claude/skills/staff-tpm
+cp -r skills/program-truth ~/.claude/skills/program-truth
 ```
 
 Verify the install:
 
 ```bash
-find ~/.codex/skills/staff-tpm -maxdepth 3 -type f | sort
+find ~/.codex/skills/program-truth -maxdepth 3 -type f | sort
 ```
 
 Expected files include:
@@ -60,13 +60,13 @@ This upstream repository is published for use and reference. External contributi
 
 ### Codex
 
-- Install to `~/.codex/skills/staff-tpm`
+- Install to `~/.codex/skills/program-truth`
 - Keep the package intact; do not copy only `SKILL.md`
 - Use your normal Codex skill invocation flow
 
 ### Claude Code
 
-- Install to `~/.claude/skills/staff-tpm`
+- Install to `~/.claude/skills/program-truth`
 - Use your normal Claude Code skill invocation flow
 - If your client expects a workspace context file, start from `examples/example-WORKSPACE.md`
 

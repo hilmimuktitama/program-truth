@@ -1,10 +1,10 @@
-# Staff TPM
+# Program Truth
 
-[![Quality](https://github.com/hilmimuktitama/staff-tpm/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/staff-tpm/actions/workflows/quality.yml)
-[![Version](https://img.shields.io/github/v/tag/hilmimuktitama/staff-tpm)](https://github.com/hilmimuktitama/staff-tpm/tags)
+[![Quality](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml)
+[![Version](https://img.shields.io/github/v/tag/hilmimuktitama/program-truth)](https://github.com/hilmimuktitama/program-truth/tags)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-`staff-tpm` is an evidence-first TPM skill for reconstructing program truth across Jira, Confluence, Notion, local docs, and meeting notes.
+`program-truth` is an evidence-first program reconciliation skill for reconstructing program truth across Jira, Confluence, Notion, local docs, and meeting notes.
 
 It is designed for the part of TPM work where summaries usually fail: mid-flight programs, conflicting trackers, partial ownership, stale docs, and status reports that look clean but are wrong.
 
@@ -41,17 +41,17 @@ This means a first useful run, not full live-adapter maturity.
 
 1. Install the package into your local skills directory.
    - If you cloned this repository directly:
-     - Codex: `cp -r staff-tpm ~/.codex/skills/staff-tpm`
-     - Claude Code: `cp -r staff-tpm ~/.claude/skills/staff-tpm`
+     - Codex: `cp -r program-truth ~/.codex/skills/program-truth`
+     - Claude Code: `cp -r program-truth ~/.claude/skills/program-truth`
    - If this repo already lives under a local `skills/` directory:
-     - Codex: `cp -r skills/staff-tpm ~/.codex/skills/staff-tpm`
-     - Claude Code: `cp -r skills/staff-tpm ~/.claude/skills/staff-tpm`
+     - Codex: `cp -r skills/program-truth ~/.codex/skills/program-truth`
+     - Claude Code: `cp -r skills/program-truth ~/.claude/skills/program-truth`
 2. Create a minimal workspace context from `examples/example-WORKSPACE.md`.
 3. Point it to your current `TODO.md`, one active spec, and one recent status source.
 4. Run a day-priority prompt through the skill.
-   - Example: `Use staff-tpm to identify the Top 1 that must move today and the Top 2 that must not get worse.`
+   - Example: `Use program-truth to identify the Top 1 that must move today and the Top 2 that must not get worse.`
 5. Run one real archaeology or status prompt on an active initiative.
-   - Example: `Use staff-tpm to reconstruct the true status of this launch from Jira, Confluence, and local notes.`
+   - Example: `Use program-truth to reconstruct the true status of this launch from Jira, Confluence, and local notes.`
 6. Check the output for:
    - a `Data Source` block
    - facts vs inferences vs unknowns
@@ -66,26 +66,26 @@ Choose the install path that matches how you have the files locally.
 ### Option A: Direct clone of this repository
 
 ```bash
-git clone https://github.com/hilmimuktitama/staff-tpm.git
-cp -r staff-tpm ~/.codex/skills/staff-tpm
+git clone https://github.com/hilmimuktitama/program-truth.git
+cp -r program-truth ~/.codex/skills/program-truth
 ```
 
 For Claude Code:
 
 ```bash
-cp -r staff-tpm ~/.claude/skills/staff-tpm
+cp -r program-truth ~/.claude/skills/program-truth
 ```
 
 ### Option B: Copy from a larger local `skills/` directory
 
 ```bash
-cp -r skills/staff-tpm ~/.codex/skills/staff-tpm
+cp -r skills/program-truth ~/.codex/skills/program-truth
 ```
 
 For Claude Code:
 
 ```bash
-cp -r skills/staff-tpm ~/.claude/skills/staff-tpm
+cp -r skills/program-truth ~/.claude/skills/program-truth
 ```
 
 The version badge in this README reflects the latest Git tag, for example `v0.1.0`.
