@@ -55,6 +55,35 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 6. Give every risk a mitigation and owner.
 7. If a live adapter is unavailable, continue with local artifacts and state the confidence downgrade.
 
+## Minimum Context Pack
+
+Before any prioritization or status-critical action such as `daily`, `status`, `archaeology`, `review`, `deps`, or `risks`, confirm that the request or workspace provides:
+
+1. initiative name or clearly bounded scope
+2. objective or operating question
+3. target milestone, reporting window, or relevant date
+4. squads, services, or workstreams involved
+5. at least one recent status source
+6. at least one current execution source
+   - preferred: Jira, Confluence, Notion, Linear, Asana, or another live system artifact
+   - acceptable fallback: a recent local checklist, meeting note action item, or task list with owners and dates
+7. any known missing access, stale docs, or confidence limits
+
+If critical context is missing, do not invent priorities, status, or confidence.
+
+Return this instead:
+
+```markdown
+## Missing Context Pack
+- Current request:
+- Available context:
+- Missing context:
+- Best next sources to gather:
+- Recommended next prompt:
+```
+
+For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, stop after the checklist until the missing context is provided.
+
 ## Source Hierarchy
 
 Trust the freshest owned operational source unless lower-level execution evidence disproves it.
@@ -76,11 +105,12 @@ If two sources disagree:
 Before any status-critical action such as `archaeology`, `onboard`, `status`, `deps`, `review`, or `risks`:
 
 1. Read `references/framework.md` Section I and `docs/ACTIVE-TRACKS.md` when this repo is the workspace.
-2. Read `docs/jira-query-pack.md` before Jira reconciliation when available.
-3. Inventory the source systems in play before trusting one platform.
-4. Map each source to its lowest execution-level artifact.
-5. Decide which live adapters are actually available.
-6. Record any missing access, stale docs, or confidence limits.
+2. Read a workspace source pack such as `INITIAL-CONTEXT.md` when present.
+3. Read `docs/jira-query-pack.md` before Jira reconciliation when available.
+4. Inventory the source systems in play before trusting one platform.
+5. Map each source to its lowest execution-level artifact.
+6. Decide which live adapters are actually available.
+7. Record any missing access, stale docs, or confidence limits.
 
 ## Action Router
 
@@ -104,6 +134,7 @@ Infer the action from the request. If unclear, default to `onboard`.
 
 1. Read local context first:
    - `docs/ACTIVE-TRACKS.md`
+   - source pack such as `INITIAL-CONTEXT.md` when present
    - `TODO.md`
    - runtime context file such as `CLAUDE.md` when present
    - relevant specs, status notes, and decisions

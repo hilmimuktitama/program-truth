@@ -4,7 +4,7 @@ This is the detailed setup reference for `program-truth`.
 
 For the fastest onboarding path, start with the `First Useful Run in 10 Minutes` section in [README.md](README.md), then use this guide for exact copy commands, verification, runtime notes, and adapters.
 
-The skill works with local docs only. Live adapters make archaeology and status work materially stronger.
+The skill can work with local docs only, but prompt-only chats with no source pack are not a reliable starting point. Live adapters or other current execution sources make archaeology and status work materially stronger.
 
 This repository is published for use and reference. Copy it locally and adapt it for your environment.
 
@@ -82,12 +82,19 @@ Expected files include:
 - `SKILL.md`
 - `README.md`
 - `INSTALL.md`
+- `examples/example-INITIAL-CONTEXT.md`
 - `references/framework.md`
 - `references/archaeology-workflow.md`
 - `references/source-ranking-and-reconciliation.md`
 - `references/notion-adapter.md`
 
 ## 4. Runtime Notes
+
+Supported usage assumes a client that can:
+
+- load local skill packages
+- read local workspace context files
+- follow file references into the workspace
 
 ### Codex
 
@@ -155,29 +162,36 @@ Read `references/notion-adapter.md` before relying on Notion in status-critical 
 ## 6. Workspace Setup
 
 Use `examples/example-WORKSPACE.md` as the baseline workspace template.
+Use `examples/example-INITIAL-CONTEXT.md` as the minimum source pack before asking for `daily`, `status`, or `archaeology`.
 
 At minimum, maintain:
 
 - a workspace context file such as `CLAUDE.md` if your client uses one
+- an initial context pack with the current initiative, sources, and known gaps
 - `TODO.md`
 - squad `specs/` and `status/`
 - `cross-squad/specs/` and `cross-squad/status/`
 
 ## 7. Smoke Test the Method
 
-Run a simple day-priority prompt using the skill in your client.
+Run a context-readiness prompt first:
+
+```text
+Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.
+```
 
 Expected behavior:
 
 - reads local context first
-- identifies the top priorities for the day
-- keeps actions tied to owners and dates
+- inventories the systems in play
+- identifies the current execution source
+- flags stale docs, missing access, or missing owners/dates
+- returns a missing-context checklist instead of pretending the evidence is complete
 
-Then run a source-aware status or archaeology request.
+Then run a source-aware `daily`, `status`, or `archaeology` request.
 
 Expected behavior:
 
-- inventories the systems in play
 - drills to the lowest execution-level artifact available
 - separates facts, inferences, unknowns, and conflicts
 - includes a `Data Source` section
@@ -204,3 +218,9 @@ Expected behavior:
 - confirm the prompt actually asked for status, archaeology, deps, risks, or review work
 - confirm the client has access to the relevant live systems
 - confirm the skill is drilling to the lowest execution-level artifact instead of stopping at parent pages or epics
+
+### Output is empty or generic
+
+- confirm the client can actually load local skills and workspace context files
+- fill `examples/example-INITIAL-CONTEXT.md` or an equivalent local context pack
+- include at least one current execution source before asking for `daily`, `status`, or `archaeology`

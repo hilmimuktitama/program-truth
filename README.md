@@ -37,17 +37,26 @@ This repository is published for use and reference.
 
 ## First Useful Run in 10 Minutes
 
-This means a first useful run, not full live-adapter maturity.
+This means a first useful run in a client that can load local skill packages and local workspace context. It does not mean a prompt-only chat with no sources attached.
 
 1. Install the package into your local skills directory.
    - Codex: `~/.codex/skills/program-truth`
    - Claude Code: `~/.claude/skills/program-truth`
 2. Use [INSTALL.md](INSTALL.md) for the exact macOS/Linux or PowerShell copy commands.
 3. Create a minimal workspace context from [examples/example-WORKSPACE.md](examples/example-WORKSPACE.md).
-4. Point it to your current `TODO.md`, one active spec, and one recent status source.
-5. Run a day-priority prompt such as `Use program-truth to identify the Top 1 that must move today and the Top 2 that must not get worse.`
-6. Run one real archaeology or status prompt on an active initiative.
-7. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
+4. Fill an initial source pack from [examples/example-INITIAL-CONTEXT.md](examples/example-INITIAL-CONTEXT.md).
+5. Include at least one active spec, one recent status source, and one current execution source.
+   - Preferred: Jira, Confluence, Notion, Linear, or another live system.
+   - Acceptable fallback: a recent local checklist, meeting note, or action list with owners and dates.
+6. Run a context-readiness prompt such as `Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.`
+7. Only after the readiness pass confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
+8. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
+
+If the first response is empty or generic, assume one of these is true:
+
+- the client did not load the local skill package
+- the client did not load the workspace context files
+- the source pack is too thin for a real priority or status call
 
 ## What Good Output Looks Like
 
@@ -94,6 +103,7 @@ These examples are intentionally different in org shape and source quality.
 - `references/archaeology-workflow.md`: step-by-step reconstruction playbook
 - `references/source-ranking-and-reconciliation.md`: conflict resolution rules
 - `references/notion-adapter.md`: Notion-specific caveats
+- `examples/example-INITIAL-CONTEXT.md`: minimum source pack for the first useful run
 - `examples/example-WORKSPACE.md`: generic workspace template
 - `examples/example-CLAUDE.md`: Claude-oriented compatibility note
 - `examples/example-startup-single-tpm.md`: startup scenario
