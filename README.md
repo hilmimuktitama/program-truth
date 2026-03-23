@@ -39,18 +39,25 @@ This repository is published for use and reference.
 
 This means a first useful run in a client that can load local skill packages and local workspace context. It does not mean a prompt-only chat with no sources attached.
 
-1. Install the package into your local skills directory.
-   - Codex: `~/.codex/skills/program-truth`
-   - Claude Code: `~/.claude/skills/program-truth`
-2. Use [INSTALL.md](INSTALL.md) for the exact macOS/Linux or PowerShell copy commands.
-3. Create a minimal workspace context from [examples/example-WORKSPACE.md](examples/example-WORKSPACE.md).
-4. Fill an initial source pack from [examples/example-INITIAL-CONTEXT.md](examples/example-INITIAL-CONTEXT.md).
+1. Install the skill in your client.
+   - Codex preferred: ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`, then restart Codex.
+   - Claude Code personal skill: copy this repo to `~/.claude/skills/program-truth`.
+   - Claude Code project skill: add it under `.claude/skills/program-truth` in the workspace repo.
+2. Use [INSTALL.md](INSTALL.md) for the exact Codex and Claude install paths, plus manual fallback commands.
+3. Run `init` first:
+   - `Use program-truth init to inspect this workspace, guide me through connecting Jira/Confluence/Notion if needed, and scaffold the minimum local context files in one pass.`
+4. Let `init` create or propose the minimum local context set:
+   - workspace context file
+   - `INITIAL-CONTEXT.md`
+   - `TODO.md`
+   - minimal `specs/` and `status/` folders
 5. Include at least one active spec, one recent status source, and one current execution source.
    - Preferred: Jira, Confluence, Notion, Linear, or another live system.
    - Acceptable fallback: a recent local checklist, meeting note, or action list with owners and dates.
-6. Run a context-readiness prompt such as `Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.`
-7. Only after the readiness pass confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
-8. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
+6. If Jira, Confluence, or Notion matter for the program, let `init` guide connector setup and smoke tests before asking for status.
+7. Run a context-readiness prompt such as `Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.`
+8. Only after the readiness pass confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
+9. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
 
 If the first response is empty or generic, assume one of these is true:
 
@@ -100,6 +107,7 @@ These examples are intentionally different in org shape and source quality.
 - `LICENSE`: MIT license
 - `.github/workflows/quality.yml`: markdown, link, and encoding checks on push and pull request
 - `references/framework.md`: templates and operating rules
+- `references/init-bootstrap.md`: guided `init` workflow for connectors and workspace bootstrap
 - `references/archaeology-workflow.md`: step-by-step reconstruction playbook
 - `references/source-ranking-and-reconciliation.md`: conflict resolution rules
 - `references/notion-adapter.md`: Notion-specific caveats

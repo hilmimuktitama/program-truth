@@ -21,6 +21,7 @@ Read these references only as needed:
 - `README.md` for the package overview
 - `INSTALL.md` for setup and runtime notes
 - `references/framework.md` for templates and operating rules
+- `references/init-bootstrap.md` for guided workspace bootstrap and connector setup
 - `references/archaeology-workflow.md` for the reconstruction workflow
 - `references/source-ranking-and-reconciliation.md` for conflict handling
 - `references/notion-adapter.md` for Notion-specific caveats
@@ -54,6 +55,8 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 5. Give every blocker a named owner, what is needed, and a target date.
 6. Give every risk a mitigation and owner.
 7. If a live adapter is unavailable, continue with local artifacts and state the confidence downgrade.
+8. For `init`, prefer guided bootstrap over asking the user to create files or folders one-by-one.
+9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
 
 ## Minimum Context Pack
 
@@ -117,7 +120,7 @@ Before any status-critical action such as `archaeology`, `onboard`, `status`, `d
 Infer the action from the request. If unclear, default to `onboard`.
 
 - `archaeology`: reconstruct execution truth across multiple systems
-- `init`: scaffold the TPM workspace structure and baseline templates
+- `init`: bootstrap the workspace, guide connector setup, and scaffold the minimum local context set
 - `onboard`: get from low context to useful participation quickly
 - `status`: generate a weekly status backed by evidence
 - `review`: prepare a leadership-ready review
@@ -138,6 +141,7 @@ Infer the action from the request. If unclear, default to `onboard`.
    - `TODO.md`
    - runtime context file such as `CLAUDE.md` when present
    - relevant specs, status notes, and decisions
+   - when running `init`, inspect what already exists before proposing new files
 2. Inventory live systems and adapters.
 3. Pull execution-level evidence from each available source.
 4. Reconcile contradictions using `references/source-ranking-and-reconciliation.md`.
@@ -167,6 +171,24 @@ Minimum quality bar before sending:
 - every relative date has been normalized
 
 ## Action Outputs
+
+### `init`
+
+Produce:
+- workspace inspection
+- minimum local scaffold plan
+- connector setup guidance for Jira/Confluence and Notion when those systems are likely in play
+- smoke tests for the connectors worth setting up
+- a one-pass file creation plan instead of one-by-one manual scaffolding
+- the next prompt to run after bootstrap
+
+When local writes are appropriate, prefer creating the minimum set in one batch:
+- runtime context file such as `CLAUDE.md`
+- `INITIAL-CONTEXT.md`
+- `TODO.md`
+- minimal `specs/` and `status/` folders
+
+If you are not writing files yet, return a ready-to-apply scaffold plan with exact file paths and starter contents.
 
 ### `archaeology`
 

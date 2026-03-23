@@ -2,6 +2,10 @@
 
 If your workflow uses `CLAUDE.md`, start from `example-WORKSPACE.md` and save the adapted file as `CLAUDE.md`.
 
+Skill placement options for Claude Code:
+- personal skill: `~/.claude/skills/program-truth`
+- project skill: `.claude/skills/program-truth`
+
 Claude-specific guidance:
 - keep the file at the workspace root
 - point the skill to `docs/ACTIVE-TRACKS.md`, `TODO.md`, and your `specs/` and `status/` folders

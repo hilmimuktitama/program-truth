@@ -8,16 +8,21 @@ The skill can work with local docs only, but prompt-only chats with no source pa
 
 This repository is published for use and reference. Copy it locally and adapt it for your environment.
 
-## 1. Choose the Target Folder
+## 1. Install the Skill
 
-- Codex: `~/.codex/skills/program-truth`
-- Claude Code: `~/.claude/skills/program-truth`
+### Codex
 
-## 2. Copy the Package
+Preferred path:
 
-Choose the install path that matches how you have the files locally.
+- Ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`.
+- Restart Codex to pick up the new skill.
 
-### Option A: Clone this repository
+Notes:
+
+- Codex installs personal skills under `~/.codex/skills/program-truth`.
+- If that destination already exists, the GitHub install flow may refuse to overwrite it. Use the manual fallback below for updates or when you already have a local copy.
+
+Manual fallback:
 
 #### macOS/Linux
 
@@ -27,8 +32,6 @@ mkdir -p ~/.codex/skills
 cp -R program-truth ~/.codex/skills/
 ```
 
-For Claude Code, replace `~/.codex/skills/` with `~/.claude/skills/`.
-
 #### PowerShell
 
 ```powershell
@@ -37,37 +40,61 @@ New-Item -ItemType Directory -Force "$HOME\.codex\skills" | Out-Null
 Copy-Item -Recurse -Force .\program-truth "$HOME\.codex\skills"
 ```
 
-For Claude Code, replace `"$HOME\.codex\skills"` with `"$HOME\.claude\skills"`.
+### Claude Code
 
-### Option B: Copy from a larger local `skills/` directory
+Claude Code skills are file-based.
+
+Personal skill:
+
+- Copy this repo to `~/.claude/skills/program-truth`.
+
+Project skill:
+
+- Add it under `.claude/skills/program-truth` in the workspace repo when you want the skill versioned with the project.
+
+Manual install:
 
 #### macOS/Linux
 
 ```bash
-mkdir -p ~/.codex/skills
-cp -R skills/program-truth ~/.codex/skills/
+git clone https://github.com/hilmimuktitama/program-truth.git
+mkdir -p ~/.claude/skills
+cp -R program-truth ~/.claude/skills/
 ```
 
-For Claude Code, replace `~/.codex/skills/` with `~/.claude/skills/`.
+Project-scoped variant:
+
+```bash
+mkdir -p .claude/skills
+cp -R program-truth .claude/skills/
+```
 
 #### PowerShell
 
 ```powershell
-New-Item -ItemType Directory -Force "$HOME\.codex\skills" | Out-Null
-Copy-Item -Recurse -Force .\skills\program-truth "$HOME\.codex\skills"
+git clone https://github.com/hilmimuktitama/program-truth.git
+New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
+Copy-Item -Recurse -Force .\program-truth "$HOME\.claude\skills"
 ```
 
-For Claude Code, replace `"$HOME\.codex\skills"` with `"$HOME\.claude\skills"`.
+Project-scoped variant:
 
-## 3. Verify the Install
+```powershell
+New-Item -ItemType Directory -Force ".\.claude\skills" | Out-Null
+Copy-Item -Recurse -Force .\program-truth ".\.claude\skills"
+```
 
-### macOS/Linux
+## 2. Verify the Install
+
+### Codex or Claude personal skill on macOS/Linux
 
 ```bash
 find ~/.codex/skills/program-truth -maxdepth 3 -type f | sort
 ```
 
-### PowerShell
+For Claude Code personal installs, replace `~/.codex/skills/program-truth` with `~/.claude/skills/program-truth`.
+
+### Codex or Claude personal skill in PowerShell
 
 ```powershell
 Get-ChildItem "$HOME\.codex\skills\program-truth" -Recurse -File |
@@ -75,7 +102,11 @@ Get-ChildItem "$HOME\.codex\skills\program-truth" -Recurse -File |
   Sort-Object
 ```
 
-Use the Claude path if you installed the package there.
+For Claude Code personal installs, replace `"$HOME\.codex\skills\program-truth"` with `"$HOME\.claude\skills\program-truth"`.
+
+### Claude project skill
+
+Verify that `.claude/skills/program-truth/SKILL.md` exists in the workspace.
 
 Expected files include:
 
@@ -84,11 +115,12 @@ Expected files include:
 - `INSTALL.md`
 - `examples/example-INITIAL-CONTEXT.md`
 - `references/framework.md`
+- `references/init-bootstrap.md`
 - `references/archaeology-workflow.md`
 - `references/source-ranking-and-reconciliation.md`
 - `references/notion-adapter.md`
 
-## 4. Runtime Notes
+## 3. Runtime Notes
 
 Supported usage assumes a client that can:
 
@@ -98,17 +130,17 @@ Supported usage assumes a client that can:
 
 ### Codex
 
-- Install to `~/.codex/skills/program-truth`
+- Preferred install path is Codex's GitHub repo install flow
+- Installed personal skills live under `~/.codex/skills/program-truth`
 - Keep the package intact; do not copy only `SKILL.md`
-- Use your normal Codex skill invocation flow
 
 ### Claude Code
 
-- Install to `~/.claude/skills/program-truth`
-- Use your normal Claude Code skill invocation flow
+- Personal skills live under `~/.claude/skills/program-truth`
+- Project skills can live under `.claude/skills/program-truth`
 - If your client expects a workspace context file, start from `examples/example-WORKSPACE.md`
 
-## 5. Optional Adapters
+## 4. Optional Adapters
 
 ### Atlassian
 
@@ -159,10 +191,11 @@ If those fields are unavailable, treat Notion as a low-confidence source.
 
 Read `references/notion-adapter.md` before relying on Notion in status-critical work.
 
-## 6. Workspace Setup
+## 5. Workspace Setup
 
 Use `examples/example-WORKSPACE.md` as the baseline workspace template.
 Use `examples/example-INITIAL-CONTEXT.md` as the minimum source pack before asking for `daily`, `status`, or `archaeology`.
+Use `program-truth init` when you want the AI to bootstrap this in one pass instead of creating the files manually.
 
 At minimum, maintain:
 
@@ -172,9 +205,23 @@ At minimum, maintain:
 - squad `specs/` and `status/`
 - `cross-squad/specs/` and `cross-squad/status/`
 
-## 7. Smoke Test the Method
+## 6. Smoke Test the Method
 
-Run a context-readiness prompt first:
+Run `init` first when the workspace is still thin:
+
+```text
+Use program-truth init to inspect this workspace, guide me through connecting Jira/Confluence/Notion if needed, and scaffold the minimum local context files in one pass.
+```
+
+Expected behavior:
+
+- inspects what context files already exist
+- proposes or creates the minimum local scaffold in one batch
+- tells you whether Jira/Confluence and Notion connectors are worth setting up
+- gives connector smoke tests instead of assuming the integrations already work
+- leaves you with a concrete next prompt for readiness or archaeology
+
+Then run a context-readiness prompt:
 
 ```text
 Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.
@@ -196,22 +243,30 @@ Expected behavior:
 - separates facts, inferences, unknowns, and conflicts
 - includes a `Data Source` section
 
-## 8. Troubleshooting
+## 7. Troubleshooting
 
 ### The skill is not discovered
 
 - confirm `SKILL.md` exists in the installed skill folder
 - restart the client if it caches skill discovery
+- for Claude project skills, confirm the skill is actually under `.claude/skills/program-truth/`
+
+### Codex GitHub install does not update the skill
+
+- confirm whether `~/.codex/skills/program-truth` already exists
+- use the manual copy path when you need to replace an existing local install
 
 ### Atlassian auth fails
 
 - rerun a read-only call to trigger auth again
 - confirm the correct site and scopes
+- rerun `init` and ask it to guide the Jira/Confluence connector setup step-by-step if the workspace is still not wired
 
 ### Notion search works but key properties are missing
 
 - confirm the connector exposes database properties and timestamps
 - do not treat Notion as high confidence until owner, status, and date fields are visible
+- rerun `init` and ask it to guide the Notion connector setup and smoke test if the workspace is still not wired
 
 ### Output looks clean but shallow
 
@@ -222,5 +277,6 @@ Expected behavior:
 ### Output is empty or generic
 
 - confirm the client can actually load local skills and workspace context files
+- start with `program-truth init` instead of a direct `daily` or `status` request
 - fill `examples/example-INITIAL-CONTEXT.md` or an equivalent local context pack
 - include at least one current execution source before asking for `daily`, `status`, or `archaeology`

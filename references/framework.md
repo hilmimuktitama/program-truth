@@ -142,7 +142,7 @@ Minimum `Data Source` note for Jira-backed output:
 ### Meeting Notes
 
 ```markdown
-# [Meeting Name] — [YYYY-MM-DD]
+# [Meeting Name] - [YYYY-MM-DD]
 
 - **Context:** [one line]
 - **Attendees:** [names]
@@ -152,7 +152,7 @@ Minimum `Data Source` note for Jira-backed output:
 - [decision with rationale]
 
 ## Blockers and Risks
-- BLOCKER — [what is needed] — [by when] — waiting on [who]
+- BLOCKER - [what is needed] - [by when] - waiting on [who]
 
 ## Next Actions
 | Owner | Action | Due Date |
@@ -163,7 +163,7 @@ Minimum `Data Source` note for Jira-backed output:
 ### Weekly Status
 
 ```markdown
-# Weekly Status — [Program]
+# Weekly Status - [Program]
 **Week of:** [YYYY-MM-DD]
 
 ## Summary
@@ -199,7 +199,7 @@ Minimum `Data Source` note for Jira-backed output:
 ### Leadership Review
 
 ```markdown
-# Program Review — [Program]
+# Program Review - [Program]
 **Date:** [YYYY-MM-DD]
 
 ## Summary
@@ -238,19 +238,21 @@ Avoid these:
 ## V. Workspace Conventions
 
 Use a workspace structure that makes current context easy to inspect.
+Start with `init` when the workspace is thin and you want the minimum local scaffold plus connector guidance in one pass.
 
 Typical layout:
 
 ```text
 tpm/
-├── squad-a/specs/
-├── squad-a/status/
-├── squad-b/specs/
-├── squad-b/status/
-├── cross-squad/specs/
-├── cross-squad/status/
-├── TODO.md
-└── CLAUDE.md
+|- squad-a/specs/
+|- squad-a/status/
+|- squad-b/specs/
+|- squad-b/status/
+|- cross-squad/specs/
+|- cross-squad/status/
+|- TODO.md
+`- CLAUDE.md
 ```
 
 Start from `examples/example-WORKSPACE.md` and adapt to your runtime.
+Use `references/init-bootstrap.md` when you want the skill to bootstrap this structure for you.
