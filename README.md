@@ -46,19 +46,23 @@ This means a first useful run in a client that can load local skill packages and
 2. Use [INSTALL.md](INSTALL.md) for the exact Codex and Claude install paths, plus manual fallback commands.
 3. Run `init` first:
    - `Use program-truth init to inspect this workspace, guide me through connecting Jira/Confluence/Notion if needed, and scaffold the minimum local context files in one pass.`
+   - Deterministic fallback for Codex, Claude, or any local shell: `python scripts/bootstrap_program_truth.py --dry-run`
 4. Let `init` create or propose the minimum local context set:
    - workspace context file
    - `INITIAL-CONTEXT.md`
    - `TODO.md`
    - minimal `specs/` and `status/` folders
    - a first-pass context pack captured from the workspace and whatever you already know in chat
-5. Include at least one active spec, one recent status source, and one current execution source.
+5. If the workspace is empty or client behavior varies, let the agent run the bootstrap helper directly:
+   - `python scripts/bootstrap_program_truth.py`
+   - AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
+6. Include at least one active spec, one recent status source, and one current execution source.
    - Preferred: Jira, Confluence, Notion, Linear, or another live system.
    - Acceptable fallback: a recent local checklist, meeting note, or action list with owners and dates.
-6. If Jira, Confluence, or Notion matter for the program, let `init` guide connector setup and smoke tests before asking for status.
-7. Run a context-readiness prompt such as `Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.`
-8. Only after the readiness pass confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
-9. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
+7. If Jira, Confluence, or Notion matter for the program, let `init` or the bootstrap helper guide connector setup and smoke tests before asking for status.
+8. Run a context-readiness prompt such as `Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.`
+9. Only after the readiness pass confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
+10. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
 
 If the first response is empty or generic, assume one of these is true:
 
@@ -66,7 +70,9 @@ If the first response is empty or generic, assume one of these is true:
 - the client did not load the workspace context files
 - the source pack is too thin for a real priority or status call
 
-If the workspace is empty, `init` should still help by interviewing for the minimum context fields and writing a first-pass `INITIAL-CONTEXT.md`.
+If the workspace is empty, `init` should still help by interviewing for the minimum context fields and writing a first-pass `INITIAL-CONTEXT.md`. It should not jump straight to the readiness prompt until the minimum context pack exists.
+
+If client-side `init` behavior is inconsistent, the repo includes `scripts/bootstrap_program_truth.py` as a deterministic local helper that Codex or Claude can run directly.
 
 ## What Good Output Looks Like
 
@@ -107,8 +113,9 @@ These examples are intentionally different in org shape and source quality.
 
 - `SKILL.md`: operating contract for the skill
 - `INSTALL.md`: cross-platform setup, verification, and adapter reference
+- `scripts/bootstrap_program_truth.py`: deterministic bootstrap helper for agents and local shells
 - `LICENSE`: MIT license
-- `.github/workflows/quality.yml`: markdown, link, and encoding checks on push and pull request
+- `.github/workflows/quality.yml`: markdown, link, encoding, and bootstrap-script tests on push and pull request
 - `references/framework.md`: templates and operating rules
 - `references/init-bootstrap.md`: guided `init` workflow for connectors and workspace bootstrap
 - `references/archaeology-workflow.md`: step-by-step reconstruction playbook

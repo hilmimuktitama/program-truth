@@ -4,6 +4,8 @@ Use this reference when the request is to get `program-truth` working quickly in
 
 The goal of `init` is not to ask the user to hand-build every file. The goal is to inspect what already exists, guide connector setup where useful, and bootstrap the minimum local context set in one pass.
 
+When deterministic behavior matters, prefer the local helper `scripts/bootstrap_program_truth.py`. The skill should treat that script as the bootstrap engine for `init` when it is available.
+
 ## What `init` Should Do
 
 1. inspect the current workspace
@@ -14,6 +16,35 @@ The goal of `init` is not to ask the user to hand-build every file. The goal is 
 6. capture the minimum context fields from the conversation when the workspace is still thin
 7. scaffold the minimum local files and folders in one batch
 8. leave the user with the exact next prompt to run
+9. if the minimum context pack is still missing, ask for the missing fields immediately in one compact reply template before suggesting the readiness prompt
+
+## Deterministic Local Helper
+
+If `scripts/bootstrap_program_truth.py` exists, `init` should prefer running it before falling back to a chat-only interview.
+
+Recommended usage:
+
+- shell mode: `python scripts/bootstrap_program_truth.py`
+- preview mode: `python scripts/bootstrap_program_truth.py --dry-run`
+- AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
+
+The helper should:
+
+- inspect the workspace
+- discover candidate sources in local files
+- write the minimum scaffold in one batch
+- emit machine-readable bootstrap results for the agent to summarize
+
+Expected JSON keys:
+
+- `workspace_state`
+- `files_written`
+- `candidate_sources`
+- `connector_recommendations`
+- `captured_context`
+- `remaining_gaps`
+- `bootstrap_questions`
+- `next_prompt`
 
 ## Minimum Local Scaffold
 
@@ -81,6 +112,9 @@ If some fields are missing:
 - write the file with explicit placeholders for the remaining gaps
 
 The goal is a usable first-pass context pack, not a perfect one.
+
+If the helper script is available, pass known context into it first and ask follow-up questions only for the remaining gaps it returns.
+Do not stop at placeholders plus a readiness prompt when the workspace is still empty. The next user action should be a one-message answer to the compact bootstrap interview.
 
 ## Connector Guidance
 

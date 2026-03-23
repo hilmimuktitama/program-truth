@@ -140,7 +140,47 @@ Supported usage assumes a client that can:
 - Project skills can live under `.claude/skills/program-truth`
 - If your client expects a workspace context file, start from `examples/example-WORKSPACE.md`
 
-## 4. Optional Adapters
+## 4. Deterministic Bootstrap Helper
+
+If `program-truth init` varies by client, use the local bootstrap helper instead of relying on chat-only scaffolding.
+
+It is designed so Codex or Claude can run it directly from the workspace:
+
+```bash
+python scripts/bootstrap_program_truth.py --dry-run
+python scripts/bootstrap_program_truth.py
+```
+
+PowerShell:
+
+```powershell
+python .\scripts\bootstrap_program_truth.py --dry-run
+python .\scripts\bootstrap_program_truth.py
+```
+
+AI-first JSON mode:
+
+```bash
+printf '%s' '{"initiative_name":"Launch Readiness","objective":"Find the real blockers","client":"codex"}' | python scripts/bootstrap_program_truth.py --json-in - --json-out
+```
+
+What it does:
+
+- inspects the current workspace
+- searches local files for Jira keys, Atlassian links, Notion links, specs, status notes, and meeting artifacts
+- writes the minimum scaffold in one batch
+- emits connector guidance and the next readiness prompt
+- creates `CLAUDE.md` only when Claude usage is selected or already implied
+
+Useful flags:
+
+- `--workspace <path>`
+- `--client auto|codex|claude|none`
+- `--dry-run`
+- `--json-in <file|->`
+- `--json-out`
+
+## 5. Optional Adapters
 
 ### Atlassian
 
@@ -191,11 +231,12 @@ If those fields are unavailable, treat Notion as a low-confidence source.
 
 Read `references/notion-adapter.md` before relying on Notion in status-critical work.
 
-## 5. Workspace Setup
+## 6. Workspace Setup
 
 Use `examples/example-WORKSPACE.md` as the baseline workspace template.
 Use `examples/example-INITIAL-CONTEXT.md` as the minimum source pack before asking for `daily`, `status`, or `archaeology`.
 Use `program-truth init` when you want the AI to bootstrap this in one pass instead of creating the files manually.
+Use `python scripts/bootstrap_program_truth.py` when you want deterministic local bootstrap that Codex or Claude can execute directly.
 
 At minimum, maintain:
 
@@ -205,12 +246,18 @@ At minimum, maintain:
 - squad `specs/` and `status/`
 - `cross-squad/specs/` and `cross-squad/status/`
 
-## 6. Smoke Test the Method
+## 7. Smoke Test the Method
 
 Run `init` first when the workspace is still thin:
 
 ```text
 Use program-truth init to inspect this workspace, guide me through connecting Jira/Confluence/Notion if needed, and scaffold the minimum local context files in one pass.
+```
+
+Deterministic fallback:
+
+```text
+Run python scripts/bootstrap_program_truth.py in this workspace, then summarize the files it created, the candidate sources it found, and the next prompt it returned.
 ```
 
 Expected behavior:
@@ -221,6 +268,7 @@ Expected behavior:
 - tells you whether Jira/Confluence and Notion connectors are worth setting up
 - gives connector smoke tests instead of assuming the integrations already work
 - leaves you with a concrete next prompt for readiness or archaeology
+- if the helper script is available, the agent can run it and consume its structured output instead of improvising file-by-file scaffolding
 
 Then run a context-readiness prompt:
 
@@ -244,7 +292,7 @@ Expected behavior:
 - separates facts, inferences, unknowns, and conflicts
 - includes a `Data Source` section
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 ### The skill is not discovered
 
@@ -279,6 +327,7 @@ Expected behavior:
 
 - confirm the client can actually load local skills and workspace context files
 - start with `program-truth init` instead of a direct `daily` or `status` request
+- if `init` still varies by client, run `python scripts/bootstrap_program_truth.py --dry-run` and let the agent use that result
 - fill `examples/example-INITIAL-CONTEXT.md` or an equivalent local context pack
 - include at least one current execution source before asking for `daily`, `status`, or `archaeology`
 
@@ -286,3 +335,5 @@ Expected behavior:
 
 - ask `init` to capture the minimum context pack from the conversation and write `INITIAL-CONTEXT.md` in one pass
 - provide the initiative name, objective, target date, and likely systems if the workspace itself is still empty
+- if you want deterministic behavior, run `python scripts/bootstrap_program_truth.py` and let it write the first-pass scaffold directly
+- if the workspace is still empty after scaffolding, the next response should be a compact bootstrap interview, not the readiness prompt yet

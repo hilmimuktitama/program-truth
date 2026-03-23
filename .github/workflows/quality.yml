@@ -17,6 +17,22 @@ permissions:
   contents: read
 
 jobs:
+  bootstrap-tests:
+    name: Bootstrap Script Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
   encoding:
     name: Encoding Check
     runs-on: ubuntu-latest

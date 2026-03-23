@@ -59,6 +59,8 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
 10. After connector setup or connector detection, search the local workspace for candidate starting artifacts before asking the user for Jira keys, filters, page links, or Notion links manually.
 11. When the workspace is empty or thin, use an interview-style bootstrap to capture the minimum context pack from the conversation and write it into `INITIAL-CONTEXT.md` in one pass when local writes are appropriate.
+12. If `scripts/bootstrap_program_truth.py` exists in the workspace or installed skill package, prefer running it for `init` when deterministic local bootstrap is useful. Treat its output as the baseline workspace inspection and scaffold result.
+13. Do not jump to the readiness prompt when the minimum context pack is still missing. End `init` with a compact reply template or interview so the user can supply the missing fields in one message.
 
 ## Minimum Context Pack
 
@@ -186,6 +188,26 @@ Produce:
 - a one-pass file creation plan instead of one-by-one manual scaffolding
 - the next prompt to run after bootstrap
 
+If `scripts/bootstrap_program_truth.py` is available and local execution is appropriate, prefer this order:
+1. run the bootstrap helper with the best context you already have
+2. read its workspace inspection, candidate sources, remaining gaps, and `next_prompt`
+3. summarize the result back to the user
+4. only fall back to pure chat bootstrap when the script is unavailable or cannot be run
+
+When you run the helper in AI-first mode, prefer structured input and output:
+- input: `--json-in -`
+- output: `--json-out`
+
+The helper's output contract is:
+- `workspace_state`
+- `files_written`
+- `candidate_sources`
+- `connector_recommendations`
+- `captured_context`
+- `remaining_gaps`
+- `bootstrap_questions`
+- `next_prompt`
+
 When local writes are appropriate, prefer creating the minimum set in one batch:
 - runtime context file such as `CLAUDE.md`
 - `INITIAL-CONTEXT.md`
@@ -197,6 +219,7 @@ If `INITIAL-CONTEXT.md` is missing or mostly empty, prefer this order:
 2. capture whatever the user already knows from the current conversation
 3. ask only for the minimum missing fields needed to make the file usable
 4. write a first-pass `INITIAL-CONTEXT.md` instead of leaving it blank
+5. if critical fields are still missing, ask for them immediately in one compact reply template instead of handing off to readiness work yet
 
 If you are not writing files yet, return a ready-to-apply scaffold plan with exact file paths and starter contents.
 
