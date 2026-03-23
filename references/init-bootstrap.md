@@ -10,8 +10,9 @@ The goal of `init` is not to ask the user to hand-build every file. The goal is 
 2. identify which context files already exist
 3. detect likely source systems from links, issue keys, file names, or user request
 4. recommend which connectors are worth wiring now
-5. scaffold the minimum local files and folders in one batch
-6. leave the user with the exact next prompt to run
+5. search the workspace for candidate starting artifacts
+6. scaffold the minimum local files and folders in one batch
+7. leave the user with the exact next prompt to run
 
 ## Minimum Local Scaffold
 
@@ -36,6 +37,26 @@ Treat these signals as enough to proactively guide connector setup:
 - user requests mentioning Jira, Confluence, or Notion
 
 If none of those appear, do not force connector setup. Bootstrap local context first.
+
+## Search For Candidate Sources
+
+Before asking the user for manual Jira keys, filters, Confluence pages, or Notion links, search the local workspace for likely starting artifacts.
+
+Look for:
+
+- Jira keys in specs, notes, TODOs, and status files
+- Jira board or filter URLs
+- Confluence links or pasted page titles
+- Notion links or database references
+- recent local specs, decision logs, weekly status notes, and meeting notes
+
+If candidates exist:
+
+- list the strongest ones
+- explain why they are likely useful
+- propose them as the first sources to inspect
+
+Only ask the user for manual IDs or links when the workspace search yields nothing usable.
 
 ## Connector Guidance
 
@@ -74,6 +95,10 @@ When running `init`, prefer this structure:
 - Jira / Confluence: [needed or not needed]
 - Notion: [needed or not needed]
 - smoke tests
+
+## Best Candidate Sources Found
+- [source]
+- [source]
 
 ## Next Prompt
 - exact prompt to run after bootstrap

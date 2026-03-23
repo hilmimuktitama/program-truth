@@ -57,6 +57,7 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 7. If a live adapter is unavailable, continue with local artifacts and state the confidence downgrade.
 8. For `init`, prefer guided bootstrap over asking the user to create files or folders one-by-one.
 9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
+10. After connector setup or connector detection, search the local workspace for candidate starting artifacts before asking the user for Jira keys, filters, page links, or Notion links manually.
 
 ## Minimum Context Pack
 
@@ -179,6 +180,7 @@ Produce:
 - minimum local scaffold plan
 - connector setup guidance for Jira/Confluence and Notion when those systems are likely in play
 - smoke tests for the connectors worth setting up
+- best candidate sources found in the local workspace
 - a one-pass file creation plan instead of one-by-one manual scaffolding
 - the next prompt to run after bootstrap
 
@@ -189,6 +191,16 @@ When local writes are appropriate, prefer creating the minimum set in one batch:
 - minimal `specs/` and `status/` folders
 
 If you are not writing files yet, return a ready-to-apply scaffold plan with exact file paths and starter contents.
+
+Before asking the user for manual starting points, search local files for:
+- Jira keys such as `ABC-123`
+- Jira filter URLs or board links
+- Confluence URLs, page titles, or copied references
+- Notion URLs or database references
+- recent local specs, status notes, decisions, and meeting notes
+
+If candidate sources are found, report them under `Best Candidate Sources Found` and use them as the proposed starting point.
+Ask the user for manual IDs, filters, or links only when the workspace search does not produce usable candidates.
 
 ### `archaeology`
 
