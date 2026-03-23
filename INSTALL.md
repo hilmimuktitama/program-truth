@@ -237,6 +237,7 @@ Use `examples/example-WORKSPACE.md` as the baseline workspace template.
 Use `examples/example-INITIAL-CONTEXT.md` as the minimum source pack before asking for `daily`, `status`, or `archaeology`.
 Use `program-truth init` when you want the AI to bootstrap this in one pass instead of creating the files manually.
 Use `python scripts/bootstrap_program_truth.py` when you want deterministic local bootstrap that Codex or Claude can execute directly.
+Use `program-truth onboard from <anchor>` as the first real context-gathering step after bootstrap.
 
 At minimum, maintain:
 
@@ -264,24 +265,24 @@ Expected behavior:
 
 - inspects what context files already exist
 - proposes or creates the minimum local scaffold in one batch
-- captures a first-pass context pack from the conversation when the workspace is still empty
+- asks for one strong anchor when the workspace is still empty
 - tells you whether Jira/Confluence and Notion connectors are worth setting up
 - gives connector smoke tests instead of assuming the integrations already work
-- leaves you with a concrete next prompt for readiness or archaeology
+- leaves you with a concrete `onboard` prompt
 - if the helper script is available, the agent can run it and consume its structured output instead of improvising file-by-file scaffolding
 
-Then run a context-readiness prompt:
+Then run `onboard` from the anchor:
 
 ```text
-Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.
+Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.
 ```
 
 Expected behavior:
 
 - reads local context first
-- inventories the systems in play
-- identifies the current execution source
-- flags stale docs, missing access, or missing owners/dates
+- inventories the systems in play from the anchor
+- identifies the current execution source and the lowest work-unit evidence
+- flags stale docs, missing access, or missing owners/dates only when they block useful output
 - returns a missing-context checklist instead of pretending the evidence is complete
 
 Then run a source-aware `daily`, `status`, or `archaeology` request.
@@ -328,12 +329,12 @@ Expected behavior:
 - confirm the client can actually load local skills and workspace context files
 - start with `program-truth init` instead of a direct `daily` or `status` request
 - if `init` still varies by client, run `python scripts/bootstrap_program_truth.py --dry-run` and let the agent use that result
-- fill `examples/example-INITIAL-CONTEXT.md` or an equivalent local context pack
-- include at least one current execution source before asking for `daily`, `status`, or `archaeology`
+- give the skill one strong anchor before asking for `daily`, `status`, or `archaeology`
+- use `program-truth onboard from <anchor>` as the first real context-gathering request
 
 ### Init scaffolds files but leaves context blank
 
-- ask `init` to capture the minimum context pack from the conversation and write `INITIAL-CONTEXT.md` in one pass
-- provide the initiative name, objective, target date, and likely systems if the workspace itself is still empty
+- ask `init` to start from one anchor artifact and write `INITIAL-CONTEXT.md` in one pass
+- provide one Jira key/filter/board, Confluence page, Notion page/database, or local file path if the workspace itself is still empty
 - if you want deterministic behavior, run `python scripts/bootstrap_program_truth.py` and let it write the first-pass scaffold directly
-- if the workspace is still empty after scaffolding, the next response should be a compact bootstrap interview, not the readiness prompt yet
+- if the workspace is still empty after scaffolding, the next response should ask for one anchor artifact, not a longer questionnaire and not a readiness prompt yet

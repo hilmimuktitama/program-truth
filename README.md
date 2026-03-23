@@ -56,12 +56,12 @@ This means a first useful run in a client that can load local skill packages and
 5. If the workspace is empty or client behavior varies, let the agent run the bootstrap helper directly:
    - `python scripts/bootstrap_program_truth.py`
    - AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
-6. Include at least one active spec, one recent status source, and one current execution source.
-   - Preferred: Jira, Confluence, Notion, Linear, or another live system.
-   - Acceptable fallback: a recent local checklist, meeting note, or action list with owners and dates.
+6. Give `init` one strong anchor if the workspace itself is empty.
+   - Preferred: Jira key/filter/board, Confluence page, Notion page/database, or a local spec/status/meeting-note path.
 7. If Jira, Confluence, or Notion matter for the program, let `init` or the bootstrap helper guide connector setup and smoke tests before asking for status.
-8. Run a context-readiness prompt such as `Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.`
-9. Only after the readiness pass confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
+8. Run `onboard` from that anchor:
+   - `Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.`
+9. Only after `onboard` confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
 10. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
 
 If the first response is empty or generic, assume one of these is true:
@@ -70,7 +70,7 @@ If the first response is empty or generic, assume one of these is true:
 - the client did not load the workspace context files
 - the source pack is too thin for a real priority or status call
 
-If the workspace is empty, `init` should still help by interviewing for the minimum context fields and writing a first-pass `INITIAL-CONTEXT.md`. It should not jump straight to the readiness prompt until the minimum context pack exists.
+If the workspace is empty, `init` should still help by asking for one strong anchor artifact and writing a first-pass `INITIAL-CONTEXT.md`. It should not jump straight to a readiness pass until it has at least one usable source anchor and an `onboard` prompt.
 
 If client-side `init` behavior is inconsistent, the repo includes `scripts/bootstrap_program_truth.py` as a deterministic local helper that Codex or Claude can run directly.
 

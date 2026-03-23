@@ -126,7 +126,27 @@ class BootstrapProgramTruthTests(unittest.TestCase):
             )
 
             self.assertTrue(result["bootstrap_questions"])
-            self.assertIn("Reply with the minimum context pack", result["next_prompt"])
+            self.assertIn("Reply with one anchor", result["next_prompt"])
+            self.assertIn("anchor artifact", result["bootstrap_questions"][0].lower())
+
+    def test_known_anchor_removes_bootstrap_blocker(self) -> None:
+        with scratch_workspace("known-anchor") as workspace:
+            result = bootstrap.run_bootstrap(
+                workspace,
+                "none",
+                {
+                    "known_sources": ["ABC-123"],
+                },
+                dry_run=True,
+                interactive=False,
+            )
+
+            self.assertFalse(result["bootstrap_questions"])
+            self.assertEqual([], result["remaining_gaps"])
+            self.assertEqual(
+                "Use program-truth onboard from ABC-123 and gather the first useful context for this workspace.",
+                result["next_prompt"],
+            )
 
 
 if __name__ == "__main__":

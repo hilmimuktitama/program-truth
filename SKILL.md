@@ -58,9 +58,9 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 8. For `init`, prefer guided bootstrap over asking the user to create files or folders one-by-one.
 9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
 10. After connector setup or connector detection, search the local workspace for candidate starting artifacts before asking the user for Jira keys, filters, page links, or Notion links manually.
-11. When the workspace is empty or thin, use an interview-style bootstrap to capture the minimum context pack from the conversation and write it into `INITIAL-CONTEXT.md` in one pass when local writes are appropriate.
+11. When the workspace is empty or thin, prefer a single-anchor bootstrap over a full questionnaire. Ask for one strong anchor artifact and let the skill discover the rest before requesting broader context.
 12. If `scripts/bootstrap_program_truth.py` exists in the workspace or installed skill package, prefer running it for `init` when deterministic local bootstrap is useful. Treat its output as the baseline workspace inspection and scaffold result.
-13. Do not jump to the readiness prompt when the minimum context pack is still missing. End `init` with a compact reply template or interview so the user can supply the missing fields in one message.
+13. Do not jump to the readiness prompt when no starting artifact exists yet. End `init` by asking for one anchor artifact in one message.
 
 ## Minimum Context Pack
 
@@ -124,8 +124,8 @@ Before any status-critical action such as `archaeology`, `onboard`, `status`, `d
 Infer the action from the request. If unclear, default to `onboard`.
 
 - `archaeology`: reconstruct execution truth across multiple systems
-- `init`: bootstrap the workspace, guide connector setup, and scaffold the minimum local context set
-- `onboard`: get from low context to useful participation quickly
+- `init`: bootstrap the workspace, guide connector setup, scaffold the minimum local context set, and get one usable anchor
+- `onboard`: start from one anchor, gather the first useful context, and identify only the gaps that actually block real work
 - `status`: generate a weekly status backed by evidence
 - `review`: prepare a leadership-ready review
 - `deps`: map provider -> consumer dependencies
@@ -184,9 +184,9 @@ Produce:
 - connector setup guidance for Jira/Confluence and Notion when those systems are likely in play
 - smoke tests for the connectors worth setting up
 - best candidate sources found in the local workspace
-- interview-style context capture when the workspace is empty or thin
+- one-anchor bootstrap when the workspace is empty or thin
 - a one-pass file creation plan instead of one-by-one manual scaffolding
-- the next prompt to run after bootstrap
+- the next `onboard` prompt to run after bootstrap
 
 If `scripts/bootstrap_program_truth.py` is available and local execution is appropriate, prefer this order:
 1. run the bootstrap helper with the best context you already have
@@ -217,9 +217,9 @@ When local writes are appropriate, prefer creating the minimum set in one batch:
 If `INITIAL-CONTEXT.md` is missing or mostly empty, prefer this order:
 1. search the workspace for candidate sources
 2. capture whatever the user already knows from the current conversation
-3. ask only for the minimum missing fields needed to make the file usable
+3. ask for one anchor artifact when the workspace still has no usable source
 4. write a first-pass `INITIAL-CONTEXT.md` instead of leaving it blank
-5. if critical fields are still missing, ask for them immediately in one compact reply template instead of handing off to readiness work yet
+5. ask for broader fields such as initiative name or target date only after the anchor-driven source inventory shows they are actually needed
 
 If you are not writing files yet, return a ready-to-apply scaffold plan with exact file paths and starter contents.
 
@@ -233,15 +233,31 @@ Before asking the user for manual starting points, search local files for:
 If candidate sources are found, report them under `Best Candidate Sources Found` and use them as the proposed starting point.
 Ask the user for manual IDs, filters, or links only when the workspace search does not produce usable candidates.
 
-When interviewing for a first-pass context pack, target these fields first:
-- initiative name
-- objective or current operating question
-- target milestone or reporting date
-- likely squads, services, or workstreams
-- whether Jira, Confluence, or Notion are in scope
-- any known source links, keys, paths, or meeting notes
+When bootstrapping from a thin workspace, target this first:
+- one anchor artifact:
+  - Jira key, filter, or board
+  - Confluence page or space
+  - Notion page or database
+  - local spec, status note, or meeting note path
+- optional initiative name
+- optional target milestone or reporting date
+- optional systems in scope when already known
 
-If some fields remain unknown, write the file with explicit placeholders and list the gaps under `Missing Access Or Confidence Limits`.
+If broader fields remain unknown, write the file with explicit placeholders and list the gaps under `Missing Access Or Confidence Limits`, but do not block the source-inventory step if a strong anchor exists.
+
+### `onboard`
+
+Produce:
+- source inventory starting from the anchor
+- lowest execution-level artifacts reachable from that anchor
+- likely systems, workstreams, owners, and dates inferred from the source set
+- missing-context checklist limited to the gaps that actually block useful output
+- a 48-hour action plan or next-query plan when more archaeology is still needed
+
+Prefer prompts shaped like:
+- `Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.`
+- `Use program-truth onboard from this Confluence page and tell me what else you need.`
+- `Use program-truth onboard from this Notion database and inventory the first useful sources.`
 
 ### `archaeology`
 
@@ -253,13 +269,6 @@ Produce:
 - stale claims detected
 - open conflicts
 - 48-hour validation plan if gaps remain
-
-### `onboard`
-
-Reuse `archaeology`, then produce:
-- ramp-up brief
-- question list for the next sync
-- 48-hour action plan
 
 ### `status`
 

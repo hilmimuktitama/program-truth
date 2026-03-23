@@ -176,6 +176,26 @@ def normalize_systems(raw: Any) -> list[str]:
     return list(dict.fromkeys(normalized))
 
 
+def infer_systems_from_values(values: list[str]) -> list[str]:
+    inferred: list[str] = []
+    for value in values:
+        text = str(value).strip()
+        if not text:
+            continue
+        if JIRA_KEY_RE.search(text) or (
+            ".atlassian.net/" in text and "/wiki/" not in text
+        ):
+            if "jira" not in inferred:
+                inferred.append("jira")
+        elif ".atlassian.net/wiki/" in text:
+            if "confluence" not in inferred:
+                inferred.append("confluence")
+        elif "notion.so/" in text or ".notion.site/" in text:
+            if "notion" not in inferred:
+                inferred.append("notion")
+    return inferred
+
+
 def collect_context(input_data: dict[str, Any], workspace: Path, client: str) -> dict[str, Any]:
     context = {
         "initiative_name": str(input_data.get("initiative_name", "")).strip(),
@@ -232,6 +252,9 @@ def infer_systems(context: dict[str, Any], candidates: list[dict[str, Any]]) -> 
             inferred.append("confluence")
         elif kind == "notion_url" and "notion" not in inferred:
             inferred.append("notion")
+    for system in infer_systems_from_values(context.get("known_sources") or []):
+        if system not in inferred:
+            inferred.append(system)
     return inferred
 
 
@@ -264,18 +287,11 @@ def is_placeholder_initial_context(path: Path) -> bool:
 
 def build_remaining_gaps(context: dict[str, Any], candidates: list[dict[str, Any]]) -> list[str]:
     gaps: list[str] = []
-    if not context.get("initiative_name"):
-        gaps.append("initiative name")
-    if not context.get("objective"):
-        gaps.append("objective")
-    if not context.get("current_question"):
-        gaps.append("current operating question")
-    if not context.get("target_date_or_window"):
-        gaps.append("target date or reporting window")
-    if not context.get("systems_in_scope") and not infer_systems(context, candidates):
-        gaps.append("whether Jira, Confluence, or Notion are in scope")
-    if not candidates:
-        gaps.append("at least one real source link, key, or local artifact")
+    if not candidates and not (context.get("known_sources") or []):
+        gaps.append(
+            "one anchor artifact such as a Jira key/filter/board, Confluence page, "
+            "Notion page/database, or local file"
+        )
     return gaps
 
 
@@ -333,21 +349,36 @@ def build_connector_recommendations(
     return recommendations
 
 
+def select_anchor(context: dict[str, Any], candidates: list[dict[str, Any]]) -> str | None:
+    known_sources = context.get("known_sources") or []
+    if known_sources:
+        anchor = str(known_sources[0]).strip()
+        if anchor:
+            return anchor
+    anchor = candidate_value(
+        candidates,
+        {"jira_key", "jira_url", "confluence_url", "notion_url", "local_file"},
+        "",
+    ).strip()
+    return anchor or None
+
+
+def build_onboard_prompt(context: dict[str, Any], candidates: list[dict[str, Any]]) -> str:
+    anchor = select_anchor(context, candidates) or "[anchor]"
+    return (
+        f"Use program-truth onboard from {anchor} and gather the first useful context "
+        "for this workspace."
+    )
+
+
 def build_bootstrap_questions(remaining_gaps: list[str]) -> list[str]:
     prompts: list[str] = []
     for gap in remaining_gaps:
-        if gap == "initiative name":
-            prompts.append("Initiative name")
-        elif gap == "objective":
-            prompts.append("Objective")
-        elif gap == "current operating question":
-            prompts.append("Current question")
-        elif gap == "target date or reporting window":
-            prompts.append("Target date or reporting window")
-        elif gap == "whether Jira, Confluence, or Notion are in scope":
-            prompts.append("Systems in scope (Jira, Confluence, Notion, or local-only)")
-        elif gap == "at least one real source link, key, or local artifact":
-            prompts.append("Best source link, key, or local artifact you already have")
+        if gap.startswith("one anchor artifact"):
+            prompts.append(
+                "One anchor artifact: Jira key/filter/board, Confluence page, "
+                "Notion page/database, or local file path"
+            )
     return prompts
 
 
@@ -357,23 +388,27 @@ def build_next_prompt(
     remaining_gaps: list[str],
 ) -> str:
     if not remaining_gaps:
-        return NEXT_PROMPT
+        return build_onboard_prompt(context, candidates)
 
-    systems = ", ".join(context.get("systems_in_scope") or infer_systems(context, candidates)) or "[local-only]"
-    source_hint = candidate_value(
-        candidates,
-        {"jira_key", "jira_url", "confluence_url", "notion_url", "local_file"},
-        "[none yet]",
+    systems = ", ".join(context.get("systems_in_scope") or infer_systems(context, candidates)) or "[auto-detect from anchor]"
+    source_hint = (
+        (context.get("known_sources") or [None])[0]
+        or candidate_value(
+            candidates,
+            {"jira_key", "jira_url", "confluence_url", "notion_url", "local_file"},
+            "[fill in]",
+        )
     )
     return (
-        "Reply with the minimum context pack in one message using this shape:\n"
-        f"- Initiative name: {context.get('initiative_name') or '[fill in]'}\n"
-        f"- Objective: {context.get('objective') or '[fill in]'}\n"
-        f"- Current question: {context.get('current_question') or '[fill in]'}\n"
-        f"- Target date or reporting window: {context.get('target_date_or_window') or '[fill in]'}\n"
-        f"- Systems in scope: {systems}\n"
-        f"- Best source link, key, or local artifact: {source_hint}\n"
-        "After that, rerun program-truth readiness or ask program-truth to inventory the available sources."
+        "Reply with one anchor so program-truth can discover the rest:\n"
+        f"- Anchor: {source_hint}\n"
+        "- Optional: initiative name\n"
+        "- Optional: target date or reporting window\n"
+        f"- Optional: systems in scope if you already know them ({systems})\n"
+        "Accepted anchors: Jira key/filter/board, Confluence page, Notion page/database, "
+        "or a local spec/status/meeting-note path.\n"
+        "After that, ask program-truth onboard from that anchor and let it gather the first "
+        "useful context for this workspace."
     )
 
 
@@ -461,6 +496,7 @@ def render_initial_context(
     current_source_line = (
         known_sources[0] if known_sources else current_source_default
     )
+    first_prompt = build_onboard_prompt(context, candidates)
 
     missing_lines = "\n".join(
         f"- {gap}" for gap in (context.get("missing_access_or_limits") or remaining_gaps or ["[none yet]"])
@@ -517,10 +553,10 @@ Generated by `scripts/bootstrap_program_truth.py`.
 ## Recommended First Prompt
 
 ```text
-{NEXT_PROMPT}
+{first_prompt}
 ```
 
-Only after that readiness pass should you ask for `daily`, `status`, or `archaeology`.
+Only after `onboard` should you ask for `daily`, `status`, or `archaeology`.
 """
 
 
@@ -529,11 +565,10 @@ def render_todo(context: dict[str, Any], recommendations: list[dict[str, Any]]) 
         "# TODO",
         "",
         "## Bootstrap",
-        "- [ ] Confirm initiative name and objective",
-        "- [ ] Confirm target date or reporting window",
-        "- [ ] Add one recent status source",
-        "- [ ] Add one current execution source",
-        "- [ ] Run the readiness prompt",
+        "- [ ] Add one anchor artifact the skill can start from",
+        "- [ ] Run program-truth onboard from that anchor",
+        "- [ ] Review the missing-context checklist from onboard",
+        "- [ ] Confirm target date or reporting window if needed",
     ]
     if any(item["system"] == "atlassian" for item in recommendations):
         lines.extend(

@@ -2,7 +2,7 @@
 
 Use this reference when the request is to get `program-truth` working quickly in a thin or empty workspace.
 
-The goal of `init` is not to ask the user to hand-build every file. The goal is to inspect what already exists, guide connector setup where useful, and bootstrap the minimum local context set in one pass.
+The goal of `init` is not to ask the user to hand-build every file or front-load a full brief. The goal is to inspect what already exists, guide connector setup where useful, bootstrap the minimum local context set in one pass, and get one usable anchor for `onboard`.
 
 When deterministic behavior matters, prefer the local helper `scripts/bootstrap_program_truth.py`. The skill should treat that script as the bootstrap engine for `init` when it is available.
 
@@ -13,10 +13,10 @@ When deterministic behavior matters, prefer the local helper `scripts/bootstrap_
 3. detect likely source systems from links, issue keys, file names, or user request
 4. recommend which connectors are worth wiring now
 5. search the workspace for candidate starting artifacts
-6. capture the minimum context fields from the conversation when the workspace is still thin
+6. ask for one strong anchor artifact when the workspace is still thin
 7. scaffold the minimum local files and folders in one batch
-8. leave the user with the exact next prompt to run
-9. if the minimum context pack is still missing, ask for the missing fields immediately in one compact reply template before suggesting the readiness prompt
+8. leave the user with the exact `onboard` prompt to run
+9. if no usable anchor exists yet, ask for it immediately in one compact reply template before suggesting the readiness prompt
 
 ## Deterministic Local Helper
 
@@ -58,7 +58,7 @@ Prefer this minimum set:
 
 Add squad-specific `specs/` and `status/` folders only when the workspace already implies multiple squad lanes.
 
-If `INITIAL-CONTEXT.md` is missing or nearly empty, do not stop at "fill this in manually" by default. Capture the minimum usable fields from the conversation and write a first-pass version.
+If `INITIAL-CONTEXT.md` is missing or nearly empty, do not stop at "fill this in manually" by default. Ask for one usable anchor first and write a first-pass version around that anchor.
 
 ## Detect Likely Systems
 
@@ -94,27 +94,32 @@ Only ask the user for manual IDs or links when the workspace search yields nothi
 
 ## Interview-Style Bootstrap
 
-When the workspace is empty or nearly empty, `init` should help populate `INITIAL-CONTEXT.md` from what the user already knows.
+When the workspace is empty or nearly empty, `init` should help populate `INITIAL-CONTEXT.md` from what the user already knows, but it should optimize for speed.
 
-Capture these first:
+Capture this first:
 
-- initiative name
-- objective or current question
-- target milestone, date, or reporting window
-- likely squads or services involved
-- whether Jira, Confluence, or Notion are actually in scope
-- any known links, keys, filters, file paths, or meeting notes
+- one anchor artifact:
+  - Jira key, filter, or board
+  - Confluence page or space
+  - Notion page or database
+  - local spec, status note, or meeting note path
 
-If some fields are missing:
+Then capture these only if needed:
+
+- optional initiative name
+- optional target milestone, date, or reporting window
+- optional systems in scope if the anchor does not make that obvious
+
+If more fields are still missing:
 
 - ask only for the minimum additional details needed
 - keep the questions short and operational
 - write the file with explicit placeholders for the remaining gaps
 
-The goal is a usable first-pass context pack, not a perfect one.
+The goal is a usable first-pass context pack and a source inventory, not a perfect brief.
 
 If the helper script is available, pass known context into it first and ask follow-up questions only for the remaining gaps it returns.
-Do not stop at placeholders plus a readiness prompt when the workspace is still empty. The next user action should be a one-message answer to the compact bootstrap interview.
+Do not stop at placeholders plus a readiness prompt when the workspace is still empty. The next user action should be a one-message answer with one anchor artifact.
 
 ## Connector Guidance
 
@@ -165,15 +170,15 @@ When running `init`, prefer this structure:
 - remaining gaps:
 
 ## Next Prompt
-- exact prompt to run after bootstrap
+- exact `onboard` prompt to run after bootstrap
 ```
 
 ## First Follow-Up Prompt
 
-After `init`, prefer a readiness prompt such as:
+After `init`, prefer an `onboard` prompt such as:
 
 ```text
-Use program-truth to inventory available sources, identify the lowest execution-level artifacts, and tell me what is missing before making a priority call.
+Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.
 ```
 
-Only after that should the workflow move into `daily`, `status`, `archaeology`, `deps`, or `risks`.
+Only after `onboard` should the workflow move into `daily`, `status`, `archaeology`, `deps`, or `risks`.
