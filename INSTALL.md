@@ -217,6 +217,7 @@ Expected behavior:
 
 - inspects what context files already exist
 - proposes or creates the minimum local scaffold in one batch
+- captures a first-pass context pack from the conversation when the workspace is still empty
 - tells you whether Jira/Confluence and Notion connectors are worth setting up
 - gives connector smoke tests instead of assuming the integrations already work
 - leaves you with a concrete next prompt for readiness or archaeology
@@ -280,3 +281,8 @@ Expected behavior:
 - start with `program-truth init` instead of a direct `daily` or `status` request
 - fill `examples/example-INITIAL-CONTEXT.md` or an equivalent local context pack
 - include at least one current execution source before asking for `daily`, `status`, or `archaeology`
+
+### Init scaffolds files but leaves context blank
+
+- ask `init` to capture the minimum context pack from the conversation and write `INITIAL-CONTEXT.md` in one pass
+- provide the initiative name, objective, target date, and likely systems if the workspace itself is still empty

@@ -51,6 +51,7 @@ This means a first useful run in a client that can load local skill packages and
    - `INITIAL-CONTEXT.md`
    - `TODO.md`
    - minimal `specs/` and `status/` folders
+   - a first-pass context pack captured from the workspace and whatever you already know in chat
 5. Include at least one active spec, one recent status source, and one current execution source.
    - Preferred: Jira, Confluence, Notion, Linear, or another live system.
    - Acceptable fallback: a recent local checklist, meeting note, or action list with owners and dates.
@@ -64,6 +65,8 @@ If the first response is empty or generic, assume one of these is true:
 - the client did not load the local skill package
 - the client did not load the workspace context files
 - the source pack is too thin for a real priority or status call
+
+If the workspace is empty, `init` should still help by interviewing for the minimum context fields and writing a first-pass `INITIAL-CONTEXT.md`.
 
 ## What Good Output Looks Like
 

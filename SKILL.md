@@ -58,6 +58,7 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 8. For `init`, prefer guided bootstrap over asking the user to create files or folders one-by-one.
 9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
 10. After connector setup or connector detection, search the local workspace for candidate starting artifacts before asking the user for Jira keys, filters, page links, or Notion links manually.
+11. When the workspace is empty or thin, use an interview-style bootstrap to capture the minimum context pack from the conversation and write it into `INITIAL-CONTEXT.md` in one pass when local writes are appropriate.
 
 ## Minimum Context Pack
 
@@ -181,6 +182,7 @@ Produce:
 - connector setup guidance for Jira/Confluence and Notion when those systems are likely in play
 - smoke tests for the connectors worth setting up
 - best candidate sources found in the local workspace
+- interview-style context capture when the workspace is empty or thin
 - a one-pass file creation plan instead of one-by-one manual scaffolding
 - the next prompt to run after bootstrap
 
@@ -189,6 +191,12 @@ When local writes are appropriate, prefer creating the minimum set in one batch:
 - `INITIAL-CONTEXT.md`
 - `TODO.md`
 - minimal `specs/` and `status/` folders
+
+If `INITIAL-CONTEXT.md` is missing or mostly empty, prefer this order:
+1. search the workspace for candidate sources
+2. capture whatever the user already knows from the current conversation
+3. ask only for the minimum missing fields needed to make the file usable
+4. write a first-pass `INITIAL-CONTEXT.md` instead of leaving it blank
 
 If you are not writing files yet, return a ready-to-apply scaffold plan with exact file paths and starter contents.
 
@@ -201,6 +209,16 @@ Before asking the user for manual starting points, search local files for:
 
 If candidate sources are found, report them under `Best Candidate Sources Found` and use them as the proposed starting point.
 Ask the user for manual IDs, filters, or links only when the workspace search does not produce usable candidates.
+
+When interviewing for a first-pass context pack, target these fields first:
+- initiative name
+- objective or current operating question
+- target milestone or reporting date
+- likely squads, services, or workstreams
+- whether Jira, Confluence, or Notion are in scope
+- any known source links, keys, paths, or meeting notes
+
+If some fields remain unknown, write the file with explicit placeholders and list the gaps under `Missing Access Or Confidence Limits`.
 
 ### `archaeology`
 

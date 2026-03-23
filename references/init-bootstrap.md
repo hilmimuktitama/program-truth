@@ -11,8 +11,9 @@ The goal of `init` is not to ask the user to hand-build every file. The goal is 
 3. detect likely source systems from links, issue keys, file names, or user request
 4. recommend which connectors are worth wiring now
 5. search the workspace for candidate starting artifacts
-6. scaffold the minimum local files and folders in one batch
-7. leave the user with the exact next prompt to run
+6. capture the minimum context fields from the conversation when the workspace is still thin
+7. scaffold the minimum local files and folders in one batch
+8. leave the user with the exact next prompt to run
 
 ## Minimum Local Scaffold
 
@@ -25,6 +26,8 @@ Prefer this minimum set:
 - `cross-squad/status/`
 
 Add squad-specific `specs/` and `status/` folders only when the workspace already implies multiple squad lanes.
+
+If `INITIAL-CONTEXT.md` is missing or nearly empty, do not stop at "fill this in manually" by default. Capture the minimum usable fields from the conversation and write a first-pass version.
 
 ## Detect Likely Systems
 
@@ -57,6 +60,27 @@ If candidates exist:
 - propose them as the first sources to inspect
 
 Only ask the user for manual IDs or links when the workspace search yields nothing usable.
+
+## Interview-Style Bootstrap
+
+When the workspace is empty or nearly empty, `init` should help populate `INITIAL-CONTEXT.md` from what the user already knows.
+
+Capture these first:
+
+- initiative name
+- objective or current question
+- target milestone, date, or reporting window
+- likely squads or services involved
+- whether Jira, Confluence, or Notion are actually in scope
+- any known links, keys, filters, file paths, or meeting notes
+
+If some fields are missing:
+
+- ask only for the minimum additional details needed
+- keep the questions short and operational
+- write the file with explicit placeholders for the remaining gaps
+
+The goal is a usable first-pass context pack, not a perfect one.
 
 ## Connector Guidance
 
@@ -99,6 +123,12 @@ When running `init`, prefer this structure:
 ## Best Candidate Sources Found
 - [source]
 - [source]
+
+## Captured Context
+- initiative:
+- current question:
+- likely systems:
+- remaining gaps:
 
 ## Next Prompt
 - exact prompt to run after bootstrap
