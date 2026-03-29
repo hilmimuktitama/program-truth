@@ -70,6 +70,7 @@ class BootstrapProgramTruthTests(unittest.TestCase):
                 },
                 dry_run=False,
                 interactive=False,
+                scaffold_mode="full",
             )
 
             self.assertTrue((workspace / "INITIAL-CONTEXT.md").exists())
@@ -97,6 +98,10 @@ class BootstrapProgramTruthTests(unittest.TestCase):
                     "--json-in",
                     "-",
                     "--json-out",
+                    "--anchor",
+                    "BILL-920",
+                    "--system",
+                    "jira",
                     "--dry-run",
                 ],
                 input=json.dumps(payload),
@@ -123,6 +128,7 @@ class BootstrapProgramTruthTests(unittest.TestCase):
                 {},
                 dry_run=True,
                 interactive=False,
+                scaffold_mode="minimal",
             )
 
             self.assertTrue(result["bootstrap_questions"])
@@ -135,18 +141,78 @@ class BootstrapProgramTruthTests(unittest.TestCase):
                 workspace,
                 "none",
                 {
-                    "known_sources": ["ABC-123"],
+                    "anchor": "ABC-123",
+                    "anchor_system": "jira",
                 },
                 dry_run=True,
                 interactive=False,
+                scaffold_mode="minimal",
             )
 
             self.assertFalse(result["bootstrap_questions"])
             self.assertEqual([], result["remaining_gaps"])
             self.assertEqual(
-                "Use program-truth onboard from ABC-123 and gather the first useful context for this workspace.",
+                "Use program-truth to start from Jira ABC-123, inventory the available sources, identify the lowest execution-level artifacts, and gather the first useful context for this workspace.",
                 result["next_prompt"],
             )
+
+    def test_minimal_scaffold_for_local_anchor_writes_initial_context_only(self) -> None:
+        with scratch_workspace("local-anchor") as workspace:
+            (workspace / "status-note.md").write_text("Current status", encoding="utf-8")
+
+            result = bootstrap.run_bootstrap(
+                workspace,
+                "none",
+                {
+                    "anchor": "status-note.md",
+                    "anchor_system": "local",
+                },
+                dry_run=False,
+                interactive=False,
+                scaffold_mode="minimal",
+            )
+
+            self.assertTrue((workspace / "INITIAL-CONTEXT.md").exists())
+            self.assertFalse((workspace / "TODO.md").exists())
+            self.assertFalse((workspace / "CLAUDE.md").exists())
+            self.assertFalse((workspace / "cross-squad").exists())
+            self.assertEqual(
+                [{"path": "INITIAL-CONTEXT.md", "status": "created"}],
+                result["files_written"],
+            )
+
+    def test_skill_repo_package_docs_do_not_count_as_anchor(self) -> None:
+        with scratch_workspace("skill-repo") as workspace:
+            (workspace / "references").mkdir()
+            (workspace / "scripts").mkdir()
+            (workspace / "examples").mkdir()
+            (workspace / "SKILL.md").write_text("skill", encoding="utf-8")
+            (workspace / "references" / "init-bootstrap.md").write_text(
+                "Use program-truth init.",
+                encoding="utf-8",
+            )
+            (workspace / "scripts" / "bootstrap_program_truth.py").write_text(
+                "# helper",
+                encoding="utf-8",
+            )
+            (workspace / "README.md").write_text("Jira key ABC-123", encoding="utf-8")
+            (workspace / "examples" / "example-INITIAL-CONTEXT.md").write_text(
+                "Confluence https://example.atlassian.net/wiki/spaces/ENG/pages/123",
+                encoding="utf-8",
+            )
+
+            result = bootstrap.run_bootstrap(
+                workspace,
+                "none",
+                {},
+                dry_run=True,
+                interactive=False,
+                scaffold_mode="minimal",
+            )
+
+            self.assertEqual([], result["candidate_sources"])
+            self.assertTrue(result["bootstrap_questions"])
+            self.assertIn("Reply with one anchor", result["next_prompt"])
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 Use this reference when the request is to get `program-truth` working quickly in a thin or empty workspace.
 
-The goal of `init` is not to ask the user to hand-build every file or front-load a full brief. The goal is to inspect what already exists, guide connector setup where useful, bootstrap the minimum local context set in one pass, and get one usable anchor for `onboard`.
+The goal of `init` is not to ask the user to hand-build every file or front-load a full brief. The goal is to inspect what already exists, guide connector setup where useful, bootstrap the minimum useful local context in one pass, and start from one real anchor artifact.
 
 When deterministic behavior matters, prefer the local helper `scripts/bootstrap_program_truth.py`. The skill should treat that script as the bootstrap engine for `init` when it is available.
 
@@ -10,13 +10,14 @@ When deterministic behavior matters, prefer the local helper `scripts/bootstrap_
 
 1. inspect the current workspace
 2. identify which context files already exist
-3. detect likely source systems from links, issue keys, file names, or user request
-4. recommend which connectors are worth wiring now
-5. search the workspace for candidate starting artifacts
-6. ask for one strong anchor artifact when the workspace is still thin
-7. scaffold the minimum local files and folders in one batch
-8. leave the user with the exact `onboard` prompt to run
-9. if no usable anchor exists yet, ask for it immediately in one compact reply template before suggesting the readiness prompt
+3. prefer an explicit anchor when the user already has one
+4. detect likely source systems from links, issue keys, file names, or user request
+5. recommend which connectors are worth wiring now
+6. search the workspace for candidate starting artifacts
+7. ask for one strong anchor artifact when the workspace is still thin
+8. scaffold the minimum local files only when they are useful
+9. leave the user with either direct source discovery or the exact next prompt to continue it
+10. if no usable anchor exists yet, ask for it immediately in one compact reply template before suggesting any readiness prompt
 
 ## Deterministic Local Helper
 
@@ -24,8 +25,8 @@ If `scripts/bootstrap_program_truth.py` exists, `init` should prefer running it 
 
 Recommended usage:
 
-- shell mode: `python scripts/bootstrap_program_truth.py`
-- preview mode: `python scripts/bootstrap_program_truth.py --dry-run`
+- shell mode: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira`
+- preview mode: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run`
 - AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
 
 The helper should:
@@ -50,11 +51,10 @@ Expected JSON keys:
 
 Prefer this minimum set:
 
-- runtime context file such as `CLAUDE.md` when the client uses one
 - `INITIAL-CONTEXT.md`
-- `TODO.md`
-- `cross-squad/specs/`
-- `cross-squad/status/`
+- `TODO.md` only when follow-up actions exist
+- runtime context file such as `CLAUDE.md` only when the client needs it or the user asks for it
+- `cross-squad/specs/` and `cross-squad/status/` only when the workspace already implies multiple workstreams or the user asks for a fuller scaffold
 
 Add squad-specific `specs/` and `status/` folders only when the workspace already implies multiple squad lanes.
 
@@ -89,6 +89,8 @@ If candidates exist:
 - list the strongest ones
 - explain why they are likely useful
 - propose them as the first sources to inspect
+
+When the current workspace is the `program-truth` skill repo itself, ignore package docs, examples, and tests so the helper does not self-bootstrap from sample Jira keys.
 
 Only ask the user for manual IDs or links when the workspace search yields nothing usable.
 
@@ -170,15 +172,16 @@ When running `init`, prefer this structure:
 - remaining gaps:
 
 ## Next Prompt
-- exact `onboard` prompt to run after bootstrap
+- exact next source-discovery prompt when needed
 ```
 
 ## First Follow-Up Prompt
 
-After `init`, prefer an `onboard` prompt such as:
+After anchored `init`, prefer a source-discovery prompt such as:
 
 ```text
-Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.
+Use program-truth to start from Jira ABC-123, inventory the available sources, identify the lowest execution-level artifacts, and gather the first useful context for this workspace.
 ```
 
-Only after `onboard` should the workflow move into `daily`, `status`, `archaeology`, `deps`, or `risks`.
+Use `onboard` only as a compatibility alias when a client already routes source discovery through that verb.
+Only after source discovery should the workflow move into `daily`, `status`, `archaeology`, `deps`, or `risks`.

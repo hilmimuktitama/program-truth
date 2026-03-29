@@ -109,11 +109,11 @@ If two sources disagree:
 
 ## Pre-Flight
 
-Before any status-critical action such as `archaeology`, `onboard`, `status`, `deps`, `review`, or `risks`:
+Before any status-critical action such as `archaeology`, `status`, `deps`, `review`, or `risks`:
 
-1. Read `references/framework.md` Section I and `docs/ACTIVE-TRACKS.md` when this repo is the workspace.
+1. Read `references/framework.md` Section I when this repo is the workspace.
 2. Read a workspace source pack such as `INITIAL-CONTEXT.md` when present.
-3. Read `docs/jira-query-pack.md` before Jira reconciliation when available.
+3. Read any workspace-specific active-tracks file or Jira query pack only when the workspace actually has one.
 4. Inventory the source systems in play before trusting one platform.
 5. Map each source to its lowest execution-level artifact.
 6. Decide which live adapters are actually available.
@@ -121,11 +121,11 @@ Before any status-critical action such as `archaeology`, `onboard`, `status`, `d
 
 ## Action Router
 
-Infer the action from the request. If unclear, default to `onboard`.
+Infer the action from the request. If unclear, default to `init`.
 
 - `archaeology`: reconstruct execution truth across multiple systems
 - `init`: bootstrap the workspace, guide connector setup, scaffold the minimum local context set, and get one usable anchor
-- `onboard`: start from one anchor, gather the first useful context, and identify only the gaps that actually block real work
+- `onboard`: compatibility alias for anchored source discovery when the client already uses that verb
 - `status`: generate a weekly status backed by evidence
 - `review`: prepare a leadership-ready review
 - `deps`: map provider -> consumer dependencies
@@ -140,9 +140,9 @@ Infer the action from the request. If unclear, default to `onboard`.
 ## Standard Workflow
 
 1. Read local context first:
-   - `docs/ACTIVE-TRACKS.md`
    - source pack such as `INITIAL-CONTEXT.md` when present
-   - `TODO.md`
+   - workspace-specific active-tracks or query-pack files when present
+   - `TODO.md` when present
    - runtime context file such as `CLAUDE.md` when present
    - relevant specs, status notes, and decisions
    - when running `init`, inspect what already exists before proposing new files
@@ -186,7 +186,7 @@ Produce:
 - best candidate sources found in the local workspace
 - one-anchor bootstrap when the workspace is empty or thin
 - a one-pass file creation plan instead of one-by-one manual scaffolding
-- the next `onboard` prompt to run after bootstrap
+- the next source-discovery prompt when `init` did not already complete that step
 
 If `scripts/bootstrap_program_truth.py` is available and local execution is appropriate, prefer this order:
 1. run the bootstrap helper with the best context you already have
@@ -195,6 +195,7 @@ If `scripts/bootstrap_program_truth.py` is available and local execution is appr
 4. only fall back to pure chat bootstrap when the script is unavailable or cannot be run
 
 When you run the helper in AI-first mode, prefer structured input and output:
+- input keys should prefer `anchor` and `anchor_system` when known
 - input: `--json-in -`
 - output: `--json-out`
 
@@ -208,11 +209,11 @@ The helper's output contract is:
 - `bootstrap_questions`
 - `next_prompt`
 
-When local writes are appropriate, prefer creating the minimum set in one batch:
-- runtime context file such as `CLAUDE.md`
+When local writes are appropriate, prefer this order:
 - `INITIAL-CONTEXT.md`
-- `TODO.md`
-- minimal `specs/` and `status/` folders
+- `TODO.md` only when follow-up actions exist
+- runtime context file such as `CLAUDE.md` only when the client needs it or the user asked for it
+- minimal `specs/` and `status/` folders only when the workspace clearly implies multiple workstreams or the user asked for a fuller scaffold
 
 If `INITIAL-CONTEXT.md` is missing or mostly empty, prefer this order:
 1. search the workspace for candidate sources
@@ -247,6 +248,8 @@ If broader fields remain unknown, write the file with explicit placeholders and 
 
 ### `onboard`
 
+Treat this as a compatibility alias for anchored `init` source discovery.
+
 Produce:
 - source inventory starting from the anchor
 - lowest execution-level artifacts reachable from that anchor
@@ -255,9 +258,9 @@ Produce:
 - a 48-hour action plan or next-query plan when more archaeology is still needed
 
 Prefer prompts shaped like:
-- `Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.`
-- `Use program-truth onboard from this Confluence page and tell me what else you need.`
-- `Use program-truth onboard from this Notion database and inventory the first useful sources.`
+- `Use program-truth init from Jira ABC-123 to inspect this workspace and gather the first useful context.`
+- `Use program-truth to start from this Confluence page, inventory the available sources, and tell me what else you need.`
+- `Use program-truth to start from this Notion database and inventory the first useful sources.`
 
 ### `archaeology`
 

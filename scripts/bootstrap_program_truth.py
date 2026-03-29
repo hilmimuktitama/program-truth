@@ -29,11 +29,18 @@ NOTION_URL_RE = re.compile(
     r"https?://(?:(?:www\.)?notion\.so|[A-Za-z0-9-]+\.notion\.site)/[^\s)>\"]+"
 )
 LOCAL_SOURCE_KEYWORDS = ("spec", "status", "meeting", "note", "decision", "todo")
-NEXT_PROMPT = (
-    "Use program-truth to inventory available sources, identify the lowest "
-    "execution-level artifacts, and tell me what is missing before making a "
-    "priority call."
-)
+ANCHOR_SYSTEMS = {"jira", "confluence", "notion", "local"}
+SCAFFOLD_MODES = {"minimal", "full"}
+PACKAGE_ROOT_FILES = {
+    "README.md",
+    "INSTALL.md",
+    "SKILL.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "SECURITY.md",
+}
+PACKAGE_DIR_PREFIXES = {".github", "examples", "references", "tests"}
+PACKAGE_SPECIFIC_PATHS = {"scripts/bootstrap_program_truth.py"}
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -62,6 +69,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Print machine-readable JSON only.",
     )
     parser.add_argument(
+        "--anchor",
+        help=(
+            "Starting artifact for source discovery, such as a Jira key, "
+            "Confluence page URL, Notion page URL, or local file path."
+        ),
+    )
+    parser.add_argument(
+        "--system",
+        choices=sorted(ANCHOR_SYSTEMS),
+        help="Optional system for --anchor when it is ambiguous.",
+    )
+    parser.add_argument(
+        "--scaffold",
+        choices=sorted(SCAFFOLD_MODES),
+        default="minimal",
+        help="Scaffold level. Defaults to minimal.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Preview writes without changing files.",
@@ -69,10 +94,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def should_scan(path: Path, workspace: Path) -> bool:
+def looks_like_skill_repo(workspace: Path) -> bool:
+    return (
+        (workspace / "SKILL.md").exists()
+        and (workspace / "references" / "init-bootstrap.md").exists()
+        and (workspace / "scripts" / "bootstrap_program_truth.py").exists()
+    )
+
+
+def should_scan(path: Path, workspace: Path, skip_package_content: bool = False) -> bool:
     if path.suffix.lower() not in TEXT_EXTENSIONS:
         return False
     if any(part in IGNORED_DIRS for part in path.relative_to(workspace).parts):
+        return False
+    if skip_package_content and is_package_context_path(path, workspace):
         return False
     try:
         return path.stat().st_size <= MAX_SCAN_BYTES
@@ -86,6 +121,21 @@ def relative(path: Path, workspace: Path) -> str:
 
 def load_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
+
+
+def is_package_context_path(path: Path, workspace: Path) -> bool:
+    rel = relative(path, workspace)
+    first = rel.split("/", 1)[0]
+    return (
+        rel in PACKAGE_ROOT_FILES
+        or rel in PACKAGE_SPECIFIC_PATHS
+        or first in PACKAGE_DIR_PREFIXES
+    )
+
+
+def normalize_anchor_system(raw: Any) -> str:
+    value = str(raw or "").strip().lower()
+    return value if value in ANCHOR_SYSTEMS else ""
 
 
 def detect_client(workspace: Path, explicit: str) -> str:
@@ -115,9 +165,10 @@ def unique_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def find_candidate_sources(workspace: Path) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     local_file_candidates: list[dict[str, Any]] = []
+    skip_package_content = looks_like_skill_repo(workspace)
 
     for path in workspace.rglob("*"):
-        if not path.is_file() or not should_scan(path, workspace):
+        if not path.is_file() or not should_scan(path, workspace, skip_package_content):
             continue
         text = load_text(path)
         rel = relative(path, workspace)
@@ -198,6 +249,8 @@ def infer_systems_from_values(values: list[str]) -> list[str]:
 
 def collect_context(input_data: dict[str, Any], workspace: Path, client: str) -> dict[str, Any]:
     context = {
+        "anchor": str(input_data.get("anchor", "")).strip(),
+        "anchor_system": normalize_anchor_system(input_data.get("anchor_system")),
         "initiative_name": str(input_data.get("initiative_name", "")).strip(),
         "objective": str(input_data.get("objective", "")).strip(),
         "current_question": str(input_data.get("current_question", "")).strip(),
@@ -213,37 +266,31 @@ def collect_context(input_data: dict[str, Any], workspace: Path, client: str) ->
     return context
 
 
-def prompt_if_missing(context: dict[str, Any], interactive: bool) -> dict[str, Any]:
+def prompt_if_missing(
+    context: dict[str, Any], interactive: bool, candidates: list[dict[str, Any]]
+) -> dict[str, Any]:
     if not interactive:
         return context
 
-    def ask(key: str, prompt: str) -> None:
-        if context.get(key):
-            return
-        value = input(prompt).strip()
-        if value:
-            context[key] = value
-
-    ask("initiative_name", "Initiative name: ")
-    ask("objective", "Objective: ")
-    ask("current_question", "Current question: ")
-    ask("target_date_or_window", "Target date or reporting window: ")
-
-    if not context.get("systems_in_scope"):
-        systems = input(
-            "Systems in scope (comma-separated from jira, confluence, notion, or leave blank): "
+    if not select_anchor(context, candidates):
+        value = input(
+            "Anchor artifact (Jira key/filter/board, Confluence page, Notion page/database, or local file path): "
         ).strip()
-        context["systems_in_scope"] = normalize_systems(systems)
+        if value:
+            context["anchor"] = value
 
     return context
 
 
 def infer_systems(context: dict[str, Any], candidates: list[dict[str, Any]]) -> list[str]:
     systems = list(context.get("systems_in_scope", []))
-    if systems:
-        return systems
 
     inferred: list[str] = []
+    if context.get("anchor_system") in {"jira", "confluence", "notion"}:
+        inferred.append(context["anchor_system"])
+    for system in infer_systems_from_values([context.get("anchor", "")]):
+        if system not in inferred:
+            inferred.append(system)
     for candidate in candidates:
         kind = candidate["kind"]
         if kind in {"jira_key", "jira_url"} and "jira" not in inferred:
@@ -255,7 +302,7 @@ def infer_systems(context: dict[str, Any], candidates: list[dict[str, Any]]) -> 
     for system in infer_systems_from_values(context.get("known_sources") or []):
         if system not in inferred:
             inferred.append(system)
-    return inferred
+    return list(dict.fromkeys(systems + inferred))
 
 
 def summarize_workspace_state(workspace: Path, client: str) -> dict[str, Any]:
@@ -287,7 +334,7 @@ def is_placeholder_initial_context(path: Path) -> bool:
 
 def build_remaining_gaps(context: dict[str, Any], candidates: list[dict[str, Any]]) -> list[str]:
     gaps: list[str] = []
-    if not candidates and not (context.get("known_sources") or []):
+    if not select_anchor(context, candidates):
         gaps.append(
             "one anchor artifact such as a Jira key/filter/board, Confluence page, "
             "Notion page/database, or local file"
@@ -350,6 +397,9 @@ def build_connector_recommendations(
 
 
 def select_anchor(context: dict[str, Any], candidates: list[dict[str, Any]]) -> str | None:
+    anchor = str(context.get("anchor", "")).strip()
+    if anchor:
+        return anchor
     known_sources = context.get("known_sources") or []
     if known_sources:
         anchor = str(known_sources[0]).strip()
@@ -363,11 +413,36 @@ def select_anchor(context: dict[str, Any], candidates: list[dict[str, Any]]) -> 
     return anchor or None
 
 
-def build_onboard_prompt(context: dict[str, Any], candidates: list[dict[str, Any]]) -> str:
+def detect_anchor_system(context: dict[str, Any], candidates: list[dict[str, Any]]) -> str:
+    anchor_system = normalize_anchor_system(context.get("anchor_system"))
+    if anchor_system:
+        return anchor_system
+    anchor = select_anchor(context, candidates)
+    inferred = infer_systems_from_values([anchor]) if anchor else []
+    return inferred[0] if inferred else ""
+
+
+def format_anchor(anchor: str, anchor_system: str) -> str:
+    if not anchor:
+        return "[anchor]"
+    if anchor_system == "jira" and JIRA_KEY_RE.fullmatch(anchor):
+        return f"Jira {anchor}"
+    if anchor_system == "confluence":
+        return f"Confluence {anchor}"
+    if anchor_system == "notion":
+        return f"Notion {anchor}"
+    if anchor_system == "local":
+        return f"local file {anchor}"
+    return anchor
+
+
+def build_discovery_prompt(context: dict[str, Any], candidates: list[dict[str, Any]]) -> str:
     anchor = select_anchor(context, candidates) or "[anchor]"
+    anchor_display = format_anchor(anchor, detect_anchor_system(context, candidates))
     return (
-        f"Use program-truth onboard from {anchor} and gather the first useful context "
-        "for this workspace."
+        f"Use program-truth to start from {anchor_display}, inventory the available "
+        "sources, identify the lowest execution-level artifacts, and gather the first "
+        "useful context for this workspace."
     )
 
 
@@ -388,9 +463,12 @@ def build_next_prompt(
     remaining_gaps: list[str],
 ) -> str:
     if not remaining_gaps:
-        return build_onboard_prompt(context, candidates)
+        return build_discovery_prompt(context, candidates)
 
-    systems = ", ".join(context.get("systems_in_scope") or infer_systems(context, candidates)) or "[auto-detect from anchor]"
+    systems = (
+        ", ".join(context.get("systems_in_scope") or infer_systems(context, candidates))
+        or "[auto-detect from anchor]"
+    )
     source_hint = (
         (context.get("known_sources") or [None])[0]
         or candidate_value(
@@ -407,8 +485,9 @@ def build_next_prompt(
         f"- Optional: systems in scope if you already know them ({systems})\n"
         "Accepted anchors: Jira key/filter/board, Confluence page, Notion page/database, "
         "or a local spec/status/meeting-note path.\n"
-        "After that, ask program-truth onboard from that anchor and let it gather the first "
-        "useful context for this workspace."
+        "After that, ask program-truth to start from that anchor, inventory the available "
+        "sources, identify the lowest execution-level artifacts, and gather the first useful "
+        "context for this workspace."
     )
 
 
@@ -426,6 +505,8 @@ def render_initial_context(
 ) -> str:
     today = date.today().isoformat()
     systems = context.get("systems_in_scope") or infer_systems(context, candidates)
+    anchor = select_anchor(context, candidates)
+    anchor_system = detect_anchor_system(context, candidates)
     source_rows: list[tuple[str, str, str, str, str]] = []
 
     if "jira" in systems:
@@ -459,12 +540,23 @@ def render_initial_context(
             )
         )
 
-    source_rows.append(
-        ("Local spec", "planned scope", "cross-squad/specs/", today, "Yes")
-    )
-    source_rows.append(
-        ("Local status", "recent status source", "cross-squad/status/", today, "Yes")
-    )
+    if anchor_system == "local" or any(
+        candidate["kind"] == "local_file" for candidate in candidates
+    ):
+        source_rows.append(
+            (
+                "Local file",
+                "current execution source",
+                anchor or candidate_value(candidates, {"local_file"}, "[none captured yet]"),
+                today,
+                "Yes",
+            )
+        )
+
+    if not source_rows:
+        source_rows.append(
+            ("[Add after anchor]", "[What it contains]", "[link, key, or path]", today, "Unknown")
+        )
 
     source_lines = "\n".join(
         f"| {system} | {contains} | {link} | {freshness} | {readable} |"
@@ -490,13 +582,13 @@ def render_initial_context(
         candidate_value(
             candidates,
             {"jira_key", "jira_url", "confluence_url", "notion_url", "local_file"},
-            "[none captured yet]",
+            "[Add one anchor artifact]",
         )
     )
     current_source_line = (
-        known_sources[0] if known_sources else current_source_default
+        anchor or (known_sources[0] if known_sources else current_source_default)
     )
-    first_prompt = build_onboard_prompt(context, candidates)
+    first_prompt = build_discovery_prompt(context, candidates)
 
     missing_lines = "\n".join(
         f"- {gap}" for gap in (context.get("missing_access_or_limits") or remaining_gaps or ["[none yet]"])
@@ -520,27 +612,17 @@ Generated by `scripts/bootstrap_program_truth.py`.
 |-----------------|-------|-------------|-------|
 {scope_lines}
 
+## Starting Anchor
+
+- Anchor: {current_source_line}
+- Anchor Type: {anchor_system or "[infer from anchor]"}
+- Why it is current: [Confirm why this is the best starting point]
+
 ## Source Systems
 
 | System | What It Contains | Link / Path / Key | Freshness | Can The AI Read It? |
 |--------|------------------|-------------------|-----------|---------------------|
 {source_lines}
-
-## Minimum Required Artifacts
-
-### Active Spec
-
-- Path or link: cross-squad/specs/
-
-### Recent Status Source
-
-- Path or link: cross-squad/status/
-- Date: {today}
-
-### Current Execution Source
-
-- Link, key, or path: {current_source_line}
-- Why it is current: [Confirm why this is the best starting point]
 
 ## Known Claims To Validate
 
@@ -556,20 +638,16 @@ Generated by `scripts/bootstrap_program_truth.py`.
 {first_prompt}
 ```
 
-Only after `onboard` should you ask for `daily`, `status`, or `archaeology`.
+After source discovery, ask for `daily`, `status`, or `archaeology` only when the evidence is sufficient.
 """
 
 
 def render_todo(context: dict[str, Any], recommendations: list[dict[str, Any]]) -> str:
-    lines = [
-        "# TODO",
-        "",
-        "## Bootstrap",
-        "- [ ] Add one anchor artifact the skill can start from",
-        "- [ ] Run program-truth onboard from that anchor",
-        "- [ ] Review the missing-context checklist from onboard",
-        "- [ ] Confirm target date or reporting window if needed",
-    ]
+    lines = ["# TODO"]
+    has_content = False
+    if not context.get("anchor") and not (context.get("known_sources") or []):
+        lines.extend(["", "## Bootstrap", "- [ ] Add one anchor artifact the skill can start from"])
+        has_content = True
     if any(item["system"] == "atlassian" for item in recommendations):
         lines.extend(
             [
@@ -579,11 +657,13 @@ def render_todo(context: dict[str, Any], recommendations: list[dict[str, Any]]) 
                 "- [ ] Run mcp__atlassian__getAccessibleAtlassianResources()",
             ]
         )
+        has_content = True
     if any(item["system"] == "notion" for item in recommendations):
         if "## Connector Setup" not in lines:
             lines.extend(["", "## Connector Setup"])
         lines.append("- [ ] Confirm Notion connector search/page/database access")
-    return "\n".join(lines) + "\n"
+        has_content = True
+    return ("\n".join(lines) + "\n") if has_content else ""
 
 
 def render_claude_md(context: dict[str, Any]) -> str:
@@ -611,6 +691,13 @@ def render_claude_md(context: dict[str, Any]) -> str:
 """
 
 
+def should_create_workstream_dirs(context: dict[str, Any], scaffold_mode: str) -> bool:
+    if scaffold_mode == "full":
+        return True
+    workstreams = [item for item in (context.get("workstreams") or []) if isinstance(item, dict)]
+    return len(workstreams) > 1
+
+
 def ensure_directory(path: Path, dry_run: bool) -> str | None:
     if path.exists():
         return None
@@ -620,12 +707,13 @@ def ensure_directory(path: Path, dry_run: bool) -> str | None:
 
 
 def write_text_file(path: Path, content: str, dry_run: bool, replace: bool = False) -> str | None:
-    if path.exists() and not replace:
+    existed = path.exists()
+    if existed and not replace:
         return None
     if not dry_run:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
-    return "updated" if path.exists() else "created"
+    return "updated" if existed else "created"
 
 
 def apply_scaffold(
@@ -636,24 +724,26 @@ def apply_scaffold(
     recommendations: list[dict[str, Any]],
     remaining_gaps: list[str],
     dry_run: bool,
+    scaffold_mode: str,
 ) -> list[dict[str, str]]:
     files_written: list[dict[str, str]] = []
 
-    for directory in (
-        workspace / "cross-squad" / "specs",
-        workspace / "cross-squad" / "status",
-    ):
-        status = ensure_directory(directory, dry_run)
-        if status:
-            files_written.append({"path": relative(directory, workspace), "status": status})
+    if should_create_workstream_dirs(context, scaffold_mode):
+        for directory in (
+            workspace / "cross-squad" / "specs",
+            workspace / "cross-squad" / "status",
+        ):
+            status = ensure_directory(directory, dry_run)
+            if status:
+                files_written.append({"path": relative(directory, workspace), "status": status})
 
-    for keep in (
-        workspace / "cross-squad" / "specs" / ".gitkeep",
-        workspace / "cross-squad" / "status" / ".gitkeep",
-    ):
-        status = write_text_file(keep, "", dry_run)
-        if status:
-            files_written.append({"path": relative(keep, workspace), "status": status})
+        for keep in (
+            workspace / "cross-squad" / "specs" / ".gitkeep",
+            workspace / "cross-squad" / "status" / ".gitkeep",
+        ):
+            status = write_text_file(keep, "", dry_run)
+            if status:
+                files_written.append({"path": relative(keep, workspace), "status": status})
 
     initial_context = workspace / "INITIAL-CONTEXT.md"
     initial_status = write_text_file(
@@ -665,15 +755,17 @@ def apply_scaffold(
     if initial_status:
         files_written.append({"path": "INITIAL-CONTEXT.md", "status": initial_status})
 
-    todo_status = write_text_file(
-        workspace / "TODO.md",
-        render_todo(context, recommendations),
-        dry_run,
-    )
-    if todo_status:
-        files_written.append({"path": "TODO.md", "status": todo_status})
+    todo_content = render_todo(context, recommendations)
+    if todo_content:
+        todo_status = write_text_file(
+            workspace / "TODO.md",
+            todo_content,
+            dry_run,
+        )
+        if todo_status:
+            files_written.append({"path": "TODO.md", "status": todo_status})
 
-    if client == "claude":
+    if client == "claude" and scaffold_mode == "full":
         claude_status = write_text_file(
             workspace / "CLAUDE.md",
             render_claude_md(context),
@@ -732,12 +824,13 @@ def run_bootstrap(
     input_data: dict[str, Any],
     dry_run: bool,
     interactive: bool,
+    scaffold_mode: str,
 ) -> dict[str, Any]:
     workspace = workspace.resolve()
     client = detect_client(workspace, client_mode)
     candidates = find_candidate_sources(workspace)
     context = collect_context(input_data, workspace, client)
-    context = prompt_if_missing(context, interactive)
+    context = prompt_if_missing(context, interactive, candidates)
     if not context.get("systems_in_scope"):
         context["systems_in_scope"] = infer_systems(context, candidates)
     remaining_gaps = build_remaining_gaps(context, candidates)
@@ -752,6 +845,7 @@ def run_bootstrap(
         recommendations,
         remaining_gaps,
         dry_run,
+        scaffold_mode,
     )
     return {
         "workspace_state": summarize_workspace_state(workspace, client),
@@ -759,6 +853,8 @@ def run_bootstrap(
         "candidate_sources": candidates[:12],
         "connector_recommendations": recommendations,
         "captured_context": {
+            "anchor": select_anchor(context, candidates),
+            "anchor_system": detect_anchor_system(context, candidates),
             "initiative_name": context.get("initiative_name"),
             "objective": context.get("objective"),
             "current_question": context.get("current_question"),
@@ -776,8 +872,19 @@ def main(argv: list[str] | None = None) -> int:
     workspace = Path(args.workspace)
     workspace.mkdir(parents=True, exist_ok=True)
     input_data = load_json_input(args.json_in)
+    if args.anchor:
+        input_data["anchor"] = args.anchor
+    if args.system:
+        input_data["anchor_system"] = args.system
     interactive = not args.json_in and sys.stdin.isatty()
-    result = run_bootstrap(workspace, args.client, input_data, args.dry_run, interactive)
+    result = run_bootstrap(
+        workspace,
+        args.client,
+        input_data,
+        args.dry_run,
+        interactive,
+        args.scaffold,
+    )
     if args.json_out:
         json.dump(result, sys.stdout, indent=2)
         sys.stdout.write("\n")

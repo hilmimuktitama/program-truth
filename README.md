@@ -44,25 +44,22 @@ This means a first useful run in a client that can load local skill packages and
    - Claude Code personal skill: copy this repo to `~/.claude/skills/program-truth`.
    - Claude Code project skill: add it under `.claude/skills/program-truth` in the workspace repo.
 2. Use [INSTALL.md](INSTALL.md) for the exact Codex and Claude install paths, plus manual fallback commands.
-3. Run `init` first:
-   - `Use program-truth init to inspect this workspace, guide me through connecting Jira/Confluence/Notion if needed, and scaffold the minimum local context files in one pass.`
-   - Deterministic fallback for Codex, Claude, or any local shell: `python scripts/bootstrap_program_truth.py --dry-run`
-4. Let `init` create or propose the minimum local context set:
-   - workspace context file
-   - `INITIAL-CONTEXT.md`
-   - `TODO.md`
-   - minimal `specs/` and `status/` folders
-   - a first-pass context pack captured from the workspace and whatever you already know in chat
-5. If the workspace is empty or client behavior varies, let the agent run the bootstrap helper directly:
-   - `python scripts/bootstrap_program_truth.py`
-   - AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
-6. Give `init` one strong anchor if the workspace itself is empty.
+3. Start with one strong anchor:
    - Preferred: Jira key/filter/board, Confluence page, Notion page/database, or a local spec/status/meeting-note path.
-7. If Jira, Confluence, or Notion matter for the program, let `init` or the bootstrap helper guide connector setup and smoke tests before asking for status.
-8. Run `onboard` from that anchor:
-   - `Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.`
-9. Only after `onboard` confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
-10. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
+   - Prompt form: `Use program-truth init from Jira ABC-123 to inspect this workspace, identify the real source set, and write the minimum useful context files.`
+   - Short command-style form when your client supports it: `init JIRA ABC-123`
+   - Deterministic fallback for Codex, Claude, or any local shell: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run`
+4. Let `init` or the helper write the minimum useful context by default:
+   - `INITIAL-CONTEXT.md`
+   - `TODO.md` only when follow-up actions exist
+   - fuller local scaffold only when you ask for it or the workspace clearly implies multiple workstreams
+5. If client behavior varies, let the agent run the helper directly:
+   - `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira`
+   - full scaffold when you want the older workspace bootstrap: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --scaffold full`
+   - AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
+6. If Jira, Confluence, or Notion matter for the program, let `init` guide connector setup and smoke tests before asking for status.
+7. Only after source discovery confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
+8. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
 
 If the first response is empty or generic, assume one of these is true:
 
@@ -70,7 +67,7 @@ If the first response is empty or generic, assume one of these is true:
 - the client did not load the workspace context files
 - the source pack is too thin for a real priority or status call
 
-If the workspace is empty, `init` should still help by asking for one strong anchor artifact and writing a first-pass `INITIAL-CONTEXT.md`. It should not jump straight to a readiness pass until it has at least one usable source anchor and an `onboard` prompt.
+If the workspace is empty, `init` should still help by asking for one strong anchor artifact and writing a first-pass `INITIAL-CONTEXT.md`. It should not jump straight to a readiness pass, and it should not treat sample content from the skill package itself as real program context.
 
 If client-side `init` behavior is inconsistent, the repo includes `scripts/bootstrap_program_truth.py` as a deterministic local helper that Codex or Claude can run directly.
 

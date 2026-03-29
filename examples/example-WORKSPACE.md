@@ -46,7 +46,7 @@ Use this as the baseline context file for a TPM workspace. Rename or adapt it to
 
 ## Key References
 
-- `docs/ACTIVE-TRACKS.md`
+- `INITIAL-CONTEXT.md`
 - `TODO.md`
 - `cross-squad/specs/`
 - `cross-squad/status/`

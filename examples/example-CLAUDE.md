@@ -8,7 +8,7 @@ Skill placement options for Claude Code:
 
 Claude-specific guidance:
 - keep the file at the workspace root
-- point the skill to `docs/ACTIVE-TRACKS.md`, `TODO.md`, and your `specs/` and `status/` folders
+- point the skill to `INITIAL-CONTEXT.md`, `TODO.md` when it exists, and the relevant `specs/` and `status/` folders
 - keep squad paths and active program references current
 
 Minimal `CLAUDE.md` skeleton:

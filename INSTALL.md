@@ -147,35 +147,39 @@ If `program-truth init` varies by client, use the local bootstrap helper instead
 It is designed so Codex or Claude can run it directly from the workspace:
 
 ```bash
-python scripts/bootstrap_program_truth.py --dry-run
-python scripts/bootstrap_program_truth.py
+python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
+python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira
 ```
 
 PowerShell:
 
 ```powershell
-python .\scripts\bootstrap_program_truth.py --dry-run
-python .\scripts\bootstrap_program_truth.py
+python .\scripts\bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
+python .\scripts\bootstrap_program_truth.py --anchor ABC-123 --system jira
 ```
 
 AI-first JSON mode:
 
 ```bash
-printf '%s' '{"initiative_name":"Launch Readiness","objective":"Find the real blockers","client":"codex"}' | python scripts/bootstrap_program_truth.py --json-in - --json-out
+printf '%s' '{"anchor":"ABC-123","anchor_system":"jira","initiative_name":"Launch Readiness","objective":"Find the real blockers"}' | python scripts/bootstrap_program_truth.py --json-in - --json-out
 ```
 
 What it does:
 
 - inspects the current workspace
-- searches local files for Jira keys, Atlassian links, Notion links, specs, status notes, and meeting artifacts
-- writes the minimum scaffold in one batch
-- emits connector guidance and the next readiness prompt
-- creates `CLAUDE.md` only when Claude usage is selected or already implied
+- uses the explicit anchor first, then searches local files for nearby Jira keys, Atlassian links, Notion links, specs, status notes, and meeting artifacts
+- ignores package docs, examples, and tests when the workspace is the `program-truth` skill repo itself
+- writes the minimum useful scaffold by default
+- emits connector guidance and the next source-discovery prompt
+- creates `CLAUDE.md` and the fuller local scaffold only when requested with `--scaffold full`
 
 Useful flags:
 
 - `--workspace <path>`
 - `--client auto|codex|claude|none`
+- `--anchor <key|url|path>`
+- `--system jira|confluence|notion|local`
+- `--scaffold minimal|full`
 - `--dry-run`
 - `--json-in <file|->`
 - `--json-out`
@@ -235,59 +239,44 @@ Read `references/notion-adapter.md` before relying on Notion in status-critical 
 
 Use `examples/example-WORKSPACE.md` as the baseline workspace template.
 Use `examples/example-INITIAL-CONTEXT.md` as the minimum source pack before asking for `daily`, `status`, or `archaeology`.
-Use `program-truth init` when you want the AI to bootstrap this in one pass instead of creating the files manually.
+Use `program-truth init from <anchor>` when you want the AI to bootstrap this in one pass instead of creating the files manually.
 Use `python scripts/bootstrap_program_truth.py` when you want deterministic local bootstrap that Codex or Claude can execute directly.
-Use `program-truth onboard from <anchor>` as the first real context-gathering step after bootstrap.
+Use `program-truth onboard from <anchor>` only as a compatibility alias if your client already uses that verb.
 
 At minimum, maintain:
 
-- a workspace context file such as `CLAUDE.md` if your client uses one
 - an initial context pack with the current initiative, sources, and known gaps
-- `TODO.md`
-- squad `specs/` and `status/`
-- `cross-squad/specs/` and `cross-squad/status/`
+- a workspace context file such as `CLAUDE.md` if your client uses one
+- `TODO.md` when follow-up actions or connector setup tasks exist
+- squad `specs/` and `status/` folders only when the workspace actually needs them
 
 ## 7. Smoke Test the Method
 
-Run `init` first when the workspace is still thin:
+Run anchored `init` first when the workspace is still thin:
 
 ```text
-Use program-truth init to inspect this workspace, guide me through connecting Jira/Confluence/Notion if needed, and scaffold the minimum local context files in one pass.
+Use program-truth init from Jira ABC-123 to inspect this workspace, identify the real source set, and write the minimum useful context files.
 ```
 
 Deterministic fallback:
 
 ```text
-Run python scripts/bootstrap_program_truth.py in this workspace, then summarize the files it created, the candidate sources it found, and the next prompt it returned.
+Run python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira in this workspace, then summarize the files it created, the candidate sources it found, and the next prompt it returned.
 ```
 
 Expected behavior:
 
 - inspects what context files already exist
-- proposes or creates the minimum local scaffold in one batch
+- uses the anchor first, then proposes or creates the minimum local scaffold
 - asks for one strong anchor when the workspace is still empty
 - tells you whether Jira/Confluence and Notion connectors are worth setting up
 - gives connector smoke tests instead of assuming the integrations already work
-- leaves you with a concrete `onboard` prompt
+- leaves you with either direct source discovery or a concrete next prompt to continue it
 - if the helper script is available, the agent can run it and consume its structured output instead of improvising file-by-file scaffolding
 
-Then run `onboard` from the anchor:
+Only after source discovery is underway should you move to a source-aware `daily`, `status`, or `archaeology` request.
 
-```text
-Use program-truth onboard from Jira ABC-123 and gather the first useful context for this workspace.
-```
-
-Expected behavior:
-
-- reads local context first
-- inventories the systems in play from the anchor
-- identifies the current execution source and the lowest work-unit evidence
-- flags stale docs, missing access, or missing owners/dates only when they block useful output
-- returns a missing-context checklist instead of pretending the evidence is complete
-
-Then run a source-aware `daily`, `status`, or `archaeology` request.
-
-Expected behavior:
+That follow-up should:
 
 - drills to the lowest execution-level artifact available
 - separates facts, inferences, unknowns, and conflicts
@@ -328,9 +317,9 @@ Expected behavior:
 
 - confirm the client can actually load local skills and workspace context files
 - start with `program-truth init` instead of a direct `daily` or `status` request
-- if `init` still varies by client, run `python scripts/bootstrap_program_truth.py --dry-run` and let the agent use that result
+- if `init` still varies by client, run `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run` and let the agent use that result
 - give the skill one strong anchor before asking for `daily`, `status`, or `archaeology`
-- use `program-truth onboard from <anchor>` as the first real context-gathering request
+- use `program-truth onboard from <anchor>` only if your client still routes source discovery through that alias
 
 ### Init scaffolds files but leaves context blank
 
