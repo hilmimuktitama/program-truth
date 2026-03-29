@@ -202,7 +202,9 @@ When you run the helper in AI-first mode, prefer structured input and output:
 The helper's output contract is:
 - `workspace_state`
 - `files_written`
+- `action_plan`
 - `candidate_sources`
+- `bootstrap_context_paths`
 - `connector_recommendations`
 - `captured_context`
 - `remaining_gaps`
@@ -233,6 +235,7 @@ Before asking the user for manual starting points, search local files for:
 
 If candidate sources are found, report them under `Best Candidate Sources Found` and use them as the proposed starting point.
 Ask the user for manual IDs, filters, or links only when the workspace search does not produce usable candidates.
+If the workspace contains a nested `program-truth` clone, report it as bootstrap-only context and exclude it from the evidence/source-system set.
 
 When bootstrapping from a thin workspace, target this first:
 - one anchor artifact:
@@ -245,6 +248,7 @@ When bootstrapping from a thin workspace, target this first:
 - optional systems in scope when already known
 
 If broader fields remain unknown, write the file with explicit placeholders and list the gaps under `Missing Access Or Confidence Limits`, but do not block the source-inventory step if a strong anchor exists.
+Lead the output with `Next Step`, `If Blocked`, and `After That` so a new user can tell what to do without reading the full context pack first.
 
 ### `onboard`
 

@@ -168,9 +168,9 @@ What it does:
 
 - inspects the current workspace
 - uses the explicit anchor first, then searches local files for nearby Jira keys, Atlassian links, Notion links, specs, status notes, and meeting artifacts
-- ignores package docs, examples, and tests when the workspace is the `program-truth` skill repo itself
+- treats any local `program-truth` clone, including nested copies, as bootstrap-only context instead of program evidence
 - writes the minimum useful scaffold by default
-- emits connector guidance and the next source-discovery prompt
+- emits one obvious next step, an optional blocked path, and the follow-up artifact path
 - creates `CLAUDE.md` and the fuller local scaffold only when requested with `--scaffold full`
 
 Useful flags:
@@ -271,7 +271,7 @@ Expected behavior:
 - asks for one strong anchor when the workspace is still empty
 - tells you whether Jira/Confluence and Notion connectors are worth setting up
 - gives connector smoke tests instead of assuming the integrations already work
-- leaves you with either direct source discovery or a concrete next prompt to continue it
+- leaves you with a `Next Step`, `If Blocked`, and `After That` path instead of scattered guidance
 - if the helper script is available, the agent can run it and consume its structured output instead of improvising file-by-file scaffolding
 
 Only after source discovery is underway should you move to a source-aware `daily`, `status`, or `archaeology` request.

@@ -40,7 +40,9 @@ Expected JSON keys:
 
 - `workspace_state`
 - `files_written`
+- `action_plan`
 - `candidate_sources`
+- `bootstrap_context_paths`
 - `connector_recommendations`
 - `captured_context`
 - `remaining_gaps`
@@ -148,31 +150,25 @@ If Notion is likely in play:
 When running `init`, prefer this structure:
 
 ```markdown
+## Next Step
+- exact command or prompt to run now
+
+## If Blocked
+- connector smoke tests or access checks only when needed
+
+## After That
+- what artifact to ask for after source discovery
+
 ## Init Summary
 - current workspace state
 - likely systems in play
 
-## Bootstrap Plan
-- files and folders to create or update
-- what each file is for
-
-## Connector Setup
-- Jira / Confluence: [needed or not needed]
-- Notion: [needed or not needed]
-- smoke tests
-
-## Best Candidate Sources Found
+## Real Source Set
 - [source]
 - [source]
 
-## Captured Context
-- initiative:
-- current question:
-- likely systems:
-- remaining gaps:
-
-## Next Prompt
-- exact next source-discovery prompt when needed
+## Ignored Bootstrap Context
+- nested `program-truth` clone paths that were excluded from evidence
 ```
 
 ## First Follow-Up Prompt

@@ -113,7 +113,9 @@ class BootstrapProgramTruthTests(unittest.TestCase):
             result = json.loads(completed.stdout)
             self.assertIn("workspace_state", result)
             self.assertIn("files_written", result)
+            self.assertIn("action_plan", result)
             self.assertIn("candidate_sources", result)
+            self.assertIn("bootstrap_context_paths", result)
             self.assertIn("connector_recommendations", result)
             self.assertIn("captured_context", result)
             self.assertIn("remaining_gaps", result)
@@ -132,6 +134,8 @@ class BootstrapProgramTruthTests(unittest.TestCase):
             )
 
             self.assertTrue(result["bootstrap_questions"])
+            self.assertEqual("provide_anchor", result["action_plan"]["primary_action"])
+            self.assertEqual(result["next_prompt"], result["action_plan"]["run_this_now"])
             self.assertIn("Reply with one anchor", result["next_prompt"])
             self.assertIn("anchor artifact", result["bootstrap_questions"][0].lower())
 
@@ -151,6 +155,12 @@ class BootstrapProgramTruthTests(unittest.TestCase):
 
             self.assertFalse(result["bootstrap_questions"])
             self.assertEqual([], result["remaining_gaps"])
+            self.assertEqual("run_source_discovery", result["action_plan"]["primary_action"])
+            self.assertTrue(result["action_plan"]["if_blocked"])
+            self.assertIn(
+                "mcp__atlassian__getAccessibleAtlassianResources()",
+                result["action_plan"]["if_blocked"][0],
+            )
             self.assertEqual(
                 "Use program-truth to start from Jira ABC-123, inventory the available sources, identify the lowest execution-level artifacts, and gather the first useful context for this workspace.",
                 result["next_prompt"],
@@ -176,27 +186,42 @@ class BootstrapProgramTruthTests(unittest.TestCase):
             self.assertFalse((workspace / "TODO.md").exists())
             self.assertFalse((workspace / "CLAUDE.md").exists())
             self.assertFalse((workspace / "cross-squad").exists())
+            initial_context_text = (workspace / "INITIAL-CONTEXT.md").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("## Next Step", initial_context_text)
+            self.assertIn("## If Blocked", initial_context_text)
+            self.assertIn("## After That", initial_context_text)
             self.assertEqual(
                 [{"path": "INITIAL-CONTEXT.md", "status": "created"}],
                 result["files_written"],
             )
 
-    def test_skill_repo_package_docs_do_not_count_as_anchor(self) -> None:
-        with scratch_workspace("skill-repo") as workspace:
-            (workspace / "references").mkdir()
-            (workspace / "scripts").mkdir()
-            (workspace / "examples").mkdir()
-            (workspace / "SKILL.md").write_text("skill", encoding="utf-8")
-            (workspace / "references" / "init-bootstrap.md").write_text(
+    def test_nested_program_truth_clone_is_bootstrap_context_only(self) -> None:
+        with scratch_workspace("nested-skill-repo") as workspace:
+            nested = workspace / ".codex-tmp-program-truth"
+            (nested / "references").mkdir(parents=True)
+            (nested / "scripts").mkdir()
+            (nested / "examples").mkdir()
+            (nested / "SKILL.md").write_text("skill", encoding="utf-8")
+            (nested / "references" / "init-bootstrap.md").write_text(
                 "Use program-truth init.",
                 encoding="utf-8",
             )
-            (workspace / "scripts" / "bootstrap_program_truth.py").write_text(
+            (nested / "references" / "framework.md").write_text(
+                "framework",
+                encoding="utf-8",
+            )
+            (nested / "references" / "source-ranking-and-reconciliation.md").write_text(
+                "ranking",
+                encoding="utf-8",
+            )
+            (nested / "scripts" / "bootstrap_program_truth.py").write_text(
                 "# helper",
                 encoding="utf-8",
             )
-            (workspace / "README.md").write_text("Jira key ABC-123", encoding="utf-8")
-            (workspace / "examples" / "example-INITIAL-CONTEXT.md").write_text(
+            (nested / "README.md").write_text("Jira key ABC-123", encoding="utf-8")
+            (nested / "examples" / "example-INITIAL-CONTEXT.md").write_text(
                 "Confluence https://example.atlassian.net/wiki/spaces/ENG/pages/123",
                 encoding="utf-8",
             )
@@ -211,6 +236,9 @@ class BootstrapProgramTruthTests(unittest.TestCase):
             )
 
             self.assertEqual([], result["candidate_sources"])
+            self.assertIn(
+                ".codex-tmp-program-truth/SKILL.md", result["bootstrap_context_paths"]
+            )
             self.assertTrue(result["bootstrap_questions"])
             self.assertIn("Reply with one anchor", result["next_prompt"])
 

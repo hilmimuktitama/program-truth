@@ -41,6 +41,13 @@ PACKAGE_ROOT_FILES = {
 }
 PACKAGE_DIR_PREFIXES = {".github", "examples", "references", "tests"}
 PACKAGE_SPECIFIC_PATHS = {"scripts/bootstrap_program_truth.py"}
+BOOTSTRAP_CONTEXT_PREFERRED_PATHS = [
+    "SKILL.md",
+    "scripts/bootstrap_program_truth.py",
+    "references/init-bootstrap.md",
+    "references/framework.md",
+    "references/source-ranking-and-reconciliation.md",
+]
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -102,12 +109,71 @@ def looks_like_skill_repo(workspace: Path) -> bool:
     )
 
 
-def should_scan(path: Path, workspace: Path, skip_package_content: bool = False) -> bool:
+def find_bootstrap_context_roots(workspace: Path) -> list[Path]:
+    roots: list[Path] = []
+    if looks_like_skill_repo(workspace):
+        roots.append(workspace)
+
+    for skill_file in workspace.rglob("SKILL.md"):
+        root = skill_file.parent
+        if root == workspace:
+            continue
+        try:
+            rel_parts = root.relative_to(workspace).parts
+        except ValueError:
+            continue
+        if any(part in IGNORED_DIRS for part in rel_parts):
+            continue
+        if looks_like_skill_repo(root):
+            roots.append(root)
+
+    unique_roots: list[Path] = []
+    seen: set[Path] = set()
+    for root in sorted(roots, key=lambda item: len(relative(item, workspace))):
+        if root in seen:
+            continue
+        seen.add(root)
+        unique_roots.append(root)
+    return unique_roots
+
+
+def is_bootstrap_context_path(
+    path: Path, workspace: Path, bootstrap_context_roots: list[Path]
+) -> bool:
+    rel = relative(path, workspace)
+    for root in bootstrap_context_roots:
+        root_rel = relative(root, workspace)
+        if not root_rel:
+            return True
+        if rel == root_rel or rel.startswith(f"{root_rel}/"):
+            return True
+    return False
+
+
+def find_bootstrap_context_paths(workspace: Path) -> list[str]:
+    bootstrap_context_paths: list[str] = []
+    for root in find_bootstrap_context_roots(workspace):
+        for rel_path in BOOTSTRAP_CONTEXT_PREFERRED_PATHS:
+            candidate = root / rel_path
+            if candidate.exists():
+                bootstrap_context_paths.append(relative(candidate, workspace))
+    return list(dict.fromkeys(bootstrap_context_paths))
+
+
+def should_scan(
+    path: Path,
+    workspace: Path,
+    bootstrap_context_roots: list[Path] | None = None,
+) -> bool:
     if path.suffix.lower() not in TEXT_EXTENSIONS:
         return False
     if any(part in IGNORED_DIRS for part in path.relative_to(workspace).parts):
         return False
-    if skip_package_content and is_package_context_path(path, workspace):
+    if bootstrap_context_roots and is_bootstrap_context_path(
+        path, workspace, bootstrap_context_roots
+    ):
+        return False
+    if looks_like_skill_repo(workspace) and is_package_context_path(path, workspace):
         return False
     try:
         return path.stat().st_size <= MAX_SCAN_BYTES
@@ -165,10 +231,10 @@ def unique_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def find_candidate_sources(workspace: Path) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     local_file_candidates: list[dict[str, Any]] = []
-    skip_package_content = looks_like_skill_repo(workspace)
+    bootstrap_context_roots = find_bootstrap_context_roots(workspace)
 
     for path in workspace.rglob("*"):
-        if not path.is_file() or not should_scan(path, workspace, skip_package_content):
+        if not path.is_file() or not should_scan(path, workspace, bootstrap_context_roots):
             continue
         text = load_text(path)
         rel = relative(path, workspace)
@@ -491,6 +557,48 @@ def build_next_prompt(
     )
 
 
+def build_if_blocked_steps(recommendations: list[dict[str, Any]]) -> list[str]:
+    steps: list[str] = []
+    for item in recommendations:
+        if item["system"] == "atlassian" and item["needed"]:
+            steps.append(
+                "If Jira or Confluence access is not confirmed, call "
+                "`mcp__atlassian__getAccessibleAtlassianResources()`."
+            )
+        elif item["system"] == "notion" and item["needed"]:
+            steps.append(
+                "If Notion access is not confirmed, search the target page or database and "
+                "confirm owner/status/date visibility plus last-edited timestamps."
+            )
+    return steps
+
+
+def build_action_plan(
+    context: dict[str, Any],
+    candidates: list[dict[str, Any]],
+    remaining_gaps: list[str],
+    recommendations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    if remaining_gaps:
+        return {
+            "primary_action": "provide_anchor",
+            "run_this_now": build_next_prompt(context, candidates, remaining_gaps),
+            "if_blocked": [],
+            "after_that": [
+                "After you provide one anchor, run source discovery from it before asking for status-critical output."
+            ],
+        }
+
+    return {
+        "primary_action": "run_source_discovery",
+        "run_this_now": build_discovery_prompt(context, candidates),
+        "if_blocked": build_if_blocked_steps(recommendations),
+        "after_that": [
+            "Ask for `status`, `deps`, or `archaeology` only after task-level evidence is available."
+        ],
+    }
+
+
 def candidate_value(candidates: list[dict[str, Any]], kinds: set[str], default: str) -> str:
     for candidate in candidates:
         if candidate["kind"] in kinds:
@@ -498,10 +606,17 @@ def candidate_value(candidates: list[dict[str, Any]], kinds: set[str], default: 
     return default
 
 
+def render_bullet_lines(items: list[str], default: str) -> str:
+    values = items or [default]
+    return "\n".join(f"- {item}" for item in values)
+
+
 def render_initial_context(
     context: dict[str, Any],
     candidates: list[dict[str, Any]],
     remaining_gaps: list[str],
+    action_plan: dict[str, Any],
+    bootstrap_context_paths: list[str],
 ) -> str:
     today = date.today().isoformat()
     systems = context.get("systems_in_scope") or infer_systems(context, candidates)
@@ -588,15 +703,41 @@ def render_initial_context(
     current_source_line = (
         anchor or (known_sources[0] if known_sources else current_source_default)
     )
-    first_prompt = build_discovery_prompt(context, candidates)
 
     missing_lines = "\n".join(
         f"- {gap}" for gap in (context.get("missing_access_or_limits") or remaining_gaps or ["[none yet]"])
+    )
+    blocked_lines = render_bullet_lines(
+        action_plan.get("if_blocked", []),
+        "No connector prerequisite was identified for this step.",
+    )
+    after_that_lines = render_bullet_lines(
+        action_plan.get("after_that", []),
+        "Ask for the next TPM artifact only after source discovery is complete.",
+    )
+    bootstrap_context_lines = (
+        "\n".join(f"- `{path}`" for path in bootstrap_context_paths)
+        if bootstrap_context_paths
+        else "- none"
     )
 
     return f"""# Initial Context Pack
 
 Generated by `scripts/bootstrap_program_truth.py`.
+
+## Next Step
+
+```text
+{action_plan["run_this_now"]}
+```
+
+## If Blocked
+
+{blocked_lines}
+
+## After That
+
+{after_that_lines}
 
 ## Initiative
 
@@ -606,23 +747,27 @@ Generated by `scripts/bootstrap_program_truth.py`.
 **Target Milestone Or Date:** {context.get("target_date_or_window") or "[Fill in target date or reporting window]"}
 **Last Updated:** {today}
 
-## Scope
-
-| Squad / Service | Owner | Repo / Area | Notes |
-|-----------------|-------|-------------|-------|
-{scope_lines}
-
 ## Starting Anchor
 
 - Anchor: {current_source_line}
 - Anchor Type: {anchor_system or "[infer from anchor]"}
 - Why it is current: [Confirm why this is the best starting point]
 
-## Source Systems
+## Real Source Set
 
 | System | What It Contains | Link / Path / Key | Freshness | Can The AI Read It? |
 |--------|------------------|-------------------|-----------|---------------------|
 {source_lines}
+
+## Ignored Bootstrap Context
+
+{bootstrap_context_lines}
+
+## Scope
+
+| Squad / Service | Owner | Repo / Area | Notes |
+|-----------------|-------|-------------|-------|
+{scope_lines}
 
 ## Known Claims To Validate
 
@@ -631,14 +776,6 @@ Generated by `scripts/bootstrap_program_truth.py`.
 ## Missing Access Or Confidence Limits
 
 {missing_lines}
-
-## Recommended First Prompt
-
-```text
-{first_prompt}
-```
-
-After source discovery, ask for `daily`, `status`, or `archaeology` only when the evidence is sufficient.
 """
 
 
@@ -723,6 +860,8 @@ def apply_scaffold(
     candidates: list[dict[str, Any]],
     recommendations: list[dict[str, Any]],
     remaining_gaps: list[str],
+    action_plan: dict[str, Any],
+    bootstrap_context_paths: list[str],
     dry_run: bool,
     scaffold_mode: str,
 ) -> list[dict[str, str]]:
@@ -748,7 +887,13 @@ def apply_scaffold(
     initial_context = workspace / "INITIAL-CONTEXT.md"
     initial_status = write_text_file(
         initial_context,
-        render_initial_context(context, candidates, remaining_gaps),
+        render_initial_context(
+            context,
+            candidates,
+            remaining_gaps,
+            action_plan,
+            bootstrap_context_paths,
+        ),
         dry_run,
         replace=is_placeholder_initial_context(initial_context),
     )
@@ -781,8 +926,20 @@ def human_summary(result: dict[str, Any]) -> str:
     lines = [
         f"Initialized the program-truth workspace scaffold in {result['workspace_state']['workspace']}.",
         "",
-        "Files written:",
+        "Next Step:",
+        result["action_plan"]["run_this_now"],
+        "",
+        "If Blocked:",
     ]
+    if result["action_plan"]["if_blocked"]:
+        lines.extend(f"- {item}" for item in result["action_plan"]["if_blocked"])
+    else:
+        lines.append("- none identified yet")
+
+    lines.extend(["", "After That:"])
+    lines.extend(f"- {item}" for item in result["action_plan"]["after_that"])
+
+    lines.extend(["", "Files written:"])
     if result["files_written"]:
         lines.extend(f"- {item['path']} ({item['status']})" for item in result["files_written"])
     else:
@@ -797,12 +954,11 @@ def human_summary(result: dict[str, Any]) -> str:
     else:
         lines.append("- none in the current workspace yet")
 
-    lines.extend(["", "Connector recommendations:"])
-    for item in result["connector_recommendations"]:
-        lines.append(
-            f"- {item['system']}: {'needed' if item['needed'] else 'not needed yet'}"
-        )
-        lines.append(f"  smoke test: {item['smoke_test']}")
+    lines.extend(["", "Ignored bootstrap context:"])
+    if result["bootstrap_context_paths"]:
+        lines.extend(f"- {path}" for path in result["bootstrap_context_paths"])
+    else:
+        lines.append("- none")
 
     lines.extend(["", "Remaining gaps:"])
     if result["remaining_gaps"]:
@@ -810,11 +966,6 @@ def human_summary(result: dict[str, Any]) -> str:
     else:
         lines.append("- none critical")
 
-    if result["bootstrap_questions"]:
-        lines.extend(["", "Answer these next in one message:"])
-        lines.extend(f"- {question}" for question in result["bootstrap_questions"])
-
-    lines.extend(["", "Next prompt:", result["next_prompt"]])
     return "\n".join(lines)
 
 
@@ -829,6 +980,7 @@ def run_bootstrap(
     workspace = workspace.resolve()
     client = detect_client(workspace, client_mode)
     candidates = find_candidate_sources(workspace)
+    bootstrap_context_paths = find_bootstrap_context_paths(workspace)
     context = collect_context(input_data, workspace, client)
     context = prompt_if_missing(context, interactive, candidates)
     if not context.get("systems_in_scope"):
@@ -836,7 +988,8 @@ def run_bootstrap(
     remaining_gaps = build_remaining_gaps(context, candidates)
     recommendations = build_connector_recommendations(context["systems_in_scope"], candidates)
     bootstrap_questions = build_bootstrap_questions(remaining_gaps)
-    next_prompt = build_next_prompt(context, candidates, remaining_gaps)
+    action_plan = build_action_plan(context, candidates, remaining_gaps, recommendations)
+    next_prompt = action_plan["run_this_now"]
     files_written = apply_scaffold(
         workspace,
         client,
@@ -844,13 +997,17 @@ def run_bootstrap(
         candidates,
         recommendations,
         remaining_gaps,
+        action_plan,
+        bootstrap_context_paths,
         dry_run,
         scaffold_mode,
     )
     return {
         "workspace_state": summarize_workspace_state(workspace, client),
         "files_written": files_written,
+        "action_plan": action_plan,
         "candidate_sources": candidates[:12],
+        "bootstrap_context_paths": bootstrap_context_paths,
         "connector_recommendations": recommendations,
         "captured_context": {
             "anchor": select_anchor(context, candidates),
