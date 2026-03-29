@@ -10,36 +10,6 @@ This repository is published for use and reference. Copy it locally and adapt it
 
 ## 1. Install the Skill
 
-### Codex
-
-Preferred path:
-
-- Ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`.
-- Restart Codex to pick up the new skill.
-
-Notes:
-
-- Codex installs personal skills under `~/.codex/skills/program-truth`.
-- If that destination already exists, the GitHub install flow may refuse to overwrite it. Use the manual fallback below for updates or when you already have a local copy.
-
-Manual fallback:
-
-#### macOS/Linux
-
-```bash
-git clone https://github.com/hilmimuktitama/program-truth.git
-mkdir -p ~/.codex/skills
-cp -R program-truth ~/.codex/skills/
-```
-
-#### PowerShell
-
-```powershell
-git clone https://github.com/hilmimuktitama/program-truth.git
-New-Item -ItemType Directory -Force "$HOME\.codex\skills" | Out-Null
-Copy-Item -Recurse -Force .\program-truth "$HOME\.codex\skills"
-```
-
 ### Claude Code
 
 Claude Code skills are file-based.
@@ -84,25 +54,55 @@ New-Item -ItemType Directory -Force ".\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force .\program-truth ".\.claude\skills"
 ```
 
-## 2. Verify the Install
+### Codex
 
-### Codex or Claude personal skill on macOS/Linux
+If you use Codex:
+
+- Ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`.
+- Restart Codex to pick up the new skill.
+
+Notes:
+
+- Codex installs personal skills under `~/.codex/skills/program-truth`.
+- If that destination already exists, the GitHub install flow may refuse to overwrite it. Use the manual fallback below for updates or when you already have a local copy.
+
+Manual fallback:
+
+#### macOS/Linux
 
 ```bash
-find ~/.codex/skills/program-truth -maxdepth 3 -type f | sort
+git clone https://github.com/hilmimuktitama/program-truth.git
+mkdir -p ~/.codex/skills
+cp -R program-truth ~/.codex/skills/
 ```
 
-For Claude Code personal installs, replace `~/.codex/skills/program-truth` with `~/.claude/skills/program-truth`.
-
-### Codex or Claude personal skill in PowerShell
+#### PowerShell
 
 ```powershell
-Get-ChildItem "$HOME\.codex\skills\program-truth" -Recurse -File |
+git clone https://github.com/hilmimuktitama/program-truth.git
+New-Item -ItemType Directory -Force "$HOME\.codex\skills" | Out-Null
+Copy-Item -Recurse -Force .\program-truth "$HOME\.codex\skills"
+```
+
+## 2. Verify the Install
+
+### Claude Code or Codex personal skill on macOS/Linux
+
+```bash
+find ~/.claude/skills/program-truth -maxdepth 3 -type f | sort
+```
+
+For Codex personal installs, replace `~/.claude/skills/program-truth` with `~/.codex/skills/program-truth`.
+
+### Claude Code or Codex personal skill in PowerShell
+
+```powershell
+Get-ChildItem "$HOME\.claude\skills\program-truth" -Recurse -File |
   Select-Object -ExpandProperty FullName |
   Sort-Object
 ```
 
-For Claude Code personal installs, replace `"$HOME\.codex\skills\program-truth"` with `"$HOME\.claude\skills\program-truth"`.
+For Codex personal installs, replace `"$HOME\.claude\skills\program-truth"` with `"$HOME\.codex\skills\program-truth"`.
 
 ### Claude project skill
 
@@ -128,17 +128,17 @@ Supported usage assumes a client that can:
 - read local workspace context files
 - follow file references into the workspace
 
-### Codex
-
-- Preferred install path is Codex's GitHub repo install flow
-- Installed personal skills live under `~/.codex/skills/program-truth`
-- Keep the package intact; do not copy only `SKILL.md`
-
 ### Claude Code
 
 - Personal skills live under `~/.claude/skills/program-truth`
 - Project skills can live under `.claude/skills/program-truth`
 - If your client expects a workspace context file, start from `examples/example-WORKSPACE.md`
+
+### Codex
+
+- Install via Codex's GitHub repo install flow
+- Installed personal skills live under `~/.codex/skills/program-truth`
+- Keep the package intact; do not copy only `SKILL.md`
 
 ## 4. Deterministic Bootstrap Helper
 

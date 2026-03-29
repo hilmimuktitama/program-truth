@@ -3,6 +3,8 @@ name: program-truth
 description: Evidence-first program truth workflow for reconstructing program reality across Jira, Confluence, Notion, local docs, and meeting notes. Use it to produce status, dependency, risk, review, and meeting artifacts with clear owners, dates, facts, inferences, and unknowns.
 ---
 
+> **For the person reading this:** The three actions most useful on day one are `init`, `daily`, and `status`. A full action list is in the [Action Router](#action-router) section below. This file is otherwise written as instructions for the AI and is more detailed than you need to read upfront.
+
 # Program Truth
 
 Use this skill when the user needs program output that is operationally trustworthy, not just well formatted.

@@ -7,14 +7,6 @@
 
 It is built for mid-flight programs where trackers disagree, parent-ticket status looks cleaner than the actual work, and leadership-facing updates need evidence instead of optimism.
 
-## Repository Status
-
-This repository is published for use and reference.
-
-- Clone it, copy it into your local skills directory, and adapt it for your environment.
-- External pull requests are not being accepted at this stage.
-- Support and fixes are best-effort.
-
 ## Who It Helps
 
 - TPMs working across multiple squads or systems
@@ -35,41 +27,64 @@ This repository is published for use and reference.
 - blocker and risk hygiene with owners and dates
 - outputs that can survive leadership review
 
-## First Useful Run in 10 Minutes
+## Quick Start
 
-This means a first useful run in a client that can load local skill packages and local workspace context. It does not mean a prompt-only chat with no sources attached.
+### Step 1. Install
 
-1. Install the skill in your client.
-   - Codex preferred: ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`, then restart Codex.
-   - Claude Code personal skill: copy this repo to `~/.claude/skills/program-truth`.
-   - Claude Code project skill: add it under `.claude/skills/program-truth` in the workspace repo.
-2. Use [INSTALL.md](INSTALL.md) for the exact Codex and Claude install paths, plus manual fallback commands.
-3. Start with one strong anchor:
-   - Preferred: Jira key/filter/board, Confluence page, Notion page/database, or a local spec/status/meeting-note path.
-   - Prompt form: `Use program-truth init from Jira ABC-123 to inspect this workspace, identify the real source set, and write the minimum useful context files.`
-   - Short command-style form when your client supports it: `init JIRA ABC-123`
-   - Deterministic fallback for Codex, Claude, or any local shell: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run`
-4. Let `init` or the helper write the minimum useful context by default:
-   - `INITIAL-CONTEXT.md`
-   - `TODO.md` only when follow-up actions exist
-   - fuller local scaffold only when you ask for it or the workspace clearly implies multiple workstreams
-5. If client behavior varies, let the agent run the helper directly:
-   - `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira`
-   - full scaffold when you want the older workspace bootstrap: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --scaffold full`
-   - AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
-6. If Jira, Confluence, or Notion matter for the program, let `init` guide connector setup and smoke tests before asking for status.
-7. Only after source discovery confirms enough evidence, run a `daily`, `status`, or `archaeology` prompt.
-8. Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner/date on blockers and next actions.
+**Claude Code (personal)**
 
-If the first response is empty or generic, assume one of these is true:
+```bash
+git clone https://github.com/hilmimuktitama/program-truth.git
+mkdir -p ~/.claude/skills
+cp -R program-truth ~/.claude/skills/
+```
 
-- the client did not load the local skill package
-- the client did not load the workspace context files
-- the source pack is too thin for a real priority or status call
+**Claude Code (project)**
 
-If the workspace is empty, `init` should still help by asking for one strong anchor artifact and writing a first-pass `INITIAL-CONTEXT.md`. It should not jump straight to a readiness pass, and it should not treat sample content from the skill package itself as real program context.
+```bash
+git clone https://github.com/hilmimuktitama/program-truth.git
+mkdir -p .claude/skills
+cp -R program-truth .claude/skills/
+```
 
-If client-side `init` behavior is inconsistent, the repo includes `scripts/bootstrap_program_truth.py` as a deterministic local helper that Codex or Claude can run directly.
+**Codex**
+
+Ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`, then restart Codex.
+
+See [INSTALL.md](INSTALL.md) for PowerShell variants, verification steps, and troubleshooting.
+
+### Step 2. Init from one anchor
+
+Give the skill one real artifact to start from — a Jira key, a Confluence page, a Notion database, or a local status note. Paste this into the chat:
+
+```
+Use program-truth init from [your anchor here] to inspect this workspace, identify the real source set, and write the minimum useful context files.
+```
+
+Examples:
+- `Use program-truth init from Jira ABC-123 to inspect this workspace...`
+- `Use program-truth init from https://[your-domain].atlassian.net/wiki/... to inspect this workspace...`
+- `Use program-truth init from my-notes/status-2026-03.md to inspect this workspace...`
+
+The skill inspects the workspace, fills in what it can, and writes a first-pass `INITIAL-CONTEXT.md`. If behavior is inconsistent or you want a deterministic run:
+
+```bash
+python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
+```
+
+### Step 3. Ask for what you actually need
+
+Once `INITIAL-CONTEXT.md` exists, start with one of these:
+
+| What you want | Prompt |
+|---|---|
+| What is actually blocked right now | `Use program-truth daily` |
+| A status update with evidence | `Use program-truth status` |
+| Reconstruct what really happened | `Use program-truth archaeology` |
+
+Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner and date on every blocker.
+
+Other actions: `review`, `deps`, `risks`, `meeting`, `comms`, `spec`, `retro`, `translate`. See [SKILL.md](SKILL.md) for the full reference.
 
 ## What Good Output Looks Like
 
@@ -105,6 +120,14 @@ These examples are intentionally different in org shape and source quality.
 - [Startup / Single TPM](examples/example-startup-single-tpm.md): 2 squads, partial docs, chat-heavy execution, launch readiness mismatch
 - [Mid-Size / Multi-Squad](examples/example-mid-size-multi-squad.md): 4-6 squads, Jira plus Confluence plus local specs, unclear component critical path
 - [Large / Platform-Heavy Org](examples/example-large-platform-heavy-org.md): platform dependencies, roadmap-vs-execution conflicts, system status versus functional status mismatch
+
+## Repository Status
+
+This repository is published for use and reference.
+
+- Clone it, copy it into your local skills directory, and adapt it for your environment.
+- External pull requests are not being accepted at this stage.
+- Support and fixes are best-effort.
 
 ## Package Map
 
