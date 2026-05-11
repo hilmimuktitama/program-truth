@@ -17,10 +17,14 @@ IGNORED_DIRS = {
     ".hg",
     ".svn",
     ".tmp-tests",
+    ".pytest_cache",
     ".venv",
     "venv",
     "__pycache__",
     "node_modules",
+}
+IGNORED_SOURCE_PATHS = {
+    "scripts/eval_report.md",
 }
 MAX_SCAN_BYTES = 200_000
 JIRA_KEY_RE = re.compile(r"\b[A-Z][A-Z0-9]+-\d+\b")
@@ -165,7 +169,10 @@ def should_scan(
     workspace: Path,
     bootstrap_context_roots: list[Path] | None = None,
 ) -> bool:
+    rel = relative(path, workspace)
     if path.suffix.lower() not in TEXT_EXTENSIONS:
+        return False
+    if rel in IGNORED_SOURCE_PATHS:
         return False
     if any(part in IGNORED_DIRS for part in path.relative_to(workspace).parts):
         return False

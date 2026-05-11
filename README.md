@@ -31,6 +31,16 @@ It is built for mid-flight programs where trackers disagree, parent-ticket statu
 
 ### Step 1. Install
 
+**npm (Codex or Claude Code)**
+
+```bash
+npm install -g program-truth
+program-truth install codex
+program-truth doctor
+```
+
+Use `program-truth install claude` for Claude Code, or `program-truth install all` when you use both clients.
+
 **Claude Code (personal)**
 
 ```bash
@@ -69,7 +79,7 @@ Examples:
 The skill inspects the workspace, fills in what it can, and writes a first-pass `INITIAL-CONTEXT.md`. If behavior is inconsistent or you want a deterministic run:
 
 ```bash
-python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
+program-truth bootstrap --anchor ABC-123 --system jira --dry-run
 ```
 
 ### Step 3. Ask for what you actually need
@@ -133,7 +143,11 @@ This repository is published for use and reference.
 
 - `SKILL.md`: operating contract for the skill
 - `INSTALL.md`: cross-platform setup, verification, and adapter reference
+- `bin/program-truth.js`: npm CLI entrypoint
+- `lib/bootstrap.js`: deterministic Node bootstrap helper
+- `lib/install.js`: installer and doctor support
 - `scripts/bootstrap_program_truth.py`: deterministic bootstrap helper for agents and local shells
+- `package.json`: npm package metadata and command wiring
 - `LICENSE`: MIT license
 - `.github/workflows/quality.yml`: markdown, link, encoding, and bootstrap-script tests on push and pull request
 - `references/framework.md`: templates and operating rules

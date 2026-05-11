@@ -61,7 +61,7 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
 10. After connector setup or connector detection, search the local workspace for candidate starting artifacts before asking the user for Jira keys, filters, page links, or Notion links manually.
 11. When the workspace is empty or thin, prefer a single-anchor bootstrap over a full questionnaire. Ask for one strong anchor artifact and let the skill discover the rest before requesting broader context.
-12. If `scripts/bootstrap_program_truth.py` exists in the workspace or installed skill package, prefer running it for `init` when deterministic local bootstrap is useful. Treat its output as the baseline workspace inspection and scaffold result.
+12. If the `program-truth` CLI or `scripts/bootstrap_program_truth.py` exists in the workspace or installed package, prefer running it for `init` when deterministic local bootstrap is useful. Treat its output as the baseline workspace inspection and scaffold result.
 13. Do not jump to the readiness prompt when no starting artifact exists yet. End `init` by asking for one anchor artifact in one message.
 
 ## Minimum Context Pack
@@ -190,7 +190,7 @@ Produce:
 - a one-pass file creation plan instead of one-by-one manual scaffolding
 - the next source-discovery prompt when `init` did not already complete that step
 
-If `scripts/bootstrap_program_truth.py` is available and local execution is appropriate, prefer this order:
+If `program-truth bootstrap` or `scripts/bootstrap_program_truth.py` is available and local execution is appropriate, prefer this order:
 1. run the bootstrap helper with the best context you already have
 2. read its workspace inspection, candidate sources, remaining gaps, and `next_prompt`
 3. summarize the result back to the user

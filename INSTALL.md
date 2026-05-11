@@ -6,9 +6,47 @@ For the fastest onboarding path, start with the `First Useful Run in 10 Minutes`
 
 The skill can work with local docs only, but prompt-only chats with no source pack are not a reliable starting point. Live adapters or other current execution sources make archaeology and status work materially stronger.
 
-This repository is published for use and reference. Copy it locally and adapt it for your environment.
+This repository is published as an npm-backed skill package. The npm CLI installs the skill directory that Codex and Claude Code read.
 
 ## 1. Install the Skill
+
+### npm CLI
+
+Recommended install:
+
+```bash
+npm install -g program-truth
+program-truth install codex
+program-truth doctor
+```
+
+For Claude Code:
+
+```bash
+program-truth install claude
+```
+
+For both clients:
+
+```bash
+program-truth install all
+```
+
+One-off install with `npx`:
+
+```bash
+npx program-truth install codex
+npx program-truth doctor
+```
+
+Install behavior:
+
+- creates the target skill folder when it does not exist
+- replaces a clean managed install during update
+- refuses unmanaged or locally modified folders by default
+- supports `--backup` for a timestamped backup before replacement
+- supports `--force` when you intentionally want replacement without backup
+- supports `--target <path>` for custom skill directories
 
 ### Claude Code
 
@@ -58,7 +96,8 @@ Copy-Item -Recurse -Force .\program-truth ".\.claude\skills"
 
 If you use Codex:
 
-- Ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`.
+- Prefer `program-truth install codex`.
+- Or ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`.
 - Restart Codex to pick up the new skill.
 
 Notes:
@@ -144,7 +183,15 @@ Supported usage assumes a client that can:
 
 If `program-truth init` varies by client, use the local bootstrap helper instead of relying on chat-only scaffolding.
 
-It is designed so Codex or Claude can run it directly from the workspace:
+The npm CLI is the preferred deterministic path:
+
+```bash
+program-truth bootstrap --anchor ABC-123 --system jira --dry-run
+program-truth bootstrap --anchor ABC-123 --system jira
+program-truth bootstrap --anchor ABC-123 --system jira --dry-run --json
+```
+
+Legacy Python helper, when working directly from the repository:
 
 ```bash
 python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
@@ -161,7 +208,7 @@ python .\scripts\bootstrap_program_truth.py --anchor ABC-123 --system jira
 AI-first JSON mode:
 
 ```bash
-printf '%s' '{"anchor":"ABC-123","anchor_system":"jira","initiative_name":"Launch Readiness","objective":"Find the real blockers"}' | python scripts/bootstrap_program_truth.py --json-in - --json-out
+printf '%s' '{"anchor":"ABC-123","anchor_system":"jira","initiative_name":"Launch Readiness","objective":"Find the real blockers"}' | program-truth bootstrap --json-in - --json
 ```
 
 What it does:
@@ -182,7 +229,7 @@ Useful flags:
 - `--scaffold minimal|full`
 - `--dry-run`
 - `--json-in <file|->`
-- `--json-out`
+- `--json`
 
 ## 5. Optional Adapters
 
@@ -240,7 +287,7 @@ Read `references/notion-adapter.md` before relying on Notion in status-critical 
 Use `examples/example-WORKSPACE.md` as the baseline workspace template.
 Use `examples/example-INITIAL-CONTEXT.md` as the minimum source pack before asking for `daily`, `status`, or `archaeology`.
 Use `program-truth init from <anchor>` when you want the AI to bootstrap this in one pass instead of creating the files manually.
-Use `python scripts/bootstrap_program_truth.py` when you want deterministic local bootstrap that Codex or Claude can execute directly.
+Use `program-truth bootstrap` when you want deterministic local bootstrap that Codex or Claude can execute directly.
 Use `program-truth onboard from <anchor>` only as a compatibility alias if your client already uses that verb.
 
 At minimum, maintain:
@@ -261,7 +308,7 @@ Use program-truth init from Jira ABC-123 to inspect this workspace, identify the
 Deterministic fallback:
 
 ```text
-Run python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira in this workspace, then summarize the files it created, the candidate sources it found, and the next prompt it returned.
+Run program-truth bootstrap --anchor ABC-123 --system jira in this workspace, then summarize the files it created, the candidate sources it found, and the next prompt it returned.
 ```
 
 Expected behavior:
@@ -287,13 +334,14 @@ That follow-up should:
 ### The skill is not discovered
 
 - confirm `SKILL.md` exists in the installed skill folder
+- run `program-truth doctor`
 - restart the client if it caches skill discovery
 - for Claude project skills, confirm the skill is actually under `.claude/skills/program-truth/`
 
 ### Codex GitHub install does not update the skill
 
 - confirm whether `~/.codex/skills/program-truth` already exists
-- use the manual copy path when you need to replace an existing local install
+- use `program-truth install codex --backup` when you need to replace an existing local install safely
 
 ### Atlassian auth fails
 
@@ -317,7 +365,7 @@ That follow-up should:
 
 - confirm the client can actually load local skills and workspace context files
 - start with `program-truth init` instead of a direct `daily` or `status` request
-- if `init` still varies by client, run `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run` and let the agent use that result
+- if `init` still varies by client, run `program-truth bootstrap --anchor ABC-123 --system jira --dry-run` and let the agent use that result
 - give the skill one strong anchor before asking for `daily`, `status`, or `archaeology`
 - use `program-truth onboard from <anchor>` only if your client still routes source discovery through that alias
 
@@ -325,5 +373,5 @@ That follow-up should:
 
 - ask `init` to start from one anchor artifact and write `INITIAL-CONTEXT.md` in one pass
 - provide one Jira key/filter/board, Confluence page, Notion page/database, or local file path if the workspace itself is still empty
-- if you want deterministic behavior, run `python scripts/bootstrap_program_truth.py` and let it write the first-pass scaffold directly
+- if you want deterministic behavior, run `program-truth bootstrap` and let it write the first-pass scaffold directly
 - if the workspace is still empty after scaffolding, the next response should ask for one anchor artifact, not a longer questionnaire and not a readiness prompt yet

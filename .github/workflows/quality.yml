@@ -17,6 +17,25 @@ permissions:
   contents: read
 
 jobs:
+  npm-package:
+    name: Npm Package Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Run npm tests
+        run: npm test
+
+      - name: Verify package contents
+        run: npm pack --dry-run
+
   bootstrap-tests:
     name: Bootstrap Script Tests
     runs-on: ubuntu-latest

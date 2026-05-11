@@ -1,0 +1,45 @@
+{
+  "name": "program-truth",
+  "version": "0.1.0",
+  "description": "Evidence-first program truth skill package and installer CLI for Codex and Claude.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "program-truth": "bin/program-truth.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "examples/",
+    "references/",
+    "SKILL.md",
+    "README.md",
+    "INSTALL.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/args.test.js && node test/bootstrap.test.js && node test/install.test.js",
+    "pack:dry-run": "npm pack --dry-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hilmimuktitama/program-truth.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hilmimuktitama/program-truth/issues"
+  },
+  "homepage": "https://github.com/hilmimuktitama/program-truth#readme",
+  "keywords": [
+    "codex",
+    "claude",
+    "skill",
+    "tpm",
+    "program-management",
+    "jira",
+    "confluence",
+    "notion"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

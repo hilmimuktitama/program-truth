@@ -56,6 +56,35 @@ class BootstrapProgramTruthTests(unittest.TestCase):
             self.assertIn("confluence_url", kinds)
             self.assertIn("notion_url", kinds)
 
+    def test_generated_and_cache_artifacts_do_not_become_sources(self) -> None:
+        with scratch_workspace("ignored-artifacts") as workspace:
+            generated = workspace / "scripts" / "eval_report.md"
+            generated.parent.mkdir()
+            generated.write_text("Jira key BIF-7719", encoding="utf-8")
+
+            pycache_note = workspace / "scripts" / "__pycache__" / "notes.md"
+            pycache_note.parent.mkdir()
+            pycache_note.write_text("Jira key CACHE-123", encoding="utf-8")
+
+            pytest_cache_note = workspace / ".pytest_cache" / "notes.md"
+            pytest_cache_note.parent.mkdir()
+            pytest_cache_note.write_text("Jira key CACHE-456", encoding="utf-8")
+
+            candidates = bootstrap.find_candidate_sources(workspace)
+            self.assertEqual([], candidates)
+
+            result = bootstrap.run_bootstrap(
+                workspace,
+                "none",
+                {},
+                dry_run=True,
+                interactive=False,
+                scaffold_mode="minimal",
+            )
+
+            self.assertIsNone(result["captured_context"]["anchor"])
+            self.assertEqual(["one anchor artifact such as a Jira key/filter/board, Confluence page, Notion page/database, or local file"], result["remaining_gaps"])
+
     def test_run_bootstrap_writes_scaffold_files(self) -> None:
         with scratch_workspace("bootstrap") as workspace:
             result = bootstrap.run_bootstrap(
