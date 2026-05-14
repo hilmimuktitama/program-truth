@@ -20,6 +20,8 @@ program-truth install codex
 program-truth doctor
 ```
 
+`program-truth --doctor` and `program-truth -doctor` are supported aliases for the same verification checks.
+
 For Claude Code:
 
 ```bash
@@ -181,28 +183,12 @@ Supported usage assumes a client that can:
 
 ## 4. Deterministic Bootstrap Helper
 
-If `program-truth init` varies by client, use the local bootstrap helper instead of relying on chat-only scaffolding.
-
-The npm CLI is the preferred deterministic path:
+If `program-truth init` varies by client, use the npm bootstrap command instead of relying on chat-only scaffolding.
 
 ```bash
 program-truth bootstrap --anchor ABC-123 --system jira --dry-run
 program-truth bootstrap --anchor ABC-123 --system jira
 program-truth bootstrap --anchor ABC-123 --system jira --dry-run --json
-```
-
-Legacy Python helper, when working directly from the repository:
-
-```bash
-python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
-python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira
-```
-
-PowerShell:
-
-```powershell
-python .\scripts\bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run
-python .\scripts\bootstrap_program_truth.py --anchor ABC-123 --system jira
 ```
 
 AI-first JSON mode:

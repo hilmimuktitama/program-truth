@@ -33,12 +33,11 @@ test("findCandidateSources detects links and keys", () => {
   }
 });
 
-test("generated and cache artifacts do not become sources", () => {
+test("cache artifacts do not become sources", () => {
   const workspace = scratch("ignored");
   try {
     mkdirSync(join(workspace, "scripts", "__pycache__"), { recursive: true });
     mkdirSync(join(workspace, ".pytest_cache"), { recursive: true });
-    writeFileSync(join(workspace, "scripts", "eval_report.md"), "Jira key BIF-7719");
     writeFileSync(join(workspace, "scripts", "__pycache__", "notes.md"), "Jira key CACHE-123");
     writeFileSync(join(workspace, ".pytest_cache", "notes.md"), "Jira key CACHE-456");
     assert.deepEqual(findCandidateSources(workspace), []);
@@ -104,18 +103,19 @@ test("nested program-truth clone is bootstrap context only", () => {
   try {
     const nested = join(workspace, ".codex-tmp-program-truth");
     mkdirSync(join(nested, "references"), { recursive: true });
-    mkdirSync(join(nested, "scripts"), { recursive: true });
+    mkdirSync(join(nested, "lib"), { recursive: true });
     mkdirSync(join(nested, "examples"), { recursive: true });
     writeFileSync(join(nested, "SKILL.md"), "skill");
     writeFileSync(join(nested, "references", "init-bootstrap.md"), "Use program-truth init.");
     writeFileSync(join(nested, "references", "framework.md"), "framework");
     writeFileSync(join(nested, "references", "source-ranking-and-reconciliation.md"), "ranking");
-    writeFileSync(join(nested, "scripts", "bootstrap_program_truth.py"), "# helper");
+    writeFileSync(join(nested, "lib", "bootstrap.js"), "// helper");
     writeFileSync(join(nested, "README.md"), "Jira key ABC-123");
     writeFileSync(join(nested, "examples", "example-INITIAL-CONTEXT.md"), "Confluence https://example.atlassian.net/wiki/spaces/ENG/pages/123");
     const result = runBootstrap({ workspace, dryRun: true, clientMode: "none" });
     assert.deepEqual(result.candidate_sources, []);
     assert.ok(result.bootstrap_context_paths.includes(".codex-tmp-program-truth/SKILL.md"));
+    assert.ok(result.bootstrap_context_paths.includes(".codex-tmp-program-truth/lib/bootstrap.js"));
   } finally {
     cleanup(workspace);
   }

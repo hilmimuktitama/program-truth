@@ -40,6 +40,7 @@ program-truth doctor
 ```
 
 Use `program-truth install claude` for Claude Code, or `program-truth install all` when you use both clients.
+`program-truth --doctor` and `program-truth -doctor` are supported aliases for verification.
 
 **Claude Code (personal)**
 
@@ -146,10 +147,9 @@ This repository is published for use and reference.
 - `bin/program-truth.js`: npm CLI entrypoint
 - `lib/bootstrap.js`: deterministic Node bootstrap helper
 - `lib/install.js`: installer and doctor support
-- `scripts/bootstrap_program_truth.py`: deterministic bootstrap helper for agents and local shells
 - `package.json`: npm package metadata and command wiring
 - `LICENSE`: MIT license
-- `.github/workflows/quality.yml`: markdown, link, encoding, and bootstrap-script tests on push and pull request
+- `.github/workflows/quality.yml`: npm package, markdown, link, and encoding checks on push and pull request
 - `references/framework.md`: templates and operating rules
 - `references/init-bootstrap.md`: guided `init` workflow for connectors and workspace bootstrap
 - `references/archaeology-workflow.md`: step-by-step reconstruction playbook

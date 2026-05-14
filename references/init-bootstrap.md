@@ -4,7 +4,7 @@ Use this reference when the request is to get `program-truth` working quickly in
 
 The goal of `init` is not to ask the user to hand-build every file or front-load a full brief. The goal is to inspect what already exists, guide connector setup where useful, bootstrap the minimum useful local context in one pass, and start from one real anchor artifact.
 
-When deterministic behavior matters, prefer `program-truth bootstrap`. When the npm CLI is not available but the repository helper exists, use `scripts/bootstrap_program_truth.py`. The skill should treat either helper as the bootstrap engine for `init` when available.
+When deterministic behavior matters, prefer `program-truth bootstrap`. The npm CLI is the supported bootstrap engine for `init`.
 
 ## What `init` Should Do
 
@@ -21,16 +21,13 @@ When deterministic behavior matters, prefer `program-truth bootstrap`. When the 
 
 ## Deterministic Local Helper
 
-If `program-truth bootstrap` or `scripts/bootstrap_program_truth.py` exists, `init` should prefer running it before falling back to a chat-only interview.
+If `program-truth bootstrap` exists, `init` should prefer running it before falling back to a chat-only interview.
 
 Recommended usage:
 
 - npm CLI: `program-truth bootstrap --anchor ABC-123 --system jira`
 - npm preview mode: `program-truth bootstrap --anchor ABC-123 --system jira --dry-run`
 - npm AI-first mode: `program-truth bootstrap --json-in - --json`
-- shell mode: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira`
-- preview mode: `python scripts/bootstrap_program_truth.py --anchor ABC-123 --system jira --dry-run`
-- AI-first mode: `python scripts/bootstrap_program_truth.py --json-in - --json-out`
 
 The helper should:
 

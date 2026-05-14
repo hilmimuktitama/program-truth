@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { parseOptions } from "../lib/args.js";
+import { normalizeCommand, parseOptions } from "../lib/args.js";
 import { runBootstrap, humanSummary, loadJsonInput } from "../lib/bootstrap.js";
 import { installSkill, doctor, defaultTargetForClient } from "../lib/install.js";
 
@@ -15,7 +15,7 @@ function usage() {
 
 Usage:
   program-truth install <codex|claude|all> [--target <path>] [--backup] [--force] [--dry-run]
-  program-truth doctor
+  program-truth doctor|--doctor|-doctor
   program-truth bootstrap [--workspace <path>] [--client auto|codex|claude|none] [--anchor <value>] [--system jira|confluence|notion|local] [--scaffold minimal|full] [--dry-run] [--json] [--json-in <path|->]
   program-truth version
 `;
@@ -32,7 +32,8 @@ function printInstallResult(result) {
 }
 
 async function main(argv) {
-  const [command, ...rest] = argv;
+  const [rawCommand, ...rest] = argv;
+  const command = normalizeCommand(rawCommand);
   if (!command || command === "--help" || command === "-h") {
     console.log(usage());
     return 0;
