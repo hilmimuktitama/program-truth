@@ -1,6 +1,6 @@
 {
   "name": "program-truth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Evidence-first program truth skill package and installer CLI for Codex and Claude.",
   "license": "MIT",
   "type": "module",
