@@ -73,14 +73,14 @@ Use program-truth init from [your anchor here] to inspect this workspace, identi
 ```
 
 Examples:
-- `Use program-truth init from Jira ABC-123 to inspect this workspace...`
+- `Use program-truth init from Jira DEMO-1234 to inspect this workspace...`
 - `Use program-truth init from https://[your-domain].atlassian.net/wiki/... to inspect this workspace...`
 - `Use program-truth init from my-notes/status-2026-03.md to inspect this workspace...`
 
 The skill inspects the workspace, fills in what it can, and writes a first-pass `INITIAL-CONTEXT.md`. If behavior is inconsistent or you want a deterministic run:
 
 ```bash
-program-truth bootstrap --anchor ABC-123 --system jira --dry-run
+program-truth bootstrap --anchor DEMO-1234 --system jira --dry-run
 ```
 
 ### Step 3. Ask for what you actually need
@@ -123,6 +123,10 @@ Most TPM prompts stop at "write a status report." This package is stricter:
 - Parent status is not allowed to overwrite lower-level execution data.
 - Unknowns stay visible instead of being silently converted into confident prose.
 - System status and functional status stay separate when they differ.
+
+## Benchmark
+
+See [Program Truth Benchmark Report](docs/benchmarks/program-truth-benchmark.md) for the anonymized before/after evaluation. Scenario labels and raw outputs are anonymized; benchmark scores and structural differences are preserved.
 
 ## End-to-End Examples
 
