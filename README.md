@@ -1,5 +1,7 @@
 # Program Truth
 
+> Work in progress: this repository is still experimental and the public skill, installer CLI, and workflow contract may change while the program-truth workflow is being validated.
+
 [![Quality](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -138,7 +140,7 @@ These examples are intentionally different in org shape and source quality.
 
 ## Repository Status
 
-This repository is published for use and reference.
+This repository is a work in progress, published for use and reference while the workflow is validated.
 
 - Clone it, copy it into your local skills directory, and adapt it for your environment.
 - External pull requests are not being accepted at this stage.
