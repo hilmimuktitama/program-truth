@@ -9,6 +9,16 @@
 
 It is built for mid-flight programs where trackers disagree, parent-ticket status looks cleaner than the actual work, and leadership-facing updates need evidence instead of optimism.
 
+## Relationship To Truth Tools
+
+For general evidence review, status reconstruction, and timeline compilation, start with [`truth-tools`](https://github.com/hilmimuktitama/truth-tools). It is the canonical CLI/MCP entrypoint that runs capture, timeline validation, program reconciliation, quality checks, and repo-safe rendering in one flow.
+
+Use this package when you specifically need the agent operating workflow, workspace bootstrap, or Program Truth skill instructions. Use the focused packages directly only for narrow tasks:
+
+- `capture-truth`: evidence intake only
+- `timeline-truth`: timeline parsing and validation only
+- `program-truth`: agent workflow and program reconciliation discipline
+
 ## Who It Helps
 
 - TPMs working across multiple squads or systems

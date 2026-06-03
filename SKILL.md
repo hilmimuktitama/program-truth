@@ -9,6 +9,8 @@ description: Evidence-first program truth workflow for reconstructing program re
 
 Use this skill when the user needs program output that is operationally trustworthy, not just well formatted.
 
+For general truth review across evidence capture, timeline validation, and program reconciliation, prefer the unified `truth-tools truth.run` workflow when it is available. Use this skill as the operating guide for source discovery, workspace bootstrap, and program-status discipline; use `capture-truth` or `timeline-truth` directly only for focused intake or timeline-only work.
+
 ## Purpose
 
 This skill is for mid-flight programs where truth is scattered across trackers, docs, notes, and chat.
