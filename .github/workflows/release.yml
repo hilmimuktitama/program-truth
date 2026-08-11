@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag to release, e.g. v0.2.0. Must match the package.json version and exist in the repository."
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ github.event_name }}-${{ github.ref }}-${{ github.event.inputs.tag }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: publish
+    steps:
+      - name: Resolve release ref
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RAW="${{ github.event.inputs.tag }}"
+            case "$RAW" in
+              refs/tags/*) REF="$RAW" ;;
+              v*) REF="refs/tags/$RAW" ;;
+              *) REF="refs/tags/v$RAW" ;;
+            esac
+          else
+            REF="$GITHUB_REF"
+          fi
+          TAG="${REF#refs/tags/}"
+          echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact release ref
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.release.outputs.ref }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Verify tag matches package version
+        run: |
+          VERSION=$(npm pkg get version | tr -d '"')
+          TAG="${{ steps.release.outputs.tag }}"
+          TAG="${TAG#v}"
+          if [ -z "$TAG" ] || [ "$VERSION" != "$TAG" ]; then
+            echo "Release tag '${TAG}' does not match package version '${VERSION}'" >&2
+            exit 1
+          fi
+
+      - name: Clean install
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Syntax and schema drift checks
+        run: npm run check
+
+      - name: Contract verification
+        run: npm run contracts:verify
+
+      - name: Run npm tests
+        run: npm test
+
+      - name: CLI smoke tests
+        run: |
+          node bin/program-truth.js version
+          SMOKE_HOME="$RUNNER_TEMP/pt-cli"
+          mkdir -p "$SMOKE_HOME"
+          node bin/program-truth.js install codex --target "$SMOKE_HOME/codex"
+          node bin/program-truth.js install claude --target "$SMOKE_HOME/claude"
+          node bin/program-truth.js doctor --codex-target "$SMOKE_HOME/codex" --claude-target "$SMOKE_HOME/claude"
+          node bin/program-truth.js bootstrap --workspace "$RUNNER_TEMP/pt-bootstrap" --client none --dry-run
+
+      - name: Package dry run
+        run: npm run pack:dry-run
+
+      - name: Publish with provenance
+        run: npm publish --provenance --access public

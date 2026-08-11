@@ -15,9 +15,13 @@ function usage() {
 
 Usage:
   program-truth install <codex|claude|all> [--target <path>] [--backup] [--force] [--dry-run]
-  program-truth doctor|--doctor|-doctor
+  program-truth doctor|--doctor|-doctor [--codex-target <path>] [--claude-target <path>]
   program-truth bootstrap [--workspace <path>] [--client auto|codex|claude|none] [--anchor <value>] [--system jira|confluence|notion|local] [--scaffold minimal|full] [--dry-run] [--json] [--json-in <path|->]
   program-truth version
+
+Notes:
+  --target requires a single client (codex or claude); it is rejected with 'install all'.
+  --codex-target and --claude-target verify doctor against isolated skill directories (used by CI).
 `;
 }
 
@@ -70,6 +74,9 @@ async function main(argv) {
     if (!["codex", "claude", "all"].includes(client)) {
       throw new Error("Install target must be codex, claude, or all.");
     }
+    if (client === "all" && options.target) {
+      throw new Error("--target cannot be used with install all; install codex or claude individually with --target.");
+    }
     const clients = client === "all" ? ["codex", "claude"] : [client];
     for (const item of clients) {
       const target = clients.length === 1 && options.target
@@ -91,7 +98,11 @@ async function main(argv) {
   }
 
   if (command === "doctor") {
-    const result = doctor({ packageRoot: ROOT, packageVersion: PACKAGE.version });
+    const options = parseOptions(rest);
+    const targets = {};
+    if (options["codex-target"]) targets.codex = options["codex-target"];
+    if (options["claude-target"]) targets.claude = options["claude-target"];
+    const result = doctor({ packageRoot: ROOT, packageVersion: PACKAGE.version, targets });
     for (const check of result.checks) {
       console.log(`${check.ok ? "ok" : "fail"} - ${check.name}: ${check.message}`);
     }

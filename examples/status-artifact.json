@@ -1,0 +1,148 @@
+{
+  "kind": "status_artifact",
+  "schema_version": "1.0.0",
+  "as_of": "2026-08-11T09:00:00.000Z",
+  "initiative": {
+    "name": "Launch Readiness",
+    "owner": "Program Operator",
+    "objective": "Ship the billing + quota + campaign launch by 2026-08-28 with a clean release call."
+  },
+  "policy": {
+    "max_observation_age_days": 14,
+    "max_source_content_age_days": 14
+  },
+  "sources": [
+    {
+      "id": "jira-billing",
+      "type": "jira",
+      "url": "https://demo.atlassian.net/browse/BILL-920",
+      "observed_at": "2026-08-11T08:00:00.000Z",
+      "source_updated_at": "2026-08-11T08:00:00.000Z",
+      "owner": "Eng Lead A"
+    },
+    {
+      "id": "jira-quota",
+      "type": "jira",
+      "url": "https://demo.atlassian.net/browse/QUOTA-311",
+      "observed_at": "2026-08-11T08:00:00.000Z",
+      "source_updated_at": "2026-08-11T08:00:00.000Z",
+      "owner": "Eng Lead B"
+    },
+    {
+      "id": "jira-campaign",
+      "type": "jira",
+      "url": "https://demo.atlassian.net/browse/CMP-188",
+      "observed_at": "2026-08-11T08:00:00.000Z",
+      "source_updated_at": "2026-08-11T08:00:00.000Z",
+      "owner": "Eng Lead C"
+    },
+    {
+      "id": "confluence-sync",
+      "type": "confluence",
+      "url": "https://demo.atlassian.net/wiki/spaces/PLAT/pages/2026-08-07",
+      "observed_at": "2026-08-07T15:00:00.000Z",
+      "source_updated_at": "2026-08-07T15:00:00.000Z",
+      "owner": "Program Operator"
+    },
+    {
+      "id": "local-status",
+      "type": "local",
+      "path": "status/2026-08-10.md",
+      "observed_at": "2026-08-10T18:00:00.000Z",
+      "source_updated_at": "2026-08-10T18:00:00.000Z",
+      "owner": "Program Operator"
+    }
+  ],
+  "claims": [
+    {
+      "id": "fact-billing-done",
+      "kind": "fact",
+      "state": "active",
+      "subject": "billing.scope",
+      "value": "complete",
+      "text": "All billing required tasks (children of BILL-920) are Done.",
+      "source_refs": [
+        { "source_id": "jira-billing", "locator": "https://demo.atlassian.net/browse/BILL-920" }
+      ]
+    },
+    {
+      "id": "fact-quota-open",
+      "kind": "fact",
+      "state": "active",
+      "subject": "quota.task",
+      "value": "open",
+      "text": "Quota API task QUOTA-311 remains open with no assignee.",
+      "source_refs": [
+        { "source_id": "jira-quota", "locator": "https://demo.atlassian.net/browse/QUOTA-311" }
+      ]
+    },
+    {
+      "id": "fact-campaign-waiting",
+      "kind": "fact",
+      "state": "active",
+      "subject": "campaign.integration",
+      "value": "waiting_on_quota",
+      "text": "Campaign orchestration integration validation is waiting on the quota API.",
+      "source_refs": [
+        { "source_id": "jira-campaign", "locator": "https://demo.atlassian.net/browse/CMP-188" }
+      ]
+    },
+    {
+      "id": "fact-qa-pending",
+      "kind": "fact",
+      "state": "active",
+      "subject": "qa.signoff",
+      "value": "pending",
+      "text": "The 2026-08-07 sync note records QA sign-off as pending until integration validation completes.",
+      "source_refs": [
+        { "source_id": "confluence-sync", "locator": "https://demo.atlassian.net/wiki/spaces/PLAT/pages/2026-08-07" }
+      ]
+    },
+    {
+      "id": "blocker-quota",
+      "kind": "blocker",
+      "state": "active",
+      "subject": "release.gate",
+      "value": "quota",
+      "text": "Release and campaign integration validation are blocked by the open quota API contract task QUOTA-311.",
+      "owner": "Eng Lead B",
+      "due_at": "2026-08-18",
+      "source_refs": [
+        { "source_id": "jira-quota", "locator": "https://demo.atlassian.net/browse/QUOTA-311" }
+      ]
+    },
+    {
+      "id": "risk-quota-slip",
+      "kind": "risk",
+      "state": "active",
+      "subject": "release.date",
+      "value": "at_risk",
+      "text": "Quota API could slip past 2026-08-18 and push the launch date.",
+      "owner": "Program Operator",
+      "mitigation": "Daily sync with quota service owner; pre-approve contract freeze; identify fallback scope cut for campaign orchestration.",
+      "source_refs": [
+        { "source_id": "jira-quota", "locator": "https://demo.atlassian.net/browse/QUOTA-311" }
+      ]
+    },
+    {
+      "id": "unknown-quota-eta",
+      "kind": "unknown",
+      "state": "active",
+      "text": "Quota API completion ETA from the quota service owner is unconfirmed.",
+      "owner": "Eng Lead B",
+      "source_refs": [
+        { "source_id": "jira-quota", "locator": "https://demo.atlassian.net/browse/QUOTA-311" }
+      ]
+    },
+    {
+      "id": "unknown-staging-signoff",
+      "kind": "unknown",
+      "state": "active",
+      "text": "No dated confirmation of staging sign-off after 2026-08-10.",
+      "owner": "QA Lead",
+      "source_refs": [
+        { "source_id": "local-status", "locator": "status/2026-08-10.md" }
+      ]
+    }
+  ]
+}

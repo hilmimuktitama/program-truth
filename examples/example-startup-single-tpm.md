@@ -67,6 +67,10 @@ The chat thread says the launch is "done," but the Jira rollout task is still `I
 - BLOCKER — assign owner for production communication — needed by 2026-04-18 — waiting on product lead
 ```
 
+## Canonical Artifact
+
+The same run emits `status-artifact.json` conforming to `schemas/status-artifact.schema.json` (see the complete pair in `examples/status-artifact.json` and `examples/status-report.md`), validated with `truth-tools review --artifact <path>`.
+
 ## Why This Example Matters
 
 This shows that `program-truth` is useful even when the organization is small and the tooling is messy. The value is not "more process"; it is preventing a chat-level green status from masking an incomplete launch.

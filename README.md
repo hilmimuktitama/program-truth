@@ -1,113 +1,65 @@
 # Program Truth
 
-> Work in progress: this repository is still experimental and the public skill, installer CLI, and workflow contract may change while the program-truth workflow is being validated.
-
 [![Quality](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-`program-truth` is a documentation-first skill package for TPMs and program operators who need to reconstruct execution truth across Jira, Confluence, Notion, local docs, and meeting notes.
+**Program Truth gathers and synthesizes execution-level evidence from available sources into a canonical, machine-readable status artifact; Truth Tools validates it.**
 
-It is built for mid-flight programs where trackers disagree, parent-ticket status looks cleaner than the actual work, and leadership-facing updates need evidence instead of optimism.
+Built for mid-flight programs where trackers disagree, parent-ticket status looks cleaner than the actual work, and leadership updates need evidence instead of optimism.
 
-## Relationship To Truth Tools
+## What This Package Does And Does Not Own
 
-For general evidence review, status reconstruction, and timeline compilation, start with [`truth-tools`](https://github.com/hilmimuktitama/truth-tools). It is the canonical CLI/MCP entrypoint that runs capture, timeline validation, program reconciliation, quality checks, and repo-safe rendering in one flow.
+- **Does:** source discovery, workspace bootstrap, evidence gathering, reconciliation, and synthesis into a `status-artifact.json` plus a human-readable `status-report.md`.
+- **Does not:** validate artifacts, parse timelines, or run quality checks — that is [Truth Tools](https://github.com/hilmimuktitama/truth-tools), invoked with `truth-tools review --artifact <path>`.
+- **Does not:** bundle or implement connectors. Program Truth guides the connectors already available in your client (Atlassian MCP, Notion MCP, or equivalent) but ships none.
+- **Does not:** write to external systems. Every Jira, Confluence, or Notion write waits for your explicit confirmation.
 
-Use this package when you specifically need the agent operating workflow, workspace bootstrap, or Program Truth skill instructions. Use the focused packages directly only for narrow tasks:
-
-- `capture-truth`: evidence intake only
-- `timeline-truth`: timeline parsing and validation only
-- `program-truth`: agent workflow and program reconciliation discipline
-
-## Who It Helps
-
-- TPMs working across multiple squads or systems
-- chiefs of staff or program operators supporting engineering execution
-- teams that need status, dependency, or risk artifacts that can survive leadership review
-- teams where parent-ticket status is often cleaner than real execution state
-
-## Not A Fit For
-
-- people looking for a personal task manager or note formatter
-- teams with one clean source of truth and little reconciliation work
-- users who want polished summaries without evidence discipline
-
-## What It Optimizes For
-
-- execution truth over parent-ticket optics
-- explicit facts, inferences, unknowns, and conflicts
-- blocker and risk hygiene with owners and dates
-- outputs that can survive leadership review
+```text
+Program Truth (gathers + synthesizes evidence) -> StatusArtifact -> Truth Tools (validates)
+```
 
 ## Quick Start
 
-### Step 1. Install
-
-**npm (Codex or Claude Code)**
+### 1. Install
 
 ```bash
 npm install -g program-truth
-program-truth install codex
+program-truth install codex   # or: claude, all
 program-truth doctor
 ```
 
-Use `program-truth install claude` for Claude Code, or `program-truth install all` when you use both clients.
-`program-truth --doctor` and `program-truth -doctor` are supported aliases for verification.
+Requires Node 22 or newer. See [INSTALL.md](INSTALL.md) for PowerShell variants, verification, and troubleshooting.
 
-**Claude Code (personal)**
+### 2. Init from one anchor
 
-```bash
-git clone https://github.com/hilmimuktitama/program-truth.git
-mkdir -p ~/.claude/skills
-cp -R program-truth ~/.claude/skills/
-```
-
-**Claude Code (project)**
-
-```bash
-git clone https://github.com/hilmimuktitama/program-truth.git
-mkdir -p .claude/skills
-cp -R program-truth .claude/skills/
-```
-
-**Codex**
-
-Ask Codex to install the skill from `https://github.com/hilmimuktitama/program-truth`, then restart Codex.
-
-See [INSTALL.md](INSTALL.md) for PowerShell variants, verification steps, and troubleshooting.
-
-### Step 2. Init from one anchor
-
-Give the skill one real artifact to start from — a Jira key, a Confluence page, a Notion database, or a local status note. Paste this into the chat:
+Paste this into the chat with one real artifact (a Jira key, Confluence page, Notion database, or local status note):
 
 ```
-Use program-truth init from [your anchor here] to inspect this workspace, identify the real source set, and write the minimum useful context files.
+Use program-truth init from Jira DEMO-1234 to inspect this workspace, identify the real source set, and write the minimum useful context files.
 ```
 
-Examples:
-- `Use program-truth init from Jira DEMO-1234 to inspect this workspace...`
-- `Use program-truth init from https://[your-domain].atlassian.net/wiki/... to inspect this workspace...`
-- `Use program-truth init from my-notes/status-2026-03.md to inspect this workspace...`
-
-The skill inspects the workspace, fills in what it can, and writes a first-pass `INITIAL-CONTEXT.md`. If behavior is inconsistent or you want a deterministic run:
+Deterministic fallback:
 
 ```bash
 program-truth bootstrap --anchor DEMO-1234 --system jira --dry-run
 ```
 
-### Step 3. Ask for what you actually need
+### 3. Ask for what you need, get the artifact
 
-Once `INITIAL-CONTEXT.md` exists, start with one of these:
+```
+Use program-truth status
+```
 
-| What you want | Prompt |
-|---|---|
-| What is actually blocked right now | `Use program-truth daily` |
-| A status update with evidence | `Use program-truth status` |
-| Reconstruct what really happened | `Use program-truth archaeology` |
+Every status-critical action (`status`, `daily`, `archaeology`, `review`, `deps`, `risks`) produces:
 
-Check the output for a `Data Source` block, explicit facts vs inferences vs unknowns, and owner and date on every blocker.
+1. **Canonical artifact** — `status-artifact.json` conforming to [`schemas/status-artifact.schema.json`](schemas/status-artifact.schema.json); see the full example at [`examples/status-artifact.json`](examples/status-artifact.json).
+2. **Human report** — Markdown companion; see [`examples/status-report.md`](examples/status-report.md).
 
-Other actions: `review`, `deps`, `risks`, `meeting`, `comms`, `spec`, `retro`, `translate`. See [SKILL.md](SKILL.md) for the full reference.
+Then validate:
+
+```bash
+truth-tools review --artifact status-artifact.json
+```
 
 ## What Good Output Looks Like
 
@@ -128,25 +80,34 @@ Other actions: `review`, `deps`, `risks`, `meeting`, `comms`, `spec`, `retro`, `
 
 ## What Makes It Different
 
-Most TPM prompts stop at "write a status report." This package is stricter:
-
 - Jira is not treated as truth unless the query reaches the task level.
-- Confluence and Notion are treated as evidence, not decoration.
-- Parent status is not allowed to overwrite lower-level execution data.
-- Unknowns stay visible instead of being silently converted into confident prose.
-- System status and functional status stay separate when they differ.
+- The artifact is the canonical `StatusArtifact` contract shared with Truth Tools (`kind`, `schema_version`, `as_of`, `initiative`, `policy`, `sources`, reviewed `claims` with locators); no bespoke machine fields.
+- Parent (tracker) status is reported separately from functional status in the human report; tracker optics cannot overwrite lower-level execution data.
+- Facts, inferences, and unknowns stay separate in the report; unknowns stay visible instead of becoming confident prose.
+- Every blocker has an owner and date; every risk has a mitigation and owner.
+- Every external write requires explicit confirmation, recorded in the report.
 
-## Benchmark
+## Examples
 
-See [Program Truth Benchmark Report](docs/benchmarks/program-truth-benchmark.md) for the anonymized before/after evaluation. Scenario labels and raw outputs are anonymized; benchmark scores and structural differences are preserved.
+- [Startup / Single TPM](examples/example-startup-single-tpm.md)
+- [Mid-Size / Multi-Squad](examples/example-mid-size-multi-squad.md)
+- [Large / Platform-Heavy Org](examples/example-large-platform-heavy-org.md)
 
-## End-to-End Examples
+## Case Study And Evaluation
 
-These examples are intentionally different in org shape and source quality.
+- [Evaluation summary](docs/benchmarks/program-truth-benchmark.md) — honest framing of what has and has not been proven.
+- [Historical A/B case study](case-studies/historical-ab-case-study.md) — the one live scenario that exists, with raw outputs and all limitations preserved.
+- [Blinded human review template](evaluation/blinded-human-review-template.md) — the review procedure to use for future evaluations.
 
-- [Startup / Single TPM](examples/example-startup-single-tpm.md): 2 squads, partial docs, chat-heavy execution, launch readiness mismatch
-- [Mid-Size / Multi-Squad](examples/example-mid-size-multi-squad.md): 4-6 squads, Jira plus Confluence plus local specs, unclear component critical path
-- [Large / Platform-Heavy Org](examples/example-large-platform-heavy-org.md): platform dependencies, roadmap-vs-execution conflicts, system status versus functional status mismatch
+## Documentation
+
+- [SKILL.md](SKILL.md) — operating contract for the skill (full action list, context pack, artifact contract)
+- [INSTALL.md](INSTALL.md) — setup, verification, and adapter reference
+- [references/framework.md](references/framework.md) — operating rules and reusable templates
+- [CHANGELOG.md](CHANGELOG.md) — release history
+- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x to 0.2.0
+- [SECURITY.md](SECURITY.md) — vulnerability reporting
+- [docs/release-process.md](docs/release-process.md) — how releases are cut and published
 
 ## Repository Status
 
@@ -163,9 +124,15 @@ This repository is a work in progress, published for use and reference while the
 - `bin/program-truth.js`: npm CLI entrypoint
 - `lib/bootstrap.js`: deterministic Node bootstrap helper
 - `lib/install.js`: installer and doctor support
-- `package.json`: npm package metadata and command wiring
-- `LICENSE`: MIT license
-- `.github/workflows/quality.yml`: npm package, markdown, link, and encoding checks on push and pull request
+- `schemas/`: canonical `StatusArtifact` contract — byte-exact copies of the flagship truth-tools schemas (source, source-ref, claim, status-artifact), drift-checked against the sibling repository by `scripts/check-syntax.js` and `scripts/contracts-verify.js`
+- `examples/status-artifact.json`, `examples/status-report.md`: canonical artifact + human report example pair
+- `scripts/check-syntax.js`: syntax, JSON, and schema-drift checks (`npm run check`)
+- `scripts/contracts-verify.js`: artifact contract and documentation checks (`npm run contracts:verify`)
+- `test/`: unit and contract tests (`npm test`)
+- `case-studies/`: historical A/B case study
+- `evaluation/`: blinded human review template and evaluation guide
+- `.github/workflows/quality.yml`: clean-install, tests, contracts, package, markdown, link, and encoding checks
+- `.github/workflows/release.yml`: trusted publishing to npm
 - `references/framework.md`: templates and operating rules
 - `references/init-bootstrap.md`: guided `init` workflow for connectors and workspace bootstrap
 - `references/archaeology-workflow.md`: step-by-step reconstruction playbook

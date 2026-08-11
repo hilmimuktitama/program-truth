@@ -68,6 +68,10 @@ Leadership sees a roadmap date that suggests the program is on track. Execution-
 - Platform TPM confirm whether post-deploy validation can finish by 2026-06-12
 ```
 
+## Canonical Artifact
+
+The same run emits `status-artifact.json` conforming to `schemas/status-artifact.schema.json` (see the complete pair in `examples/status-artifact.json` and `examples/status-report.md`), validated with `truth-tools review --artifact <path>`.
+
 ## Why This Example Matters
 
 This is the outsider-proof example for a large organization. It shows that the skill is not a Jira-only status formatter; it is a reconciliation method for environments where roadmap truth, execution truth, and functional truth often diverge.

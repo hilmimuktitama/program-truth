@@ -9,7 +9,24 @@ description: Evidence-first program truth workflow for reconstructing program re
 
 Use this skill when the user needs program output that is operationally trustworthy, not just well formatted.
 
-For general truth review across evidence capture, timeline validation, and program reconciliation, prefer the unified `truth-tools truth.run` workflow when it is available. Use this skill as the operating guide for source discovery, workspace bootstrap, and program-status discipline; use `capture-truth` or `timeline-truth` directly only for focused intake or timeline-only work.
+Program Truth's job, in one sentence: **gather and synthesize execution-level evidence from available sources into a canonical, machine-readable status artifact.**
+
+What Program Truth does not own:
+- It does not validate artifacts, parse timelines, or run quality checks. That is Truth Tools' job: run `truth-tools review --artifact <path>` on the artifact this skill produces.
+- It does not bundle or implement connectors. Program Truth guides the connectors already available in the client (Atlassian MCP, Notion MCP, or equivalent) but ships none.
+- It does not perform external writes. Every Jira, Confluence, or Notion write waits for explicit user confirmation.
+
+Relationship to Truth Tools:
+
+```text
+Program Truth (gathers + synthesizes evidence)
+        |
+        v
+StatusArtifact (canonical JSON, schemas/status-artifact.schema.json)
+        |
+        v
+Truth Tools (validates, checks quality, renders)
+```
 
 ## Purpose
 
@@ -29,6 +46,8 @@ Read these references only as needed:
 - `references/archaeology-workflow.md` for the reconstruction workflow
 - `references/source-ranking-and-reconciliation.md` for conflict handling
 - `references/notion-adapter.md` for Notion-specific caveats
+- `schemas/status-artifact.schema.json` for the canonical status artifact shape
+- `examples/status-artifact.json` and `examples/status-report.md` for a complete example pair
 
 ## When To Use
 
@@ -60,7 +79,7 @@ Do not use it as a shortcut for generic summarization when no source reconciliat
 6. Give every risk a mitigation and owner.
 7. If a live adapter is unavailable, continue with local artifacts and state the confidence downgrade.
 8. For `init`, prefer guided bootstrap over asking the user to create files or folders one-by-one.
-9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output.
+9. When Jira, Confluence, or Notion are likely systems in play, explicitly guide connector setup and smoke tests before asking for status-critical output. Program Truth guides available connectors but bundles none; never assume a connector exists until its smoke test passes.
 10. After connector setup or connector detection, search the local workspace for candidate starting artifacts before asking the user for Jira keys, filters, page links, or Notion links manually.
 11. When the workspace is empty or thin, prefer a single-anchor bootstrap over a full questionnaire. Ask for one strong anchor artifact and let the skill discover the rest before requesting broader context.
 12. If the `program-truth` CLI exists, prefer running `program-truth bootstrap` for `init` when deterministic local bootstrap is useful. Treat its output as the baseline workspace inspection and scaffold result.
@@ -177,6 +196,30 @@ Minimum quality bar before sending:
 - every blocker has owner and due date
 - every risk has mitigation and owner
 - every relative date has been normalized
+
+## Canonical Status Artifact
+
+For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, produce the machine-readable status artifact plus a human-readable companion report:
+
+- Write the artifact as JSON conforming to `schemas/status-artifact.schema.json` (example: `examples/status-artifact.json`). The schema is a byte-exact copy of the flagship Truth Tools contract; this skill never invents machine fields.
+- Write the human report as Markdown (example: `examples/status-report.md`) with a `Data Source` block (source hierarchy and connector caveats), system status vs functional status, facts vs inferences, unknowns, blockers, risks, dependencies, and write confirmation.
+- The artifact is the contract this skill produces. Validation is Truth Tools' responsibility; do not improvise validation logic in the report.
+- Documented validation command for the artifact:
+  ```bash
+  truth-tools review --artifact <path-to-status-artifact.json>
+  ```
+  When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
+
+The artifact is a canonical `StatusArtifact` and must carry, at minimum:
+- `kind` (`status_artifact`) and `schema_version` (`1.0.0`)
+- `as_of` (review cutoff timestamp) and `initiative` (`name`, `owner`, `objective`)
+- `policy` splitting observation age from source-content age (`max_observation_age_days`, `max_source_content_age_days`)
+- `sources` with stable `id`, `type`, and `observed_at`; raw source bodies never travel in the artifact
+- `claims` as reviewed claims with explicit `id`, `kind` (`fact` | `blocker` | `risk` | `unknown`), `state`, and `text`
+- every claim cites `source_refs` with a concrete `locator` to an existing source id
+- every active blocker carries `owner` and `due_at`; every active risk carries `owner` and `mitigation`
+
+The richer TPM methodology does not fit the machine contract and lives in the report and methodology docs instead: system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation.
 
 ## Action Outputs
 

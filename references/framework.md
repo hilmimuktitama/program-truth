@@ -256,3 +256,39 @@ tpm/
 
 Start from `examples/example-WORKSPACE.md` and adapt to your runtime.
 Use `references/init-bootstrap.md` when you want the skill to bootstrap this structure for you.
+
+## VI. Canonical Status Artifact
+
+Status-critical output is delivered as a pair: a machine-readable artifact and a human-readable report.
+
+### Artifact
+
+The artifact is JSON conforming to `schemas/status-artifact.schema.json` (draft 2020-12, a byte-exact copy of the flagship truth-tools contract). A complete example is `examples/status-artifact.json`; its companion report is `examples/status-report.md`.
+
+Versioning: the artifact carries its own `schema_version` (currently `1.0.0`), which is the artifact contract version and is independent of the `program-truth` package version (e.g. `0.2.0`). The package version follows semver for the package as a whole; the contract version changes only when the artifact shape changes.
+
+Required top-level fields (canonical `StatusArtifact`):
+
+- `kind` (`status_artifact`) and `schema_version` (`1.0.0`)
+- `as_of` — reproducible review cutoff timestamp; evidence-age checks are deterministic
+- `initiative` with `name` (and `owner`, `objective`)
+- `policy` splitting observation age from source-content age (`max_observation_age_days`, `max_source_content_age_days`)
+- `sources` — metadata-only records with stable `id`, `type`, and `observed_at`; raw bodies stay in their system of record and never travel in the artifact
+- `claims` — reviewed claims with explicit `id`, `kind` (`fact` | `blocker` | `risk` | `unknown`), `state` (`active` | `superseded` | `historical`), and `text`
+  - every claim cites `source_refs` with a concrete `locator` pointing at a source id that exists in `sources`
+  - every active blocker carries `owner` and `due_at`; every active risk carries `owner` and `mitigation`
+  - only `active` claims participate in contradictions and program health
+
+The richer TPM methodology does not fit the machine contract and lives in the human report and methodology docs instead: system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation.
+
+Shared schemas (`source`, `source-ref`, `claim`, `status-artifact`) are shipped as byte-exact copies of the flagship truth-tools contracts in `schemas/`. `scripts/check-syntax.js` and `scripts/contracts-verify.js` deep-compare the copies against the sibling truth-tools repository when it is present and fail on drift; without the sibling, the copies are checked for parseability and sanity only.
+
+### Validation
+
+This package produces the artifact; it does not validate it. Run:
+
+```bash
+truth-tools review --artifact <path-to-status-artifact.json>
+```
+
+If Truth Tools is not available, say the artifact is unvalidated. `npm run contracts:verify` in this repository proves the example artifact's shape and acceptance locally without depending on Truth Tools at runtime, and `test/truth-tools-sibling.test.js` runs the real sibling review engine against the example when the sibling repository is present.

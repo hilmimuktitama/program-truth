@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report a problem with program-truth
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please check the CHANGELOG and MIGRATION docs first; do not include live credentials, tokens, or private program data in this form. For security issues, use the private reporting path in SECURITY.md instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you expect, and what happened instead?
+      placeholder: "Expected: status-artifact.json is produced. Actual: CLI exited 1 with ..."
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Exact commands or prompts used.
+      placeholder: "1. npm install -g program-truth@0.2.0\n2. program-truth doctor\n3. ..."
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `program-truth version` or the npm version installed.
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS and Node version (`node --version`).
+      placeholder: "macOS 15 / Node 22.14.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part is affected?
+      options:
+        - CLI (install / doctor / bootstrap)
+        - Status artifact contract (schemas / examples)
+        - Skill behavior (SKILL.md / references)
+        - Documentation
+        - Packaging / release
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Verification performed
+      options:
+        - label: Ran `npm run check`
+        - label: Ran `npm run contracts:verify`
+        - label: Ran `npm test`
+        - label: Read CHANGELOG.md and MIGRATION.md for the installed version

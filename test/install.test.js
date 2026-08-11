@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
 
 import { installSkill, doctor, MANIFEST_FILE } from "../lib/install.js";
 
 const ROOT = resolve(".");
+const BIN = resolve("bin/program-truth.js");
 
 function scratch(prefix) {
   return mkdtempSync(join(tmpdir(), `program-truth-install-${prefix}-`));
@@ -14,6 +16,10 @@ function scratch(prefix) {
 
 function cleanup(path) {
   rmSync(path, { recursive: true, force: true });
+}
+
+function runCli(args) {
+  return spawnSync(process.execPath, [BIN, ...args], { encoding: "utf8" });
 }
 
 test("installSkill creates a managed install with manifest", () => {
@@ -83,4 +89,62 @@ test("doctor reports package checks", () => {
   const result = doctor({ packageRoot: ROOT, packageVersion: "0.1.0" });
   assert.ok(result.checks.some((check) => check.name === "Node version"));
   assert.ok(result.checks.some((check) => check.name === "Package file SKILL.md" && check.ok));
+});
+
+test("doctor with isolated targets verifies only those targets", () => {
+  const root = scratch("targets");
+  try {
+    const empty = join(root, "empty");
+    const installed = join(root, "installed");
+    mkdirSync(empty, { recursive: true });
+    installSkill({ packageRoot: ROOT, client: "codex", target: installed, packageVersion: "0.2.0" });
+
+    const before = doctor({ packageRoot: ROOT, packageVersion: "0.2.0", targets: { codex: empty, claude: installed } });
+    const emptyCheck = before.checks.find((check) => check.name === "codex installed skill");
+    const installedCheck = before.checks.find((check) => check.name === "claude installed skill");
+    assert.equal(emptyCheck.ok, false);
+    assert.match(emptyCheck.message, /not installed/);
+    assert.equal(installedCheck.ok, true);
+    assert.match(installedCheck.message, /managed/);
+    assert.equal(before.ok, false);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test("CLI doctor exit semantics with isolated targets", () => {
+  const root = scratch("cli-doctor");
+  try {
+    const codex = join(root, "codex");
+    const claude = join(root, "claude");
+    const failing = runCli(["doctor", "--codex-target", codex, "--claude-target", claude]);
+    assert.equal(failing.status, 1);
+    assert.match(failing.stdout, /fail - codex installed skill/);
+    assert.match(failing.stdout, /fail - claude installed skill/);
+
+    const install = runCli(["install", "codex", "--target", codex]);
+    assert.equal(install.status, 0);
+    const install2 = runCli(["install", "claude", "--target", claude]);
+    assert.equal(install2.status, 0);
+
+    const passing = runCli(["doctor", "--codex-target", codex, "--claude-target", claude]);
+    assert.equal(passing.status, 0);
+    assert.match(passing.stdout, /ok - codex installed skill/);
+    assert.match(passing.stdout, /ok - claude installed skill/);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test("CLI rejects --target with install all", () => {
+  const root = scratch("cli-all");
+  try {
+    const target = join(root, "skill");
+    const result = runCli(["install", "all", "--target", target]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /--target cannot be used with install all/);
+    assert.equal(existsSync(target), false);
+  } finally {
+    cleanup(root);
+  }
 });

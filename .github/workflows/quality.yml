@@ -20,7 +20,7 @@ jobs:
   npm-package:
     name: Npm Package Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -30,8 +30,30 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Clean install
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Syntax and schema drift checks
+        run: npm run check
+
+      - name: Contract verification
+        run: npm run contracts:verify
+
       - name: Run npm tests
         run: npm test
+
+      - name: CLI smoke tests
+        run: |
+          node bin/program-truth.js version
+          SMOKE_HOME="$RUNNER_TEMP/pt-cli"
+          mkdir -p "$SMOKE_HOME"
+          node bin/program-truth.js install codex --target "$SMOKE_HOME/codex"
+          node bin/program-truth.js install claude --target "$SMOKE_HOME/claude"
+          node bin/program-truth.js doctor --codex-target "$SMOKE_HOME/codex" --claude-target "$SMOKE_HOME/claude"
+          node bin/program-truth.js bootstrap --workspace "$RUNNER_TEMP/pt-bootstrap" --client none --dry-run
 
       - name: Verify package contents
         run: npm pack --dry-run

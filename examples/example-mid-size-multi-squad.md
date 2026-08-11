@@ -67,6 +67,10 @@ The parent epics are all `In Progress`, but one dependency from `quota service` 
 - Consumer impact: release cannot proceed until integration validation is complete
 ```
 
+## Canonical Artifact
+
+The same run emits `status-artifact.json` conforming to `schemas/status-artifact.schema.json` (see the complete pair in `examples/status-artifact.json` and `examples/status-report.md`), validated with `truth-tools review --artifact <path>`.
+
 ## Why This Example Matters
 
 This is a common cross-squad execution failure mode: parent tickets create the illusion of progress, while the real release outcome depends on one unresolved component dependency. The example proves that the skill is built for that layer of work.

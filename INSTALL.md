@@ -2,11 +2,13 @@
 
 This is the detailed setup reference for `program-truth`.
 
-For the fastest onboarding path, start with the `First Useful Run in 10 Minutes` section in [README.md](README.md), then use this guide for exact copy commands, verification, runtime notes, and adapters.
+For the fastest onboarding path, start with the `Quick Start` section in [README.md](README.md), then use this guide for exact copy commands, verification, runtime notes, and adapters.
 
 The skill can work with local docs only, but prompt-only chats with no source pack are not a reliable starting point. Live adapters or other current execution sources make archaeology and status work materially stronger.
 
 This repository is published as an npm-backed skill package. The npm CLI installs the skill directory that Codex and Claude Code read.
+
+Requires Node 22 or newer (Node 22 LTS or later).
 
 ## 1. Install the Skill
 
@@ -21,6 +23,14 @@ program-truth doctor
 ```
 
 `program-truth --doctor` and `program-truth -doctor` are supported aliases for the same verification checks.
+
+Doctor accepts optional isolated targets so verification is deterministic on any machine, including CI runners with no skills installed:
+
+```bash
+program-truth doctor --codex-target <path> --claude-target <path>
+```
+
+When given, doctor checks those directories instead of the default `~/.codex/skills/program-truth` and `~/.claude/skills/program-truth` locations. Exit code is 0 only when every check passes.
 
 For Claude Code:
 
@@ -154,12 +164,23 @@ Expected files include:
 - `SKILL.md`
 - `README.md`
 - `INSTALL.md`
+- `CHANGELOG.md`
+- `MIGRATION.md`
+- `SECURITY.md`
 - `examples/example-INITIAL-CONTEXT.md`
+- `examples/status-artifact.json`
+- `examples/status-report.md`
+- `schemas/status-artifact.schema.json`
+- `schemas/source.schema.json`
+- `schemas/source-ref.schema.json`
+- `schemas/claim.schema.json`
 - `references/framework.md`
 - `references/init-bootstrap.md`
 - `references/archaeology-workflow.md`
 - `references/source-ranking-and-reconciliation.md`
 - `references/notion-adapter.md`
+
+`program-truth doctor` verifies that these files are present in the package.
 
 ## 3. Runtime Notes
 
@@ -168,6 +189,22 @@ Supported usage assumes a client that can:
 - load local skill packages
 - read local workspace context files
 - follow file references into the workspace
+
+### Canonical Status Artifact
+
+Every status-critical action produces a machine-readable `status-artifact.json` (schema: `schemas/status-artifact.schema.json`, example: `examples/status-artifact.json`) and a human-readable Markdown report (example: `examples/status-report.md`).
+
+The artifact is the canonical `StatusArtifact` contract shared with Truth Tools: `kind`, `schema_version`, `as_of`, `initiative`, `policy` (observation age split from source-content age), `sources` (id, type, observed_at; metadata only), and reviewed `claims` (id, kind, state, text, `source_refs` with locators). The shipped schema files are byte-exact copies of the flagship truth-tools contracts; when the sibling truth-tools repository is present, `npm run check` and `npm run contracts:verify` deep-compare the copies and fail on drift.
+
+The richer TPM methodology — system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation — lives in the human report and methodology docs, not in unsupported machine fields.
+
+Validation is handled by Truth Tools, not by this package:
+
+```bash
+truth-tools review --artifact status-artifact.json
+```
+
+Until Truth Tools is installed, state that the artifact has not been validated rather than claiming validation.
 
 ### Claude Code
 
@@ -306,6 +343,12 @@ Expected behavior:
 - gives connector smoke tests instead of assuming the integrations already work
 - leaves you with a `Next Step`, `If Blocked`, and `After That` path instead of scattered guidance
 - if the helper script is available, the agent can run it and consume its structured output instead of improvising file-by-file scaffolding
+
+After the first `status`, `daily`, `archaeology`, `review`, `deps`, or `risks` request, confirm the output includes:
+
+- a `status-artifact.json` matching `schemas/status-artifact.schema.json` (check locally with `npm run contracts:verify` in this repo)
+- a human-readable Markdown report with a `Data Source` block
+- an explicit note on validation: `truth-tools review --artifact status-artifact.json`
 
 Only after source discovery is underway should you move to a source-aware `daily`, `status`, or `archaeology` request.
 

@@ -149,6 +149,14 @@ Use this structure unless the user asks for another format:
 - [owner] [action] [YYYY-MM-DD]
 ```
 
+When the output is status-critical, also emit the canonical machine-readable artifact:
+
+- `status-artifact.json` conforming to `schemas/status-artifact.schema.json` (example: `examples/status-artifact.json`)
+- companion Markdown report (example: `examples/status-report.md`)
+- validation note: `truth-tools review --artifact <path-to-status-artifact.json>` — if Truth Tools is not installed, state that the artifact is unvalidated
+
+Parent tracker status (Epic/story optics) is reported separately from functional readiness in the human report; it is not a machine field in the artifact.
+
 ## Failure Modes To Avoid
 
 - reporting only from Epic or summary-page status
