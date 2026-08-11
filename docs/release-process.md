@@ -41,21 +41,22 @@ Expected outcomes:
 
 Releases are published by `.github/workflows/release.yml` using npm trusted publishing (OIDC), not by a stored token. Two trigger paths exist:
 
-1. **Tag push (recommended):** push the version bump and changelog to `main`, then create and push the tag:
+1. **Published GitHub release (recommended):** push the version bump and changelog to `main`, create a GitHub release for the matching tag, and publish it:
    ```bash
    git tag v0.2.0 && git push origin v0.2.0
+   # Create and publish the GitHub release for v0.2.0.
    ```
-2. **Manual dispatch:** run the `Release` workflow from the Actions tab with the explicit `tag` input (e.g. `v0.2.0`). The input is required; the workflow refuses to run without it. The workflow checks out the exact tag from the input (never the default branch), so what gets validated and published is the tagged commit, not `main`.
+2. **Manual dispatch:** run the `Release` workflow from the Actions tab with the explicit required canonical `tag` input (e.g. `v0.2.0`). The input must be a `v`-prefixed semver tag; bare versions and `refs/tags/...` refs are rejected. The workflow checks out the exact tag from the input (never the default branch), verifies that `HEAD` is the tag's commit, and uses the full clone to resolve that commit.
 
 Either way the workflow:
 
-1. resolves the release ref (from `GITHUB_REF` on tag push, or from the manual `tag` input — accepted as `v0.2.0`, `0.2.0`, or `refs/tags/v0.2.0`)
+1. resolves the release tag (from the published release's `tag_name`, or from the required manual `tag` input — both must be a canonical `v0.2.0`-style semver tag)
 2. checks out that exact ref
-3. verifies the tag matches `package.json` version at that ref (fail-closed on mismatch)
-4. runs the full local checklist in CI: clean install, `check`, `contracts:verify`, `test`, CLI smoke (version, isolated doctor, bootstrap dry run), and `npm run pack:dry-run`
+3. verifies the checkout `HEAD` is the tag commit and that the tag, with its `v` prefix removed, equals the dynamically read `package.json` version at that ref (fail-closed on mismatch)
+4. runs the full local checklist in CI, in order: clean install, `npm audit --audit-level=high`, `npm test`, `check`, `contracts:verify`, CLI smoke (version, isolated doctor, bootstrap dry run), and `npm run pack:dry-run`
 5. runs `npm publish --provenance --access public`; `npm publish` itself re-runs `prepack`, so the last gate before the registry is the same non-recursive check chain
 
-A `concurrency` group keyed to the event name, `github.ref`, and the tag input ensures only one publish attempt per tag can be in flight: re-pushing an existing tag or double-dispatching the same tag cancels the earlier queued/in-progress run instead of publishing twice. If two different triggers for the same tag ever both proceed, the second `npm publish` fails closed because the version already exists on the registry.
+A `concurrency` group keyed to the event name, `github.ref`, and the tag input ensures only one publish attempt per release event/ref/tag can be in flight: double-dispatching the same manual tag cancels the earlier queued/in-progress run instead of publishing twice. If separate release and manual runs for the same tag both proceed, the second `npm publish` fails closed because the version already exists on the registry.
 
 Publishing requires trusted-publishing configuration for the npm OIDC provider (https://registry.npmjs.org) on the `publish` environment. If trusted publishing is not yet configured for the npm account, publishing fails closed rather than falling back to a token.
 

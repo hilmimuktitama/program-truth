@@ -1,10 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { loadContractArtifacts, validateAgainstSchema, verifyContracts, isValidCalendarDate } from "../scripts/contracts-verify.js";
 import { runDriftCheck } from "../scripts/check-syntax.js";
 
 const { schema, example } = loadContractArtifacts();
+const releaseWorkflow = fs.readFileSync(
+  path.join(path.dirname(fileURLToPath(import.meta.url)), "..", ".github", "workflows", "release.yml"),
+  "utf8",
+);
 
 test("example status artifact conforms to the canonical StatusArtifact schema", () => {
   const errors = validateAgainstSchema(example, schema);
@@ -122,4 +129,16 @@ test("contract verification suite passes", () => {
   for (const check of checks) {
     assert.equal(check.ok, true, `${check.name}: ${check.message}`);
   }
+});
+
+test("release workflow is hardened to the canonical tag commit", () => {
+  assert.match(releaseWorkflow, /fetch-depth:\s*0/);
+  assert.match(releaseWorkflow, /canonical v-prefixed semver tag/);
+  assert.match(releaseWorkflow, /git rev-parse HEAD/);
+  assert.match(releaseWorkflow, /git rev-parse \"\$\{RELEASE_REF\}\^\{commit\}\"/);
+  assert.match(releaseWorkflow, /npm pkg get version/);
+  assert.match(releaseWorkflow, /npm test/);
+  assert.match(releaseWorkflow, /npm run check/);
+  assert.match(releaseWorkflow, /npm run contracts:verify/);
+  assert.match(releaseWorkflow, /npm run pack:dry-run/);
 });

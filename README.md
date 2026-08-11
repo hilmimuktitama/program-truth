@@ -109,6 +109,15 @@ truth-tools review --artifact status-artifact.json
 - [SECURITY.md](SECURITY.md) — vulnerability reporting
 - [docs/release-process.md](docs/release-process.md) — how releases are cut and published
 
+## Release
+
+Releases are published by the trusted OIDC workflow after a GitHub release is
+published for the matching version tag. A manual workflow dispatch is also
+available with a required tag. Both paths check out the exact tag, run the
+complete verification sequence, and publish without an npm token. See
+[docs/release-process.md](docs/release-process.md) for the sequence and
+rollback procedure.
+
 ## Repository Status
 
 This repository is a work in progress, published for use and reference while the workflow is validated.

@@ -5,6 +5,8 @@ All notable changes to `program-truth` are documented in this file. The format i
 ## [Unreleased]
 
 - Propagated canonical `date-time` formats for source metadata and aligned the dependency-free validator, syntax checks, and tests.
+- Standardized trusted releases on published GitHub releases or a required manual tag, with exact-tag verification and the complete pre-publish gate sequence.
+- Hardened release tags to canonical `v`-prefixed semver values, full-history checkouts, and explicit tag-commit verification before the dynamic package-version check and publish gates.
 
 ## [0.2.0] - 2026-08-11
 
@@ -47,7 +49,7 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 - `scripts/contracts-verify.js`: draft-2020-12 validator subset (external `$ref` resolution to the local copies, `oneOf`, `minimum`, type arrays), real calendar date validation, `additionalProperties: false` enforced at every nested object level, canonical-shape and no-bespoke-fields example checks, and sibling drift deep-compare; `--help` documents the supported JSON Schema subset.
 - `scripts/check-syntax.js`: schema drift check now deep-compares the four shipped schemas byte-for-byte against the sibling truth-tools contracts when present (env override `PROGRAM_TRUTH_SIBLING_TRUTH_TOOLS`), and skips cleanly otherwise.
 - `.github/workflows/quality.yml`: CLI smoke installs to isolated targets before doctor so the job passes on a clean runner.
-- `.github/workflows/release.yml`: manual `workflow_dispatch` now requires an explicit `tag` input; the workflow checks out the exact supplied tag (never the default branch), is concurrency-guarded per event/ref/tag to prevent duplicate publish attempts, and runs the full local checklist (clean install, check, contracts, tests, CLI smoke, pack dry run) before publishing with provenance.
+- `.github/workflows/release.yml`: published GitHub releases and required manual `tag` dispatches accept only canonical `v`-prefixed semver tags, use a full-history checkout, verify `HEAD` is the tag commit, and run the full local checklist (clean install, audit, tests, check, contracts, CLI smoke, pack dry run) before publishing with OIDC provenance.
 - `docs/release-process.md`: documents both trigger paths, the non-recursive `prepack` chain, and the two independent version axes (package semver vs artifact `schema_version`).
 - CI and release now run `npm audit --audit-level=high` after the reproducible `npm ci` install from the committed lockfile.
 
