@@ -60,6 +60,13 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Install and verify npm 12.0.2
+        run: |
+          npm install --global npm@12.0.2
+          node --version
+          npm --version
+          test "$(npm --version)" = "12.0.2"
+
       - name: Verify tag matches package version
         env:
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
