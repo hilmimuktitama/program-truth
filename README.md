@@ -34,7 +34,7 @@ Requires Node 22 or newer. See [INSTALL.md](INSTALL.md) for PowerShell variants,
 
 Paste this into the chat with one real artifact (a Jira key, Confluence page, Notion database, or local status note):
 
-```
+```text
 Use program-truth init from Jira DEMO-1234 to inspect this workspace, identify the real source set, and write the minimum useful context files.
 ```
 
@@ -46,7 +46,7 @@ program-truth bootstrap --anchor DEMO-1234 --system jira --dry-run
 
 ### 3. Ask for what you need, get the artifact
 
-```
+```text
 Use program-truth status
 ```
 

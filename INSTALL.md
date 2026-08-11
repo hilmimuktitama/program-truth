@@ -60,7 +60,7 @@ Install behavior:
 - supports `--force` when you intentionally want replacement without backup
 - supports `--target <path>` for custom skill directories
 
-### Claude Code
+### Claude Code Runtime Notes
 
 Claude Code skills are file-based.
 
@@ -74,7 +74,7 @@ Project skill:
 
 Manual install:
 
-#### macOS/Linux
+#### macOS/Linux (Claude Code)
 
 ```bash
 git clone https://github.com/hilmimuktitama/program-truth.git
@@ -89,7 +89,7 @@ mkdir -p .claude/skills
 cp -R program-truth .claude/skills/
 ```
 
-#### PowerShell
+#### PowerShell (Claude Code)
 
 ```powershell
 git clone https://github.com/hilmimuktitama/program-truth.git
@@ -104,7 +104,7 @@ New-Item -ItemType Directory -Force ".\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force .\program-truth ".\.claude\skills"
 ```
 
-### Codex
+### Codex Runtime Notes
 
 If you use Codex:
 
@@ -119,7 +119,7 @@ Notes:
 
 Manual fallback:
 
-#### macOS/Linux
+#### macOS/Linux (Codex)
 
 ```bash
 git clone https://github.com/hilmimuktitama/program-truth.git
@@ -127,7 +127,7 @@ mkdir -p ~/.codex/skills
 cp -R program-truth ~/.codex/skills/
 ```
 
-#### PowerShell
+#### PowerShell (Codex)
 
 ```powershell
 git clone https://github.com/hilmimuktitama/program-truth.git

@@ -3,9 +3,11 @@ name: program-truth
 description: Evidence-first program truth workflow for reconstructing program reality across Jira, Confluence, Notion, local docs, and meeting notes. Use it to produce status, dependency, risk, review, and meeting artifacts with clear owners, dates, facts, inferences, and unknowns.
 ---
 
-> **For the person reading this:** The three actions most useful on day one are `init`, `daily`, and `status`. A full action list is in the [Action Router](#action-router) section below. This file is otherwise written as instructions for the AI and is more detailed than you need to read upfront.
-
 # Program Truth
+
+<!-- markdownlint-disable MD003 MD026 -->
+
+> **For the person reading this:** The three actions most useful on day one are `init`, `daily`, and `status`. A full action list is in the [Action Router](#action-router) section below. This file is otherwise written as instructions for the AI and is more detailed than you need to read upfront.
 
 Use this skill when the user needs program output that is operationally trustworthy, not just well formatted.
 
@@ -205,10 +207,12 @@ For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, produce the
 - Write the human report as Markdown (example: `examples/status-report.md`) with a `Data Source` block (source hierarchy and connector caveats), system status vs functional status, facts vs inferences, unknowns, blockers, risks, dependencies, and write confirmation.
 - The artifact is the contract this skill produces. Validation is Truth Tools' responsibility; do not improvise validation logic in the report.
 - Documented validation command for the artifact:
+
   ```bash
   truth-tools review --artifact <path-to-status-artifact.json>
   ```
-  When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
+
+When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
 
 The artifact is a canonical `StatusArtifact` and must carry, at minimum:
 - `kind` (`status_artifact`) and `schema_version` (`1.0.0`)

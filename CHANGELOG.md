@@ -64,6 +64,6 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 - Published before the following main-only commits that ship with 0.2.0: anonymized benchmark report (`af8ac7d`), work-in-progress notice (`6e0e9ac`), contributing guide removal (`588783f`), truth-tools entrypoint clarification (`09e47a3`).
 - Changelog entries before 0.2.0 are reconstructed from git history; details live in the commit log.
 
-[Unreleased]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/hilmimuktitama/program-truth/compare/v0.1.1...v0.2.0
+[Unreleased]: https://github.com/hilmimuktitama/program-truth/compare/059f8d3fce24d7692732cb289d18e90515b97a8f...HEAD
+[0.2.0]: https://github.com/hilmimuktitama/program-truth/compare/v0.1.1...059f8d3fce24d7692732cb289d18e90515b97a8f
 [0.1.1]: https://github.com/hilmimuktitama/program-truth/releases/tag/v0.1.1
