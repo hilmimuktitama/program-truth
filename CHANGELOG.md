@@ -78,6 +78,6 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 - Changelog entries before 0.2.0 are reconstructed from git history; details live in the commit log.
 
 [Unreleased]: https://github.com/hilmimuktitama/program-truth/commits/main
-[0.2.1]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.0...portfolio/truth-suite-hardening-2026-08-12
+[0.2.1]: https://github.com/hilmimuktitama/program-truth/commit/d00ab0dcdd5e8fc7f3a236e5bb5bfb451ef30821
 [0.2.0]: https://github.com/hilmimuktitama/program-truth/compare/v0.1.1...059f8d3fce24d7692732cb289d18e90515b97a8f
 [0.1.1]: https://github.com/hilmimuktitama/program-truth/releases/tag/v0.1.1
