@@ -201,7 +201,7 @@ The richer TPM methodology — system status vs functional status, facts vs infe
 Validation is handled by Truth Tools, not by this package:
 
 ```bash
-truth-tools review --artifact status-artifact.json
+truth-tools review --input status-artifact.json
 ```
 
 Until Truth Tools is installed, state that the artifact has not been validated rather than claiming validation.
@@ -348,7 +348,7 @@ After the first `status`, `daily`, `archaeology`, `review`, `deps`, or `risks` r
 
 - a `status-artifact.json` matching `schemas/status-artifact.schema.json` (check locally with `npm run contracts:verify` in this repo)
 - a human-readable Markdown report with a `Data Source` block
-- an explicit note on validation: `truth-tools review --artifact status-artifact.json`
+- an explicit note on validation: `truth-tools review --input status-artifact.json`
 
 Only after source discovery is underway should you move to a source-aware `daily`, `status`, or `archaeology` request.
 

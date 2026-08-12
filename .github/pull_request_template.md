@@ -11,7 +11,7 @@
 ## Checklist
 
 - [ ] `npm run check` passes (syntax, JSON, schema sanity, schema drift)
-- [ ] `npm run contracts:verify` passes (artifact example, human report, documented `truth-tools review` command)
+- [ ] `npm run contracts:verify` passes (artifact example, human report, documented `truth-tools review --input` command)
 - [ ] `npm test` passes
 - [ ] `npm run pack:dry-run` lists only allowlisted files
 - [ ] CLI smoke: `node bin/program-truth.js version` and `node bin/program-truth.js doctor`

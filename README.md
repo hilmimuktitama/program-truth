@@ -10,7 +10,7 @@ Built for mid-flight programs where trackers disagree, parent-ticket status look
 ## What This Package Does And Does Not Own
 
 - **Does:** source discovery, workspace bootstrap, evidence gathering, reconciliation, and synthesis into a `status-artifact.json` plus a human-readable `status-report.md`.
-- **Does not:** validate artifacts, parse timelines, or run quality checks — that is [Truth Tools](https://github.com/hilmimuktitama/truth-tools), invoked with `truth-tools review --artifact <path>`.
+- **Does not:** validate artifacts, parse timelines, or run quality checks — that is [Truth Tools](https://github.com/hilmimuktitama/truth-tools), invoked with `truth-tools review --input <path>`.
 - **Does not:** bundle or implement connectors. Program Truth guides the connectors already available in your client (Atlassian MCP, Notion MCP, or equivalent) but ships none.
 - **Does not:** write to external systems. Every Jira, Confluence, or Notion write waits for your explicit confirmation.
 
@@ -58,7 +58,7 @@ Every status-critical action (`status`, `daily`, `archaeology`, `review`, `deps`
 Then validate:
 
 ```bash
-truth-tools review --artifact status-artifact.json
+truth-tools review --input status-artifact.json
 ```
 
 ## What Good Output Looks Like
@@ -105,7 +105,7 @@ truth-tools review --artifact status-artifact.json
 - [INSTALL.md](INSTALL.md) — setup, verification, and adapter reference
 - [references/framework.md](references/framework.md) — operating rules and reusable templates
 - [CHANGELOG.md](CHANGELOG.md) — release history
-- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x to 0.2.0
+- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x through 0.2.1
 - [SECURITY.md](SECURITY.md) — vulnerability reporting
 - [docs/release-process.md](docs/release-process.md) — how releases are cut and published
 
@@ -120,7 +120,7 @@ rollback procedure.
 
 ## Repository Status
 
-This repository is a work in progress, published for use and reference while the workflow is validated.
+This is an experimental public release, published for use and reference while the workflow continues to be validated.
 
 - Clone it, copy it into your local skills directory, and adapt it for your environment.
 - External pull requests are not being accepted at this stage.

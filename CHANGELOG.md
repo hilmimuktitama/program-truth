@@ -4,9 +4,22 @@ All notable changes to `program-truth` are documented in this file. The format i
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-13
+
+Public-release hardening for the experimental 0.2.x line.
+
+### Fixed
+
+- Replaced the retired Truth Tools artifact-option spelling with `truth-tools review --input` throughout the published documentation and examples.
+- Added a published-package contract test that rejects the retired flag.
+- Added documented example smoke coverage for Truth Tools review results (`artifact_quality: pass`, `program_health: blocked`).
+
+### Changed
+
 - Propagated canonical `date-time` formats for source metadata and aligned the dependency-free validator, syntax checks, and tests.
 - Standardized trusted releases on published GitHub releases or a required manual tag, with exact-tag verification and the complete pre-publish gate sequence.
 - Hardened release tags to canonical `v`-prefixed semver values, full-history checkouts, and explicit tag-commit verification before the dynamic package-version check and publish gates.
+- Made the pass/blocked example smoke deterministic and release-enforced; the optional sibling integration remains supplementary rather than the release gate.
 
 ## [0.2.0] - 2026-08-11
 
@@ -23,7 +36,7 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
   - `test/status-artifact.test.js`
   - `test/truth-tools-sibling.test.js` — optional real sibling integration test that runs `truth-tools review` against the example and asserts `artifact_quality: pass` + `program_health: blocked` when the sibling repository is present; skips cleanly otherwise (no runtime dependency)
 - Truth Tools boundary:
-  - documented validation command `truth-tools review --artifact <path>`
+  - documented validation command `truth-tools review --input <path>`
   - relationship statement: Program Truth gathers and synthesizes -> StatusArtifact -> Truth Tools validates
 - Historical case study:
   - `case-studies/historical-ab-case-study.md` preserving raw before/after outputs and all stated limitations
@@ -61,9 +74,10 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 ## [0.1.1] - 2026-05-16
 
 - npm release matching commit `dd9c18e`; package and CLI verified on 2026-05-16 (see the appendix of `case-studies/historical-ab-case-study.md`).
-- Published before the following main-only commits that ship with 0.2.0: anonymized benchmark report (`af8ac7d`), work-in-progress notice (`6e0e9ac`), contributing guide removal (`588783f`), truth-tools entrypoint clarification (`09e47a3`).
+- Published before the following main-only commits that ship with 0.2.0: anonymized benchmark report (`af8ac7d`), experimental public-release notice (`6e0e9ac`), contributing guide removal (`588783f`), truth-tools entrypoint clarification (`09e47a3`).
 - Changelog entries before 0.2.0 are reconstructed from git history; details live in the commit log.
 
-[Unreleased]: https://github.com/hilmimuktitama/program-truth/compare/059f8d3fce24d7692732cb289d18e90515b97a8f...HEAD
+[Unreleased]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/hilmimuktitama/program-truth/compare/v0.1.1...059f8d3fce24d7692732cb289d18e90515b97a8f
 [0.1.1]: https://github.com/hilmimuktitama/program-truth/releases/tag/v0.1.1

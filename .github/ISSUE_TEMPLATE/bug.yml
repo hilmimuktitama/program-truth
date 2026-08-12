@@ -20,7 +20,7 @@ body:
     attributes:
       label: Reproduction steps
       description: Exact commands or prompts used.
-      placeholder: "1. npm install -g program-truth@0.2.0\n2. program-truth doctor\n3. ..."
+      placeholder: "1. npm install -g program-truth@0.2.1\n2. program-truth doctor\n3. ..."
     validations:
       required: true
   - type: input
@@ -28,7 +28,7 @@ body:
     attributes:
       label: Version
       description: Output of `program-truth version` or the npm version installed.
-      placeholder: "0.2.0"
+      placeholder: "0.2.1"
     validations:
       required: true
   - type: input

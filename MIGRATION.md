@@ -1,25 +1,35 @@
 # Migration Guide
 
-How to move from `program-truth` 0.1.x to 0.2.0.
+How to move from `program-truth` 0.1.x through 0.2.1.
 
 ## Summary
 
-0.2.0 defines the methodology boundary: Program Truth gathers and synthesizes execution-level evidence into a canonical status artifact; Truth Tools validates it. The installer, bootstrap helper, doctor, and CLI command surface are unchanged. The changes are additive plus one environment requirement.
+0.2.0 defined the methodology boundary: Program Truth gathers and synthesizes execution-level evidence into a canonical status artifact; Truth Tools validates it. Version 0.2.1 hardens the public contract by using Truth Tools' `--input` flag consistently and clarifying the experimental public-release status. The installer, bootstrap helper, doctor, and CLI command surface are otherwise unchanged.
+
+## 0.2.0 to 0.2.1
+
+Replace the retired validation spelling wherever it appears in local scripts or notes:
+
+```bash
+truth-tools review --input status-artifact.json
+```
+
+The artifact contract remains `schema_version: 1.0.0`; this is a package and documentation hardening release, not an artifact-schema change.
 
 ## Environment Requirement
 
-| | 0.1.x | 0.2.0 |
+| | 0.1.x | 0.2.0 / 0.2.1 |
 |---|---|---|
 | Node.js | >= 20 | >= 22 (LTS) |
 
-`program-truth doctor` now fails the Node version check on Node 20 or 21. Upgrade to Node 22 LTS or newer before installing 0.2.0.
+`program-truth doctor` now fails the Node version check on Node 20 or 21. Upgrade to Node 22 LTS or newer before installing 0.2.0 or newer.
 
 ## What Changed For Users
 
 - Status-critical output (`status`, `daily`, `archaeology`, `review`, `deps`, `risks`) now produces a machine-readable `status-artifact.json` plus a human-readable Markdown report.
 - The artifact is the canonical `StatusArtifact` contract shared with Truth Tools: `kind`, `schema_version`, `as_of`, `initiative`, `policy`, `sources`, and reviewed `claims` (with states and locator-bearing `source_refs`). The shipped schemas are byte-exact copies of the flagship truth-tools contracts; `npm run check` and `npm run contracts:verify` fail on drift against the sibling repository when it is present.
 - The richer TPM methodology moved out of machine fields into the human report and methodology docs: system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation.
-- Validation of the artifact is delegated to Truth Tools: `truth-tools review --artifact <path>`. If Truth Tools is not installed, the output must state that the artifact is unvalidated.
+- Validation of the artifact is delegated to Truth Tools: `truth-tools review --input <path>`. If Truth Tools is not installed, the output must state that the artifact is unvalidated.
 - Installed skill folders now include `schemas/`, `docs/`, `evaluation/`, `case-studies/`, `CHANGELOG.md`, `MIGRATION.md`, and `SECURITY.md`.
 - `doctor` accepts optional isolated targets (`--codex-target <path> --claude-target <path>`) for deterministic verification on any machine, including CI runners.
 - `install all --target <path>` now fails with a usage error; use `install codex --target <path>` or `install claude --target <path>` instead.
@@ -34,7 +44,7 @@ How to move from `program-truth` 0.1.x to 0.2.0.
 ## Upgrade Steps
 
 1. Upgrade Node to >= 22.
-2. `npm install -g program-truth@0.2.0`
+2. `npm install -g program-truth@0.2.1`
 3. Refresh installed skills:
    - Codex: `program-truth install codex --backup`
    - Claude Code: `program-truth install claude --backup`
@@ -44,4 +54,4 @@ How to move from `program-truth` 0.1.x to 0.2.0.
 
 ## Rollback
 
-0.1.x remains available on npm. To roll back: install 0.1.1, re-run `program-truth install <client> --backup` with the older package, and keep the older `INITIAL-CONTEXT.md` conventions. Artifacts produced by 0.2.0 are not consumed by 0.1.x and can be kept as documentation.
+0.1.x remains available on npm. To roll back: install 0.1.1, re-run `program-truth install <client> --backup` with the older package, and keep the older `INITIAL-CONTEXT.md` conventions. Artifacts produced by 0.2.x are not consumed by 0.1.x and can be kept as documentation.

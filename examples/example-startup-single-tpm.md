@@ -69,7 +69,7 @@ The chat thread says the launch is "done," but the Jira rollout task is still `I
 
 ## Canonical Artifact
 
-The same run emits `status-artifact.json` conforming to `schemas/status-artifact.schema.json` (see the complete pair in `examples/status-artifact.json` and `examples/status-report.md`), validated with `truth-tools review --artifact <path>`.
+The same run emits `status-artifact.json` conforming to `schemas/status-artifact.schema.json` (see the complete pair in `examples/status-artifact.json` and `examples/status-report.md`), validated with `truth-tools review --input <path>`.
 
 ## Why This Example Matters
 

@@ -1,6 +1,6 @@
 {
   "name": "program-truth",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Program Truth gathers and synthesizes execution-level evidence into a canonical, machine-readable status artifact; Truth Tools validates it.",
   "license": "MIT",
   "type": "module",
@@ -27,9 +27,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node test/args.test.js && node test/bootstrap.test.js && node test/install.test.js && node test/status-artifact.test.js && node test/truth-tools-sibling.test.js",
+    "test": "node test/args.test.js && node test/bootstrap.test.js && node test/install.test.js && node test/status-artifact.test.js && node test/public-package-contract.test.js && node test/status-artifact-smoke.test.js && node test/truth-tools-sibling.test.js",
     "check": "node scripts/check-syntax.js",
     "contracts:verify": "node scripts/contracts-verify.js",
+    "smoke:status-artifact": "node scripts/status-artifact-smoke.js",
     "pack:dry-run": "npm pack --dry-run",
     "prepack": "npm run check && npm run contracts:verify && npm test"
   },

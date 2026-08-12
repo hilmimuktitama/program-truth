@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Canonical version tag to release, e.g. v0.2.0. Must match the package.json version and exist in the repository."
+        description: "Canonical version tag to release, e.g. v0.2.1. Must match the package.json version and exist in the repository."
         required: true
         type: string
 
@@ -104,6 +104,14 @@ jobs:
 
       - name: Contract verification
         run: npm run contracts:verify
+
+      - name: Deterministic StatusArtifact smoke
+        run: npm run smoke:status-artifact
+
+      - name: Truth Tools 0.3.0 smoke
+        run: |
+          npx --yes truth-tools@0.3.0 review --input examples/status-artifact.json --format json > "$RUNNER_TEMP/truth-review.json"
+          node -e 'const fs=require("fs"); const review=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/truth-review.json", "utf8")); if (review.artifact_quality !== "pass" || review.program_health !== "blocked") { throw new Error(`unexpected Truth Tools review: ${JSON.stringify(review)}`); }'
 
       - name: CLI smoke tests
         run: |

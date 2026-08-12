@@ -14,7 +14,7 @@ Use this skill when the user needs program output that is operationally trustwor
 Program Truth's job, in one sentence: **gather and synthesize execution-level evidence from available sources into a canonical, machine-readable status artifact.**
 
 What Program Truth does not own:
-- It does not validate artifacts, parse timelines, or run quality checks. That is Truth Tools' job: run `truth-tools review --artifact <path>` on the artifact this skill produces.
+- It does not validate artifacts, parse timelines, or run quality checks. That is Truth Tools' job: run `truth-tools review --input <path>` on the artifact this skill produces.
 - It does not bundle or implement connectors. Program Truth guides the connectors already available in the client (Atlassian MCP, Notion MCP, or equivalent) but ships none.
 - It does not perform external writes. Every Jira, Confluence, or Notion write waits for explicit user confirmation.
 
@@ -209,7 +209,7 @@ For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, produce the
 - Documented validation command for the artifact:
 
   ```bash
-  truth-tools review --artifact <path-to-status-artifact.json>
+  truth-tools review --input <path-to-status-artifact.json>
   ```
 
 When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
