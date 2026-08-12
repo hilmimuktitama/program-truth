@@ -14,7 +14,7 @@ Public-release hardening for the experimental 0.2.x line.
 - Added a published-package contract test that rejects the retired flag.
 - Added documented example smoke coverage for Truth Tools review results (`artifact_quality: pass`, `program_health: blocked`).
 
-### Changed
+### Implementation changes
 
 - Propagated canonical `date-time` formats for source metadata and aligned the dependency-free validator, syntax checks, and tests.
 - Standardized trusted releases on published GitHub releases or a required manual tag, with exact-tag verification and the complete pre-publish gate sequence.
@@ -77,7 +77,7 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 - Published before the following main-only commits that ship with 0.2.0: anonymized benchmark report (`af8ac7d`), experimental public-release notice (`6e0e9ac`), contributing guide removal (`588783f`), truth-tools entrypoint clarification (`09e47a3`).
 - Changelog entries before 0.2.0 are reconstructed from git history; details live in the commit log.
 
-[Unreleased]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.1...HEAD
-[0.2.1]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.0...v0.2.1
+[Unreleased]: https://github.com/hilmimuktitama/program-truth/commits/main
+[0.2.1]: https://github.com/hilmimuktitama/program-truth/compare/v0.2.0...portfolio/truth-suite-hardening-2026-08-12
 [0.2.0]: https://github.com/hilmimuktitama/program-truth/compare/v0.1.1...059f8d3fce24d7692732cb289d18e90515b97a8f
 [0.1.1]: https://github.com/hilmimuktitama/program-truth/releases/tag/v0.1.1
