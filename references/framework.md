@@ -265,7 +265,7 @@ Status-critical output is delivered as a pair: a machine-readable artifact and a
 
 The artifact is JSON conforming to `schemas/status-artifact.schema.json` (draft 2020-12, a byte-exact copy of the flagship truth-tools contract). A complete example is `examples/status-artifact.json`; its companion report is `examples/status-report.md`.
 
-Versioning: the artifact carries its own `schema_version` (currently `1.0.0`), which is the artifact contract version and is independent of the `program-truth` package version (e.g. `0.2.0`). The package version follows semver for the package as a whole; the contract version changes only when the artifact shape changes.
+Versioning: the artifact carries its own `schema_version` (currently `1.0.0`), which is the artifact contract version and is independent of the `program-truth` package version (e.g. `0.2.1`). The package version follows semver for the package as a whole; the contract version changes only when the artifact shape changes.
 
 Required top-level fields (canonical `StatusArtifact`):
 
@@ -288,7 +288,7 @@ Shared schemas (`source`, `source-ref`, `claim`, `status-artifact`) are shipped 
 This package produces the artifact; it does not validate it. Run:
 
 ```bash
-truth-tools review --artifact <path-to-status-artifact.json>
+truth-tools review --input <path-to-status-artifact.json>
 ```
 
 If Truth Tools is not available, say the artifact is unvalidated. `npm run contracts:verify` in this repository proves the example artifact's shape and acceptance locally without depending on Truth Tools at runtime, and `test/truth-tools-sibling.test.js` runs the real sibling review engine against the example when the sibling repository is present.

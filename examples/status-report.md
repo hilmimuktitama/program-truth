@@ -2,7 +2,7 @@
 
 **Week of:** 2026-08-11
 **Companion artifact:** `examples/status-artifact.json`
-**Validate with:** `truth-tools review --artifact examples/status-artifact.json`
+**Validate with:** `truth-tools review --input examples/status-artifact.json`
 
 > The artifact above is the machine contract: canonical `StatusArtifact`
 > sources and reviewed claims only. This report is where the richer TPM

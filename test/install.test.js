@@ -97,9 +97,9 @@ test("doctor with isolated targets verifies only those targets", () => {
     const empty = join(root, "empty");
     const installed = join(root, "installed");
     mkdirSync(empty, { recursive: true });
-    installSkill({ packageRoot: ROOT, client: "codex", target: installed, packageVersion: "0.2.0" });
+    installSkill({ packageRoot: ROOT, client: "codex", target: installed, packageVersion: "0.2.1" });
 
-    const before = doctor({ packageRoot: ROOT, packageVersion: "0.2.0", targets: { codex: empty, claude: installed } });
+    const before = doctor({ packageRoot: ROOT, packageVersion: "0.2.1", targets: { codex: empty, claude: installed } });
     const emptyCheck = before.checks.find((check) => check.name === "codex installed skill");
     const installedCheck = before.checks.find((check) => check.name === "claude installed skill");
     assert.equal(emptyCheck.ok, false);

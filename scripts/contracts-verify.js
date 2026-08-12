@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Contract verification for the canonical status artifact: example validity,
-// canonical shared shape, human-report shape, documented truth-tools review
+// canonical shared shape, human-report shape, documented truth-tools review --input
 // command, and sibling drift against the flagship truth-tools contracts.
 // Runs without dependencies: node scripts/contracts-verify.js
 //
@@ -30,7 +30,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ARTIFACT_SCHEMA_PATH = "schemas/status-artifact.schema.json";
 const EXAMPLE_ARTIFACT_PATH = "examples/status-artifact.json";
 const EXAMPLE_REPORT_PATH = "examples/status-report.md";
-const REVIEW_COMMAND = "truth-tools review";
+const REVIEW_COMMAND = "truth-tools review --input";
 const DOCS_CONTRACT = [
   { file: "README.md", label: "README documents the truth-tools review command" },
   { file: "SKILL.md", label: "SKILL.md documents the truth-tools review command" },
@@ -326,7 +326,7 @@ export function verifyContracts() {
     });
   }
   checks.push({
-    name: "examples/status-report.md documents truth-tools review command",
+    name: "examples/status-report.md documents truth-tools review --input command",
     ok: report.includes(REVIEW_COMMAND),
     message: report.includes(REVIEW_COMMAND) ? "present" : "missing"
   });
@@ -367,8 +367,8 @@ Checks performed:
      the human report and methodology docs.
   4. examples/status-report.md shape: Data Source, Summary, Facts, Inferences,
      Unknowns, Blockers, Risks, Dependencies, Write Confirmation sections and
-     the 'truth-tools review' command.
-  5. README.md, SKILL.md, and INSTALL.md document the 'truth-tools review' command.
+      the 'truth-tools review --input' command.
+   5. README.md, SKILL.md, and INSTALL.md document the 'truth-tools review --input' command.
   6. Sibling drift: schemas/ are byte-identical to the sibling truth-tools
      canonical contracts when the sibling is present (see check-syntax.js).
 
