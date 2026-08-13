@@ -3,21 +3,21 @@
 [![Quality](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml/badge.svg)](https://github.com/hilmimuktitama/program-truth/actions/workflows/quality.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Program Truth gathers and synthesizes execution-level evidence from available sources into a canonical, machine-readable status artifact; Truth Tools validates it.**
+**Program Truth gathers and synthesizes execution-level evidence from available sources into a canonical, machine-readable status artifact; Truth Tools performs a deterministic review of the supplied artifact.**
 
-Truth Tools is an evidence-first technical-program reliability toolkit combining provenance-preserving evidence intake, defensible timeline compilation, agent-guided status synthesis, and deterministic pre-publication review.
+Truth Tools is the deterministic review tool for a supplied `StatusArtifact`. Its result covers the artifact's structure, claims, health assessment, consistency, and findings; it does not determine real-world program health or establish source truth.
 
 Built for mid-flight programs where trackers disagree, parent-ticket status looks cleaner than the actual work, and leadership updates need evidence instead of optimism.
 
 ## What This Package Does And Does Not Own
 
 - **Does:** source discovery, workspace bootstrap, evidence gathering, reconciliation, and synthesis into a `status-artifact.json` plus a human-readable `status-report.md`.
-- **Does not:** validate artifacts, parse timelines, or run quality checks — that is [Truth Tools](https://github.com/hilmimuktitama/truth-tools), invoked with `truth-tools review --input <path>`.
+- **Does not:** deterministically review supplied artifacts, parse timelines, or run quality checks — that is [Truth Tools](https://github.com/hilmimuktitama/truth-tools), invoked with `truth-tools review --input <path>`. Truth Tools reviews the supplied artifact; it does not determine real-world program health or establish source truth.
 - **Does not:** bundle or implement connectors. Program Truth guides the connectors already available in your client (Atlassian MCP, Notion MCP, or equivalent) but ships none.
 - **Does not:** write to external systems. Every Jira, Confluence, or Notion write waits for your explicit confirmation.
 
 ```text
-Program Truth (gathers + synthesizes evidence) -> StatusArtifact -> Truth Tools (validates)
+Program Truth (gathers + synthesizes evidence) -> StatusArtifact -> Truth Tools (deterministically reviews the supplied artifact)
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ Program Truth (gathers + synthesizes evidence) -> StatusArtifact -> Truth Tools 
 ### 1. Install
 
 ```bash
-npm install -g program-truth
+npm install -g program-truth@0.3.1
 program-truth install codex   # or: claude, all
 program-truth doctor
 ```
@@ -57,13 +57,13 @@ Every status-critical action (`status`, `daily`, `archaeology`, `review`, `deps`
 1. **Canonical artifact** — `status-artifact.json` conforming to [`schemas/status-artifact.schema.json`](schemas/status-artifact.schema.json); see the full example at [`examples/status-artifact.json`](examples/status-artifact.json).
 2. **Human report** — Markdown companion; see [`examples/status-report.md`](examples/status-report.md).
 
-Then validate:
+Then run the deterministic review:
 
 ```bash
 truth-tools review --input status-artifact.json
 ```
 
-The pinned Truth Tools review is authoritative for artifact quality and program health. The shipped examples cover both a clean `on_track` result and a clean `blocked` result; the local deterministic smoke also resolves active risk/unknown signals conservatively and reports unsupported or missing health assessments for review.
+The pinned Truth Tools review is authoritative only for the deterministic review result of the supplied `StatusArtifact`—including artifact quality, claim/health consistency, and review findings. It does not determine real-world program health or source truth. The shipped examples cover both a clean `on_track` result and a clean `blocked` result; the local deterministic smoke also resolves active risk/unknown signals conservatively and reports unsupported or missing health assessments for review.
 
 ## What Good Output Looks Like
 
@@ -111,7 +111,7 @@ The release fixtures exercise both supported outcomes: `examples/status-artifact
 - [INSTALL.md](INSTALL.md) — setup, verification, and adapter reference
 - [references/framework.md](references/framework.md) — operating rules and reusable templates
 - [CHANGELOG.md](CHANGELOG.md) — release history
-- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x through 0.3.0
+- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x through 0.3.1
 - [SECURITY.md](SECURITY.md) — vulnerability reporting
 - [docs/release-process.md](docs/release-process.md) — how releases are cut and published
 

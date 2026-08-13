@@ -211,13 +211,13 @@ The artifact is the canonical `StatusArtifact` v2 contract shared with Truth Too
 
 The richer TPM methodology — system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation — lives in the human report and methodology docs, not in unsupported machine fields.
 
-Validation is handled by Truth Tools, not by this package:
+Deterministic review of the supplied artifact is handled by Truth Tools, not by this package:
 
 ```bash
 truth-tools review --input status-artifact.json
 ```
 
-Until Truth Tools is installed, state that the artifact has not been validated rather than claiming validation.
+Until Truth Tools is installed, state that the artifact has not been deterministically reviewed. A review result does not determine real-world program health or establish source truth.
 
 ### Claude Code
 

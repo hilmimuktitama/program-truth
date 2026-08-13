@@ -4,6 +4,15 @@ All notable changes to `program-truth` are documented in this file. The format i
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-13
+
+Maintenance patch for the public package and review boundary.
+
+### Changed
+
+- Clarified that Truth Tools is authoritative only for the deterministic review result of a supplied `StatusArtifact`; that result does not determine real-world program health or source truth.
+- Updated the Markdown lint workflow to `DavidAnson/markdownlint-cli2-action@v23.2.0`.
+
 ## [0.3.0] - 2026-08-13
 
 StatusArtifact v2 migration and explicit health accountability.
@@ -26,7 +35,7 @@ Public-release hardening for the experimental 0.2.x line.
 
 ### Fixed
 
-- Replaced the retired Truth Tools artifact-option spelling with `truth-tools review --input` throughout the published documentation and examples.
+- Replaced the retired Truth Tools artifact-option spelling with the deterministic review command `truth-tools review --input` throughout the published documentation and examples.
 - Added a published-package contract test that rejects the retired flag.
 - Added documented example smoke coverage for Truth Tools review results (`artifact_quality: pass`, `program_health: blocked`).
 
@@ -45,15 +54,15 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 
 - Canonical status artifact contract:
   - `schemas/status-artifact.schema.json`, `schemas/source.schema.json`, `schemas/source-ref.schema.json`, and `schemas/claim.schema.json` are byte-exact copies of the flagship truth-tools contracts (draft 2020-12, canonical `StatusArtifact` shape: kind/schema_version/as_of/initiative/policy/sources/claims)
-  - full example pair `examples/status-artifact.json` (canonical artifact that reviews `pass` + `blocked` in Truth Tools) and `examples/status-report.md` (richer TPM methodology: system-vs-functional status, facts/inferences, source hierarchy, connector caveats, dependencies, write confirmation)
+  - full example pair `examples/status-artifact.json` (canonical artifact whose supplied contents receive a `pass` + `blocked` deterministic review result in Truth Tools) and `examples/status-report.md` (richer TPM methodology: system-vs-functional status, facts/inferences, source hierarchy, connector caveats, dependencies, write confirmation)
 - Contract and example tests:
   - `scripts/check-syntax.js` (syntax, JSON, schema sanity, sibling drift deep-compare) wired as `npm run check`
   - `scripts/contracts-verify.js` (example validity against the canonical contract, canonical shared shape, no-bespoke-fields guard, human-report shape, documented review command, sibling drift) wired as `npm run contracts:verify`
   - `test/status-artifact.test.js`
   - `test/truth-tools-sibling.test.js` — optional real sibling integration test that runs `truth-tools review` against the example and asserts `artifact_quality: pass` + `program_health: blocked` when the sibling repository is present; skips cleanly otherwise (no runtime dependency)
 - Truth Tools boundary:
-  - documented validation command `truth-tools review --input <path>`
-  - relationship statement: Program Truth gathers and synthesizes -> StatusArtifact -> Truth Tools validates
+  - documented deterministic review command `truth-tools review --input <path>`
+  - relationship statement: Program Truth gathers and synthesizes -> StatusArtifact -> Truth Tools deterministically reviews the supplied artifact; it does not determine real-world program health or establish source truth
 - Historical case study:
   - `case-studies/historical-ab-case-study.md` preserving raw before/after outputs and all stated limitations
   - `docs/benchmarks/program-truth-benchmark.md` reframed as an honest evaluation summary

@@ -295,4 +295,4 @@ This package produces the artifact; it does not validate it. Run:
 truth-tools review --input <path-to-status-artifact.json>
 ```
 
-If Truth Tools is not available, say the artifact is unvalidated. `npm run contracts:verify` in this repository proves the example artifact's shape and acceptance locally without depending on Truth Tools at runtime, and `test/truth-tools-sibling.test.js` runs the real sibling review engine against the example when the sibling repository is present.
+If Truth Tools is not available, say the artifact has not been deterministically reviewed. `npm run contracts:verify` in this repository proves the example artifact's shape and acceptance locally without depending on Truth Tools at runtime, and `test/truth-tools-sibling.test.js` runs the real sibling review engine against the example when the sibling repository is present. Neither result determines real-world program health or establishes source truth.
