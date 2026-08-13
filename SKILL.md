@@ -14,7 +14,7 @@ Use this skill when the user needs program output that is operationally trustwor
 Program Truth's job, in one sentence: **gather and synthesize execution-level evidence from available sources into a canonical, machine-readable status artifact.**
 
 What Program Truth does not own:
-- It does not validate artifacts, parse timelines, or run quality checks. That is Truth Tools' job: run `truth-tools review --input <path>` on the artifact this skill produces.
+- It does not perform deterministic review of supplied artifacts, parse timelines, or run quality checks. That is Truth Tools' job: run `truth-tools review --input <path>` on the artifact this skill produces. Truth Tools reviews the supplied artifact; it does not determine real-world program health or establish source truth.
 - It does not bundle or implement connectors. Program Truth guides the connectors already available in the client (Atlassian MCP, Notion MCP, or equivalent) but ships none.
 - It does not perform external writes. Every Jira, Confluence, or Notion write waits for explicit user confirmation.
 
@@ -27,7 +27,7 @@ Program Truth (gathers + synthesizes evidence)
 StatusArtifact (canonical JSON, schemas/status-artifact.schema.json)
         |
         v
-Truth Tools (validates, checks quality, renders)
+Truth Tools (deterministically reviews the supplied artifact: structure, claims, health assessment, consistency, and findings)
 ```
 
 ## Purpose
@@ -174,7 +174,7 @@ Infer the action from the request. If unclear, default to `init`.
 2. Inventory live systems and adapters.
 3. Pull execution-level evidence from each available source.
 4. Reconcile contradictions using `references/source-ranking-and-reconciliation.md`.
-5. Explicitly identify health, accountable owner, rationale, and evidence. Compare active blockers, risks, and unknowns; report `unknown` when evidence is insufficient. Never infer program health from prose alone.
+5. Explicitly identify the artifact's health assessment, accountable owner, rationale, and evidence. Compare active blockers, risks, and unknowns; report `unknown` when evidence is insufficient. Never infer the artifact's health assessment from prose alone.
 6. Produce the artifact with explicit facts, inferences, unknowns, and conflicts.
 7. Ensure every blocker, dependency, and action has an owner and date.
 8. Stamp freshness when status depends on live verification:
@@ -206,14 +206,14 @@ For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, produce the
 
 - Write the artifact as JSON conforming to `schemas/status-artifact.schema.json` (example: `examples/status-artifact.json`). The schema is a byte-exact copy of the flagship Truth Tools contract; this skill never invents machine fields.
 - Write the human report as Markdown (example: `examples/status-report.md`) with a `Data Source` block (source hierarchy and connector caveats), system status vs functional status, facts vs inferences, unknowns, blockers, risks, dependencies, and write confirmation.
-- The artifact is the contract this skill produces. Validation is Truth Tools' responsibility; do not improvise validation logic in the report.
-- Documented validation command for the artifact:
+- The artifact is the contract this skill produces. Deterministic review of the supplied artifact is Truth Tools' responsibility; do not improvise review logic in the report. Truth Tools' review result does not determine real-world program health or establish source truth.
+- Documented deterministic review command for the artifact:
 
   ```bash
   truth-tools review --input <path-to-status-artifact.json>
   ```
 
-When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
+When Truth Tools is not installed, state that the artifact has not been deterministically reviewed rather than claiming a review result.
 
 The artifact is a canonical `StatusArtifact` and must carry, at minimum:
 - `kind` (`status_artifact`) and `schema_version` (`2.0.0`)

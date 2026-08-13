@@ -1,7 +1,7 @@
 {
   "name": "program-truth",
-  "version": "0.3.0",
-  "description": "Program Truth gathers and synthesizes execution-level evidence into a canonical, machine-readable status artifact; Truth Tools validates it.",
+  "version": "0.3.1",
+  "description": "Program Truth gathers and synthesizes execution-level evidence into a canonical, machine-readable status artifact; Truth Tools deterministically reviews the supplied artifact.",
   "license": "MIT",
   "type": "module",
   "bin": {
