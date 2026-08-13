@@ -174,9 +174,10 @@ Infer the action from the request. If unclear, default to `init`.
 2. Inventory live systems and adapters.
 3. Pull execution-level evidence from each available source.
 4. Reconcile contradictions using `references/source-ranking-and-reconciliation.md`.
-5. Produce the artifact with explicit facts, inferences, unknowns, and conflicts.
-6. Ensure every blocker, dependency, and action has an owner and date.
-7. Stamp freshness when status depends on live verification:
+5. Explicitly identify health, accountable owner, rationale, and evidence. Compare active blockers, risks, and unknowns; report `unknown` when evidence is insufficient. Never infer program health from prose alone.
+6. Produce the artifact with explicit facts, inferences, unknowns, and conflicts.
+7. Ensure every blocker, dependency, and action has an owner and date.
+8. Stamp freshness when status depends on live verification:
    - `Live-Verified (source): YYYY-MM-DD TZ`
 
 ## Output Contract
@@ -215,10 +216,11 @@ For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, produce the
 When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
 
 The artifact is a canonical `StatusArtifact` and must carry, at minimum:
-- `kind` (`status_artifact`) and `schema_version` (`1.0.0`)
+- `kind` (`status_artifact`) and `schema_version` (`2.0.0`)
 - `as_of` (review cutoff timestamp) and `initiative` (`name`, `owner`, `objective`)
 - `policy` splitting observation age from source-content age (`max_observation_age_days`, `max_source_content_age_days`)
 - `sources` with stable `id`, `type`, and `observed_at`; raw source bodies never travel in the artifact
+- `health_assessment` with explicit `state`, `owner`, nonempty `rationale`, and canonical `source_refs`
 - `claims` as reviewed claims with explicit `id`, `kind` (`fact` | `blocker` | `risk` | `unknown`), `state`, and `text`
 - every claim cites `source_refs` with a concrete `locator` to an existing source id
 - every active blocker carries `owner` and `due_at`; every active risk carries `owner` and `mitigation`

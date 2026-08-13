@@ -2,11 +2,11 @@
 // Syntax, JSON, and schema-drift checks for the program-truth package.
 // Runs without dependencies: node scripts/check-syntax.js
 //
-// The four schemas in schemas/ are byte-exact copies of the flagship
+// The shipped shared schemas in schemas/ are byte-exact copies of the flagship
 // canonical files in the sibling truth-tools repository
 // (packages/contracts/schemas/). When the sibling repository is present
 // next to this package (or pointed at by PROGRAM_TRUTH_SIBLING_TRUTH_TOOLS),
-// this script deep-compares every copy against the canonical file and fails
+// this script compares every parsed copy against the canonical file and fails
 // on any drift. Without the sibling, the copies are checked for parseability
 // and sanity only.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -25,7 +25,10 @@ const EXACT_SCHEMAS = [
   "schemas/source.schema.json",
   "schemas/source-ref.schema.json",
   "schemas/claim.schema.json",
-  "schemas/status-artifact.schema.json"
+  "schemas/status-artifact.schema.json",
+  "schemas/health-assessment.schema.json",
+  "schemas/timeline-item.schema.json",
+  "schemas/truth-review.schema.json"
 ];
 
 function toPosix(path) {
@@ -144,15 +147,16 @@ export function runDriftCheck() {
     return checks;
   }
   for (const file of EXACT_SCHEMAS) {
-    const local = readFileSync(join(ROOT, file), "utf8");
     const siblingPath = join(siblingDir, file.split("/").pop());
-    const ok = existsSync(siblingPath) && local === readFileSync(siblingPath, "utf8");
+    const localBytes = readFileSync(join(ROOT, file));
+    const siblingBytes = existsSync(siblingPath) ? readFileSync(siblingPath) : null;
+    const exact = siblingBytes !== null && localBytes.equals(siblingBytes);
     checks.push({
       name: `drift ${file}`,
-      ok,
-      message: ok
-        ? "byte-identical to sibling canonical schema"
-        : `drifted from sibling canonical schema (${siblingPath})`
+      ok: exact,
+      message: exact
+        ? "matches sibling canonical schema byte-for-byte"
+        : `drifted from sibling canonical schema byte-for-byte (${siblingPath}; local=${localBytes.length} sibling=${siblingBytes?.length ?? 0})`
     });
   }
   return checks;

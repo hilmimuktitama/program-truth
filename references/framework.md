@@ -58,7 +58,11 @@ Every status-critical output should include:
 - freshness window
 - caveats
 
-### 6. Prefer Evidence Over Clean Narrative
+### 6. Make Health Explicit
+
+For every status-critical output, identify the reported health, accountable owner, rationale, and canonical evidence references. Compare active blockers, risks, and unknowns. If evidence is insufficient, use `unknown`; prose-only inference is not acceptable.
+
+### 7. Prefer Evidence Over Clean Narrative
 
 If sources conflict:
 1. show both claims
@@ -265,11 +269,11 @@ Status-critical output is delivered as a pair: a machine-readable artifact and a
 
 The artifact is JSON conforming to `schemas/status-artifact.schema.json` (draft 2020-12, a byte-exact copy of the flagship truth-tools contract). A complete example is `examples/status-artifact.json`; its companion report is `examples/status-report.md`.
 
-Versioning: the artifact carries its own `schema_version` (currently `1.0.0`), which is the artifact contract version and is independent of the `program-truth` package version (e.g. `0.2.1`). The package version follows semver for the package as a whole; the contract version changes only when the artifact shape changes.
+Versioning: the artifact carries its own `schema_version` (currently `2.0.0`), which is the artifact contract version and is independent of the `program-truth` package version. StatusArtifact 2.0.0 requires explicit health with state, owner, rationale, and canonical locator-bearing source references.
 
 Required top-level fields (canonical `StatusArtifact`):
 
-- `kind` (`status_artifact`) and `schema_version` (`1.0.0`)
+- `kind` (`status_artifact`) and `schema_version` (`2.0.0`)
 - `as_of` — reproducible review cutoff timestamp; evidence-age checks are deterministic
 - `initiative` with `name` (and `owner`, `objective`)
 - `policy` splitting observation age from source-content age (`max_observation_age_days`, `max_source_content_age_days`)
@@ -281,7 +285,7 @@ Required top-level fields (canonical `StatusArtifact`):
 
 The richer TPM methodology does not fit the machine contract and lives in the human report and methodology docs instead: system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation.
 
-Shared schemas (`source`, `source-ref`, `claim`, `status-artifact`) are shipped as byte-exact copies of the flagship truth-tools contracts in `schemas/`. `scripts/check-syntax.js` and `scripts/contracts-verify.js` deep-compare the copies against the sibling truth-tools repository when it is present and fail on drift; without the sibling, the copies are checked for parseability and sanity only.
+Shared schemas (`source`, `source-ref`, `claim`, `status-artifact`, `health-assessment`, `timeline-item`, and `truth-review`) are shipped as byte-exact copies of the flagship truth-tools contracts in `schemas/`. `scripts/check-syntax.js` and `scripts/contracts-verify.js` compare raw file bytes against the sibling truth-tools repository when it is present and fail on drift; without the sibling, the copies are checked for parseability and sanity only.
 
 ### Validation
 

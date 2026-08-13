@@ -1,10 +1,22 @@
 # Migration Guide
 
-How to move from `program-truth` 0.1.x through 0.2.1.
+How to move from `program-truth` 0.1.x through 0.3.0.
 
 ## Summary
 
 0.2.0 defined the methodology boundary: Program Truth gathers and synthesizes execution-level evidence into a canonical status artifact; Truth Tools validates it. Version 0.2.1 hardens the public contract by using Truth Tools' `--input` flag consistently and clarifying the experimental public-release status. The installer, bootstrap helper, doctor, and CLI command surface are otherwise unchanged.
+
+## 0.2.1 to 0.3.0
+
+StatusArtifact v2 is now the emitted public artifact contract. It requires `schema_version: "2.0.0"` and an explicit `health_assessment` with `state`, `owner`, a nonempty `rationale` (the required health summary), and canonical nonempty `source_refs`. Claims and health assessments must cite source records by structured locator; references contain metadata only, never source text.
+
+Update consumers and fixtures, then validate with the compatible Truth Tools CLI:
+
+```bash
+truth-tools review --input status-artifact.json
+```
+
+Truth Tools reports artifact quality separately from health and checks whether the explicit health is consistent with active blockers, risks, and unknowns. Use `unknown` when evidence is insufficient; do not infer health from prose.
 
 ## 0.2.0 to 0.2.1
 
@@ -14,13 +26,13 @@ Replace the retired validation spelling wherever it appears in local scripts or 
 truth-tools review --input status-artifact.json
 ```
 
-The artifact contract remains `schema_version: 1.0.0`; this is a package and documentation hardening release, not an artifact-schema change.
+The 0.2.x artifact contract was `schema_version: 1.0.0`; migrate those artifacts as described above.
 
 ## Environment Requirement
 
-| | 0.1.x | 0.2.0 / 0.2.1 |
-|---|---|---|
-| Node.js | >= 20 | >= 22 (LTS) |
+| | 0.1.x | 0.2.0 / 0.2.1 | 0.3.0 |
+|---|---|---|---|
+| Node.js | >= 20 | >= 22 (LTS) | >= 22 (LTS) |
 
 `program-truth doctor` now fails the Node version check on Node 20 or 21. Upgrade to Node 22 LTS or newer before installing 0.2.0 or newer.
 
@@ -44,7 +56,7 @@ The artifact contract remains `schema_version: 1.0.0`; this is a package and doc
 ## Upgrade Steps
 
 1. Upgrade Node to >= 22.
-2. `npm install -g program-truth@0.2.1`
+2. `npm install -g program-truth@0.3.0`
 3. Refresh installed skills:
    - Codex: `program-truth install codex --backup`
    - Claude Code: `program-truth install claude --backup`

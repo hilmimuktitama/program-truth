@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -28,6 +28,67 @@ test("findCandidateSources detects links and keys", () => {
     assert.ok(kinds.has("jira_url"));
     assert.ok(kinds.has("confluence_url"));
     assert.ok(kinds.has("notion_url"));
+  } finally {
+    cleanup(workspace);
+  }
+});
+
+test("findCandidateSources sanitizes discovered Atlassian and Notion URLs", () => {
+  const workspace = scratch("sanitized-links");
+  try {
+    writeFileSync(join(workspace, "notes.md"), [
+      "Atlassian https://user:password@example.atlassian.net/browse/ABC-123?jql=project%3DENG&api_key=remove-me&AWSAccessKeyId=remove-me&access_key=remove-me&access-key=remove-me&safe_key=keep&view=detail#secret-fragment",
+      "Notion https://token-user:token-pass@www.notion.so/workspace/example-page?filter=open&access_token=remove-me&signatureVersion=remove-me#fragment"
+    ].join("\n"));
+    const candidates = findCandidateSources(workspace);
+    assert.deepEqual(candidates.filter((item) => item.kind === "jira_url").map((item) => item.value), [
+      "https://example.atlassian.net/browse/ABC-123?jql=project%3DENG&safe_key=keep&view=detail"
+    ]);
+    assert.deepEqual(candidates.filter((item) => item.kind === "notion_url").map((item) => item.value), [
+      "https://www.notion.so/workspace/example-page?filter=open"
+    ]);
+    runBootstrap({ workspace, dryRun: false, clientMode: "none" });
+    const initialContext = readFileSync(join(workspace, "INITIAL-CONTEXT.md"), "utf8");
+    assert.match(initialContext, /https:\/\/www\.notion\.so\/workspace\/example-page\?filter=open/);
+    assert.doesNotMatch(initialContext, /password|api_key|access_token|signatureVersion|secret-fragment/i);
+  } finally {
+    cleanup(workspace);
+  }
+});
+
+test("bootstrap sanitizes explicit URL anchors and known sources", () => {
+  const workspace = scratch("explicit-links");
+  try {
+    const result = runBootstrap({
+      workspace,
+      dryRun: true,
+      clientMode: "none",
+      inputData: {
+        anchor: "https://user:pass@example.atlassian.net/browse/ABC-123?safe=1&AWSAccessKeyId=one&access_key=two&access-key=three&safe_key=keep#fragment",
+        known_sources: [
+          "https://example.notion.site/page?filter=open&client_assertion=three&safe=2",
+          "https://[malformed"
+        ]
+      }
+    });
+    assert.equal(result.captured_context.anchor, "https://example.atlassian.net/browse/ABC-123?safe=1&safe_key=keep");
+    assert.match(result.next_prompt, /https:\/\/example\.atlassian\.net\/browse\/ABC-123\?safe=1/);
+    assert.doesNotMatch(result.next_prompt, /pass|JWT|session_id|fragment/i);
+    assert.doesNotMatch(JSON.stringify(result), /client_assertion|malformed|three/i);
+  } finally {
+    cleanup(workspace);
+  }
+});
+
+test("Jira key extraction ignores URL userinfo and query values", () => {
+  const workspace = scratch("url-keys");
+  try {
+    writeFileSync(join(workspace, "notes.md"), [
+      "https://user:LEAK-100@example.atlassian.net/browse/ABC-123?token=QUERY-200&safe=1",
+      "Real key REAL-300"
+    ].join("\n"));
+    const keys = findCandidateSources(workspace).filter((item) => item.kind === "jira_key").map((item) => item.value);
+    assert.deepEqual(keys, ["REAL-300"]);
   } finally {
     cleanup(workspace);
   }

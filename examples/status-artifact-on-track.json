@@ -1,0 +1,19 @@
+{
+  "kind": "status_artifact",
+  "schema_version": "2.0.0",
+  "as_of": "2026-08-11T09:00:00.000Z",
+  "initiative": { "name": "On-track Example", "owner": "Program Operator", "objective": "Demonstrate supported on-track health." },
+  "policy": { "max_observation_age_days": 14, "max_source_content_age_days": 14 },
+  "sources": [
+    { "id": "release-note", "type": "release-note", "path": "status/2026-08-11.md", "observed_at": "2026-08-11T08:00:00.000Z", "source_updated_at": "2026-08-11T08:00:00.000Z", "owner": "Program Operator" }
+  ],
+  "health_assessment": {
+    "state": "on_track",
+    "owner": "Program Operator",
+    "rationale": "The current release scope has a completed fact and no active blocker, risk, or unknown signal.",
+    "source_refs": [{ "source_id": "release-note", "locator": "status/2026-08-11.md" }]
+  },
+  "claims": [
+    { "id": "fact-scope-complete", "kind": "fact", "state": "active", "subject": "release.scope", "value": "complete", "text": "The current release scope is complete.", "source_refs": [{ "source_id": "release-note", "locator": "status/2026-08-11.md" }] }
+  ]
+}

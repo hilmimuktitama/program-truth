@@ -4,6 +4,22 @@ All notable changes to `program-truth` are documented in this file. The format i
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-13
+
+StatusArtifact v2 migration and explicit health accountability.
+
+### Added
+
+- Emitted canonical StatusArtifact v2 (`schema_version: 2.0.0`) with required health assessment state, owner, rationale, and source references.
+- Added shared health-assessment, timeline-item, and truth-review schema copies with sibling drift verification.
+- Added supported on-track and blocked examples, including direct Truth Tools review coverage for pass/health/consistency, plus parity coverage for risk/unknown floors and unsupported health assessments.
+
+### Changed
+
+- Documentation and methodology now require explicit health/evidence reasoning and `unknown` when evidence is insufficient.
+- The dependency-free local smoke now mirrors Truth Tools' conservative health resolution and reports claim floors, explicit assessment, health consistency, and findings.
+- README now describes a narrow contribution posture without rejecting external pull requests.
+
 ## [0.2.1] - 2026-08-13
 
 Public-release hardening for the experimental 0.2.x line.
@@ -78,6 +94,7 @@ Methodology convergence: Program Truth now has a defined job, a defined boundary
 - Changelog entries before 0.2.0 are reconstructed from git history; details live in the commit log.
 
 [Unreleased]: https://github.com/hilmimuktitama/program-truth/commits/main
+[0.3.0]: https://github.com/hilmimuktitama/program-truth/commit/13fd00e273c523ff18c91b63cb71df8d2623323a
 [0.2.1]: https://github.com/hilmimuktitama/program-truth/commit/d00ab0dcdd5e8fc7f3a236e5bb5bfb451ef30821
 [0.2.0]: https://github.com/hilmimuktitama/program-truth/compare/v0.1.1...059f8d3fce24d7692732cb289d18e90515b97a8f
 [0.1.1]: https://github.com/hilmimuktitama/program-truth/releases/tag/v0.1.1
