@@ -5,6 +5,8 @@
 
 **Program Truth gathers and synthesizes execution-level evidence from available sources into a canonical, machine-readable status artifact; Truth Tools validates it.**
 
+Truth Tools is an evidence-first technical-program reliability toolkit combining provenance-preserving evidence intake, defensible timeline compilation, agent-guided status synthesis, and deterministic pre-publication review.
+
 Built for mid-flight programs where trackers disagree, parent-ticket status looks cleaner than the actual work, and leadership updates need evidence instead of optimism.
 
 ## What This Package Does And Does Not Own
@@ -61,6 +63,8 @@ Then validate:
 truth-tools review --input status-artifact.json
 ```
 
+The pinned Truth Tools review is authoritative for artifact quality and program health. The shipped examples cover both a clean `on_track` result and a clean `blocked` result; the local deterministic smoke also resolves active risk/unknown signals conservatively and reports unsupported or missing health assessments for review.
+
 ## What Good Output Looks Like
 
 ```markdown
@@ -81,7 +85,7 @@ truth-tools review --input status-artifact.json
 ## What Makes It Different
 
 - Jira is not treated as truth unless the query reaches the task level.
-- The artifact is the canonical `StatusArtifact` contract shared with Truth Tools (`kind`, `schema_version`, `as_of`, `initiative`, `policy`, `sources`, reviewed `claims` with locators); no bespoke machine fields.
+- The artifact is the canonical `StatusArtifact` v2 contract shared with Truth Tools (`kind`, `schema_version: 2.0.0`, `as_of`, `initiative`, `policy`, `sources`, explicit `health_assessment`, reviewed `claims` with locators); no bespoke machine fields.
 - Parent (tracker) status is reported separately from functional status in the human report; tracker optics cannot overwrite lower-level execution data.
 - Facts, inferences, and unknowns stay separate in the report; unknowns stay visible instead of becoming confident prose.
 - Every blocker has an owner and date; every risk has a mitigation and owner.
@@ -99,13 +103,15 @@ truth-tools review --input status-artifact.json
 - [Historical A/B case study](case-studies/historical-ab-case-study.md) — the one live scenario that exists, with raw outputs and all limitations preserved.
 - [Blinded human review template](evaluation/blinded-human-review-template.md) — the review procedure to use for future evaluations.
 
+The release fixtures exercise both supported outcomes: `examples/status-artifact.json` reviews as `pass` + `blocked`, while `examples/status-artifact-on-track.json` reviews as `pass` + `on_track`.
+
 ## Documentation
 
 - [SKILL.md](SKILL.md) — operating contract for the skill (full action list, context pack, artifact contract)
 - [INSTALL.md](INSTALL.md) — setup, verification, and adapter reference
 - [references/framework.md](references/framework.md) — operating rules and reusable templates
 - [CHANGELOG.md](CHANGELOG.md) — release history
-- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x through 0.2.1
+- [MIGRATION.md](MIGRATION.md) — upgrading from 0.1.x through 0.3.0
 - [SECURITY.md](SECURITY.md) — vulnerability reporting
 - [docs/release-process.md](docs/release-process.md) — how releases are cut and published
 
@@ -123,7 +129,7 @@ rollback procedure.
 This is an experimental public release, published for use and reference while the workflow continues to be validated.
 
 - Clone it, copy it into your local skills directory, and adapt it for your environment.
-- External pull requests are not being accepted at this stage.
+- Contributions should preserve the canonical artifact contract, evidence-first methodology, and explicit external-write confirmation posture. Open an issue before substantial changes.
 - Support and fixes are best-effort.
 
 ## Package Map
@@ -133,7 +139,7 @@ This is an experimental public release, published for use and reference while th
 - `bin/program-truth.js`: npm CLI entrypoint
 - `lib/bootstrap.js`: deterministic Node bootstrap helper
 - `lib/install.js`: installer and doctor support
-- `schemas/`: canonical `StatusArtifact` contract — byte-exact copies of the flagship truth-tools schemas (source, source-ref, claim, status-artifact), drift-checked against the sibling repository by `scripts/check-syntax.js` and `scripts/contracts-verify.js`
+- `schemas/`: canonical `StatusArtifact` 2.0.0 contract — byte-exact copies of the flagship truth-tools schemas (`source`, `source-ref`, `claim`, `status-artifact`, `health-assessment`, `timeline-item`, `truth-review`), drift-checked against the sibling repository by `scripts/check-syntax.js` and `scripts/contracts-verify.js`
 - `examples/status-artifact.json`, `examples/status-report.md`: canonical artifact + human report example pair
 - `scripts/check-syntax.js`: syntax, JSON, and schema-drift checks (`npm run check`)
 - `scripts/contracts-verify.js`: artifact contract and documentation checks (`npm run contracts:verify`)

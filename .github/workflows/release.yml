@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Canonical version tag to release, e.g. v0.2.1. Must match the package.json version and exist in the repository."
+        description: "Canonical version tag to release, e.g. v0.3.0. Must match the package.json version and exist in the repository."
         required: true
         type: string
 
@@ -108,10 +108,16 @@ jobs:
       - name: Deterministic StatusArtifact smoke
         run: npm run smoke:status-artifact
 
-      - name: Truth Tools 0.3.0 smoke
+      - name: Truth Tools smoke
+        env:
+           TRUTH_TOOLS_VERSION: "0.4.0"
         run: |
-          npx --yes truth-tools@0.3.0 review --input examples/status-artifact.json --format json > "$RUNNER_TEMP/truth-review.json"
-          node -e 'const fs=require("fs"); const review=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/truth-review.json", "utf8")); if (review.artifact_quality !== "pass" || review.program_health !== "blocked") { throw new Error(`unexpected Truth Tools review: ${JSON.stringify(review)}`); }'
+          INSTALLED_TRUTH_TOOLS_VERSION=$(npx --yes "truth-tools@${TRUTH_TOOLS_VERSION}" --version)
+          test "$INSTALLED_TRUTH_TOOLS_VERSION" = "$TRUTH_TOOLS_VERSION"
+           npx --yes "truth-tools@${TRUTH_TOOLS_VERSION}" review --input examples/status-artifact.json --format json > "$RUNNER_TEMP/truth-review.json"
+           node -e 'const fs=require("fs"); const review=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/truth-review.json", "utf8")); if (review.artifact_quality !== "pass" || review.program_health !== "blocked") { throw new Error(`unexpected Truth Tools review: ${JSON.stringify(review)}`); }'
+           npx --yes "truth-tools@${TRUTH_TOOLS_VERSION}" review --input examples/status-artifact-on-track.json --format json > "$RUNNER_TEMP/truth-review-on-track.json"
+           node -e 'const fs=require("fs"); const review=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/truth-review-on-track.json", "utf8")); if (review.artifact_quality !== "pass" || review.program_health !== "on_track" || review.health_consistency !== "consistent") { throw new Error(`unexpected Truth Tools on-track review: ${JSON.stringify(review)}`); }'
 
       - name: CLI smoke tests
         run: |

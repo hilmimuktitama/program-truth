@@ -6,8 +6,8 @@ How `program-truth` is versioned, verified, and published to npm.
 
 Two independent version axes exist and must not be conflated:
 
-- **Package version** (`package.json` `version`): semver for the package as a whole. A breaking methodology or CLI contract change is a major bump; new canonical artifacts, schemas, or optional features are minor; fixes are patch. The npm release tag (e.g. `v0.2.1`) always matches this version.
-- **Artifact contract version** (`schema_version` inside a `status-artifact.json`, currently `1.0.0`): the shape of the canonical status artifact. It changes only when the artifact shape changes, independent of package releases. An artifact carrying `schema_version: 1.0.0` remains valid across package versions 0.2.x as long as the shape is unchanged; bump it when the schema in `schemas/status-artifact.schema.json` changes in a breaking way.
+- **Package version** (`package.json` `version`): semver for the package as a whole. A breaking methodology or CLI contract change is a major bump; new canonical artifacts, schemas, or optional features are minor; fixes are patch. The npm release tag (e.g. `v0.3.0`) always matches this version.
+- **Artifact contract version** (`schema_version` inside a `status-artifact.json`, currently `2.0.0`): the shape of the canonical status artifact. It changes only when the artifact shape changes, independent of package releases. StatusArtifact v2 requires an explicit health assessment with accountable owner, rationale, and source references.
 
 Before release, update `package.json` `version` and add a `CHANGELOG.md` entry. If the change alters upgrade behavior, update `MIGRATION.md` too. The tag must match the package version exactly: package `0.2.1` is released as tag `v0.2.1`.
 
@@ -34,7 +34,7 @@ Expected outcomes:
 
 - `check` reports 100% pass including `drift schemas/*.json` checks (deep-compared byte-for-byte against the sibling truth-tools contracts when present; skipped cleanly otherwise)
 - `contracts:verify` reports 100% pass including the documented `truth-tools review --input` command
-- `smoke:status-artifact` reports `artifact_quality=pass` and `program_health=blocked` without a sibling or network dependency
+- `smoke:status-artifact` reports `artifact_quality=pass`, `program_health=blocked`, and `health_consistency=consistent` for the blocked fixture without a sibling or network dependency; the test matrix also checks `pass` + `on_track` for the on-track fixture plus conservative risk/unknown and unsupported-health outcomes
 - all tests pass
 - pack dry run lists exactly the allowlisted files from `package.json` `files`
 - CLI version prints the new version; doctor reports all checks ok; bootstrap dry run asks for an anchor on an empty workspace
@@ -46,8 +46,8 @@ Releases are published by `.github/workflows/release.yml` using npm trusted publ
 1. **Published GitHub release (recommended):** push the version bump and changelog to `main`, create a GitHub release for the matching tag, and publish it:
 
    ```bash
-   git tag v0.2.1 && git push origin v0.2.1
-   # Create and publish the GitHub release for v0.2.1.
+   git tag v0.3.0 && git push origin v0.3.0
+   # Create and publish the GitHub release for v0.3.0.
    ```
 
 2. **Manual dispatch:** run the `Release` workflow from the Actions tab with the explicit required canonical `tag` input (e.g. `v0.2.1`). The input must be a `v`-prefixed semver tag; bare versions and `refs/tags/...` refs are rejected. The workflow checks out the exact tag from the input (never the default branch), verifies that `HEAD` is the tag's commit, and uses the full clone to resolve that commit.

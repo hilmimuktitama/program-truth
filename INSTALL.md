@@ -164,21 +164,34 @@ Expected files include:
 - `SKILL.md`
 - `README.md`
 - `INSTALL.md`
+- `LICENSE`
+- `SECURITY.md`
 - `CHANGELOG.md`
 - `MIGRATION.md`
-- `SECURITY.md`
 - `examples/example-INITIAL-CONTEXT.md`
+- `examples/example-WORKSPACE.md`
+- `examples/example-CLAUDE.md`
+- `examples/example-startup-single-tpm.md`
+- `examples/example-mid-size-multi-squad.md`
+- `examples/example-large-platform-heavy-org.md`
 - `examples/status-artifact.json`
+- `examples/status-artifact-on-track.json`
 - `examples/status-report.md`
 - `schemas/status-artifact.schema.json`
 - `schemas/source.schema.json`
 - `schemas/source-ref.schema.json`
 - `schemas/claim.schema.json`
+- `schemas/health-assessment.schema.json`
+- `schemas/timeline-item.schema.json`
+- `schemas/truth-review.schema.json`
 - `references/framework.md`
 - `references/init-bootstrap.md`
 - `references/archaeology-workflow.md`
 - `references/source-ranking-and-reconciliation.md`
 - `references/notion-adapter.md`
+- `docs/release-process.md`
+- `case-studies/historical-ab-case-study.md`
+- `evaluation/README.md`
 
 `program-truth doctor` verifies that these files are present in the package.
 
@@ -194,7 +207,7 @@ Supported usage assumes a client that can:
 
 Every status-critical action produces a machine-readable `status-artifact.json` (schema: `schemas/status-artifact.schema.json`, example: `examples/status-artifact.json`) and a human-readable Markdown report (example: `examples/status-report.md`).
 
-The artifact is the canonical `StatusArtifact` contract shared with Truth Tools: `kind`, `schema_version`, `as_of`, `initiative`, `policy` (observation age split from source-content age), `sources` (id, type, observed_at; metadata only), and reviewed `claims` (id, kind, state, text, `source_refs` with locators). The shipped schema files are byte-exact copies of the flagship truth-tools contracts; when the sibling truth-tools repository is present, `npm run check` and `npm run contracts:verify` deep-compare the copies and fail on drift.
+The artifact is the canonical `StatusArtifact` v2 contract shared with Truth Tools: `kind`, `schema_version: 2.0.0`, `as_of`, `initiative`, `policy` (observation age split from source-content age), `sources` (id, type, observed_at; metadata only), explicit `health_assessment` (state, owner, rationale, and source refs), and reviewed `claims` (id, kind, state, text, `source_refs` with locators). The shipped schema files are shared canonical copies; when the sibling truth-tools repository is present, `npm run check` and `npm run contracts:verify` compare the copies and fail on drift.
 
 The richer TPM methodology — system status vs functional status, facts vs inferences, source hierarchy and connector caveats, dependencies, and write confirmation — lives in the human report and methodology docs, not in unsupported machine fields.
 

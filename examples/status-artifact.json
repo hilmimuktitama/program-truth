@@ -1,6 +1,6 @@
 {
   "kind": "status_artifact",
-  "schema_version": "1.0.0",
+  "schema_version": "2.0.0",
   "as_of": "2026-08-11T09:00:00.000Z",
   "initiative": {
     "name": "Launch Readiness",
@@ -16,6 +16,14 @@
       "id": "jira-billing",
       "type": "jira",
       "url": "https://demo.atlassian.net/browse/BILL-920",
+      "observed_at": "2026-08-11T08:00:00.000Z",
+      "source_updated_at": "2026-08-11T08:00:00.000Z",
+      "owner": "Eng Lead A"
+    },
+    {
+      "id": "jira-billing-children",
+      "type": "jira-query-export",
+      "url": "https://demo.atlassian.net/issues/?jql=parent%20%3D%20BILL-920",
       "observed_at": "2026-08-11T08:00:00.000Z",
       "source_updated_at": "2026-08-11T08:00:00.000Z",
       "owner": "Eng Lead A"
@@ -53,6 +61,14 @@
       "owner": "Program Operator"
     }
   ],
+  "health_assessment": {
+    "state": "blocked",
+    "owner": "Program Operator",
+    "rationale": "An active quota API blocker prevents campaign integration validation and the release decision.",
+    "source_refs": [
+      { "source_id": "jira-quota", "locator": "https://demo.atlassian.net/browse/QUOTA-311" }
+    ]
+  },
   "claims": [
     {
       "id": "fact-billing-done",
@@ -62,7 +78,7 @@
       "value": "complete",
       "text": "All billing required tasks (children of BILL-920) are Done.",
       "source_refs": [
-        { "source_id": "jira-billing", "locator": "https://demo.atlassian.net/browse/BILL-920" }
+        { "source_id": "jira-billing-children", "locator": "https://demo.atlassian.net/issues/?jql=parent%20%3D%20BILL-920" }
       ]
     },
     {
