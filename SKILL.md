@@ -216,12 +216,12 @@ For `daily`, `status`, `archaeology`, `review`, `deps`, and `risks`, produce the
 When Truth Tools is not installed, state that the artifact has not been validated rather than claiming validation.
 
 The artifact is a canonical `StatusArtifact` and must carry, at minimum:
- - `kind` (`status_artifact`) and `schema_version` (`2.0.0`)
+- `kind` (`status_artifact`) and `schema_version` (`2.0.0`)
 - `as_of` (review cutoff timestamp) and `initiative` (`name`, `owner`, `objective`)
 - `policy` splitting observation age from source-content age (`max_observation_age_days`, `max_source_content_age_days`)
 - `sources` with stable `id`, `type`, and `observed_at`; raw source bodies never travel in the artifact
- - `health_assessment` with explicit `state`, `owner`, nonempty `rationale`, and canonical `source_refs`
- - `claims` as reviewed claims with explicit `id`, `kind` (`fact` | `blocker` | `risk` | `unknown`), `state`, and `text`
+- `health_assessment` with explicit `state`, `owner`, nonempty `rationale`, and canonical `source_refs`
+- `claims` as reviewed claims with explicit `id`, `kind` (`fact` | `blocker` | `risk` | `unknown`), `state`, and `text`
 - every claim cites `source_refs` with a concrete `locator` to an existing source id
 - every active blocker carries `owner` and `due_at`; every active risk carries `owner` and `mitigation`
 
