@@ -117,7 +117,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Check Links
-        uses: lycheeverse/lychee-action@v2.8.0
+        uses: lycheeverse/lychee-action@v2.9.0
         with:
           args: --root-dir ./ --no-progress --verbose './**/*.md'
           fail: true
